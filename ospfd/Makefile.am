@@ -9,12 +9,19 @@ libospf_la_LDFLAGS = -version-info 0:0:0
 
 sbin_PROGRAMS = ospfd
 
+if HAVE_OSPFD_DCN
+ospf_dcn_src = ospf_dcn.c
+ospf_dcn_inc = ospf_dcn.h
+else
+ospf_dcn_src =
+ospf_dcn_inc =
+endif
 libospf_la_SOURCES = \
 	ospfd.c ospf_zebra.c ospf_interface.c ospf_ism.c ospf_neighbor.c \
 	ospf_nsm.c ospf_dump.c ospf_network.c ospf_packet.c ospf_lsa.c \
 	ospf_spf.c ospf_route.c ospf_ase.c ospf_abr.c ospf_ia.c ospf_flood.c \
 	ospf_lsdb.c ospf_asbr.c ospf_routemap.c ospf_snmp.c \
-	ospf_opaque.c ospf_te.c ospf_vty.c ospf_api.c ospf_apiserver.c
+	ospf_opaque.c ospf_te.c ospf_vty.c ospf_api.c ospf_apiserver.c $(ospf_dcn_src)
 
 ospfdheaderdir = $(pkgincludedir)/ospfd
 
@@ -25,7 +32,7 @@ ospfdheader_HEADERS = \
 noinst_HEADERS = \
 	ospf_interface.h ospf_neighbor.h ospf_network.h ospf_packet.h \
 	ospf_zebra.h ospf_spf.h ospf_route.h ospf_ase.h ospf_abr.h ospf_ia.h \
-	ospf_flood.h ospf_snmp.h ospf_te.h ospf_vty.h ospf_apiserver.h
+	ospf_flood.h ospf_snmp.h ospf_te.h ospf_vty.h ospf_apiserver.h $(ospf_dcn_inc)
 
 ospfd_SOURCES = ospf_main.c
 

@@ -16,5 +16,8 @@
 *.so
 *.so.*
 *.bak
+*.Po
+*.in
+*.m4
 pkg/
 src/

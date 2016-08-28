@@ -1,0 +1,122 @@
+#! /bin/sh
+#
+#
+# Installation directories:目标文件安装目录
+LR_INSTALL1="/home/zhurish/Downloads/quagga"
+LR_INSTALL2="/app/rt-paltform/"
+#LR_PREFIX="--prefix=${LR_INSTALL} --localstatedir=${LR_INSTALL}/var "
+#
+#
+#System types:
+#  --build=BUILD     configure for building on BUILD [guessed]
+#  --host=HOST       cross-compile to build programs to run on HOST [BUILD]
+#  --target=TARGET   configure for building compilers for TARGET [HOST]
+#
+# for arm linux
+#
+#LR_TARGET="--build=i686 --host=arm-linux CC=arm-linux-gcc " 交叉编译为arm类型CPU
+#
+# for i686 linux(redhat) --target=i686-pc-linux-gnu (编译可执行文件名称前缀)
+#
+LR_TARGET1="--build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc "
+LR_TARGET2="--build=i686 --host=arm-linux CC=arm-linux-gcc "
+if [ $# != 1 ] ;then
+	echo "you may ./make-setup /x86/arm/oem"
+	exit 0
+fi
+case $1 in
+	"arm")
+	LR_INSTALL=$LR_INSTALL2
+	LR_TARGET=$LR_TARGET2
+	;;
+	"x86")
+	LR_INSTALL=$LR_INSTALL1
+	LR_TARGET=$LR_TARGET1
+	;;
+	*)
+        LR_INSTALL=$LR_INSTALL1
+        LR_TARGET=$LR_TARGET1
+	;;
+esac
+
+LR_PREFIX="--prefix=${LR_INSTALL} "
+# --localstatedir=${LR_INSTALL}/var "
+#
+# for user 
+#
+#LR_USER="--enable-user=root --enable-group=root --enable-tcp-zebra --enable-zebra --enable-vtysh "
+LR_USER="--enable-user=root --enable-group=root --enable-tcp-zebra --enable-zebra --disable-vtysh "
+#
+# libraries to pass to the linker
+#
+LR_LIB_CONFIG="LIBS=-lpthread "
+#
+# Optional Features:
+OSPF_DEP_VER="-disable-opaque-lsa --disable-ospf-te "
+
+#
+LR_CONFIG_1="--disable-ripd  --disable-pimd --disable-ospf6d --disable-ripngd "
+LR_CONFIG_2="--disable-rtadv --disable-irdp "
+LR_CONFIG_3="--enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn ${OSPF_DEP_VER}"
+LR_CONFIG_4="--disable-bgpd --disable-isisd --disable-isis-topology "
+LR_CONFIG_5="--enable-fpm  "
+LR_CONFIG_6="--enable-configfile-mask=0664 --enable-logfile-mask=0664"
+
+LR_CONFIG_7="--includedir=/home/zhurish/Downloads/work-dcn/linux-2.6.28.7/include "
+#
+# enable SNMP support (smux or agentx)
+#
+#LR_SNMP=" --enable-snmp=agentx"
+LR_SNMP=""
+#
+#
+#
+LR_CONFIG=${LR_CONFIG_1}${LR_CONFIG_2}${LR_CONFIG_3}${LR_CONFIG_4}${LR_CONFIG_5}${LR_CONFIG_6}${LR_SNMP}
+#
+#
+if [ $# -eq 1 ];then
+case $1 in
+	"oem")
+# make oem.bin file information
+#
+	
+	LR_OEM=${LR_INSTALL}/etc/oem.bin
+	rm -f ${LR_OEM}
+	LR_VER=`cat git-version.txt`
+	LR_DATE=`date +"%Y-%m-%d"`
+#
+#
+	echo "make oem information file:$LR_OEM"
+
+	echo "
+	Hello, this is routing-plaform (version ${LR_VER}).
+	Copyright 2014/11 - ${LR_DATE} zhurish(zhurish@163.com), et al.
+	Design it Base on (Quagga 1.0.20160305). " >>$LR_OEM
+	;;
+	"arm")
+	;;
+	"x86")
+	;;
+	*)
+	echo "eg: make-setup oem"
+	exit 0
+	;;
+esac
+fi
+#
+#
+#
+#
+#
+echo ""
+echo ./configure ${LR_PREFIX}${LR_TARGET}${LR_USER}${LR_CONFIG} ${LR_LIB_CONFIG}
+echo ""
+#
+#
+./configure ${LR_PREFIX}${LR_TARGET}${LR_USER}${LR_CONFIG} ${LR_LIB_CONFIG}
+#
+#
+#
+#
+#
+

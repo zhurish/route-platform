@@ -277,6 +277,11 @@ AC_ARG_ENABLE(pcreposix,
   AS_HELP_STRING([--enable-pcreposix], [enable using PCRE Posix libs for regex functions]))
 AC_ARG_ENABLE(fpm,
   AS_HELP_STRING([--enable-fpm], [enable Forwarding Plane Manager support]))
+dnl ------------------------------ zhurish
+AC_ARG_ENABLE(ospf-dcn,
+  AS_HELP_STRING([--enable-ospf-dcn], [build ospfd witch dcn support]))   
+    
+dnl ------------------------------ zhurish
 
 if test x"${enable_gcc_ultra_verbose}" = x"yes" ; then
   CFLAGS="${CFLAGS} -W -Wcast-qual -Wstrict-prototypes"
@@ -1530,6 +1535,17 @@ AC_DEFINE_UNQUOTED(BABEL_VTYSH_PATH, "$quagga_statedir/babeld.vty",babeld vty so
 AC_DEFINE_UNQUOTED(ISIS_VTYSH_PATH, "$quagga_statedir/isisd.vty",isisd vty socket)
 AC_DEFINE_UNQUOTED(PIM_VTYSH_PATH, "$quagga_statedir/pimd.vty",pimd vty socket)
 AC_DEFINE_UNQUOTED(DAEMON_VTY_DIR, "$quagga_statedir",daemon vty directory)
+
+if test "${enable_ospf_dcn}" = "yes";then
+	if test "${enable_opaque_lsa}" = "no";then
+  		AC_DEFINE(HAVE_OPAQUE_LSA,,OSPF Opaque LSA)
+	fi
+	if test "${enable_ospf_te}" = "no";then
+  		AC_DEFINE(HAVE_OSPF_TE,,OSPF TE)
+	fi
+	AC_DEFINE(HAVE_OSPFD_DCN,1,enable ospf explain lsa )  
+fi
+AM_CONDITIONAL([HAVE_OSPFD_DCN], [test "x$enable_ospf_dcn" = "xyes"])
 
 dnl -------------------------------
 dnl Quagga sources should always be 

@@ -323,7 +323,14 @@ ospf_interface_address_delete (int command, struct zclient *zclient,
 
   return 0;
 }
-
+#ifdef HAVE_OSPFD_DCN
+/*
+ * ÓÃÓÚOSPFÑ§Ï°µœÂ·ÓÉºóÌíŒÓŸ²Ì¬ARP±í£¬OSPFÑ§Ï°µœµÄÂ·ÓÉÊÇÖ±Á¬Â·ÓÉ£ºÏÂÒ»ÌøµØÖ·Îª0£¬Ö»ÓÐÏÂÒ»Ìø³ö¿Ú
+ * Ä¿µÄµØÖ·£¬ÓÃÓÚÌíŒÓŸ²Ì¬ARP±í
+ * º¯ÊýÔÚospf_dcn.cÎÄŒþ¶šÒå£¬
+ */
+extern int ospf_zebra_auto_arp(int type, struct prefix_ipv4 *p, char *mac, char *ifname);
+#endif /* HAVE_OSPFD_DCN */
 void
 ospf_zebra_add (struct prefix_ipv4 *p, struct ospf_route *or)
 {
@@ -367,7 +374,9 @@ ospf_zebra_add (struct prefix_ipv4 *p, struct ospf_route *or)
 
       /* Nexthop count. */
       stream_putc (s, or->paths->count);
-
+#ifdef HAVE_OSPFD_DCN
+  	  ospf_zebra_auto_arp(1, (struct prefix_ipv4 *)p, NULL, NULL);
+#endif /* HAVE_OSPFD_DCN */
       /* Nexthop, ifindex, distance and metric information. */
       for (ALL_LIST_ELEMENTS_RO (or->paths, node, path))
         {
@@ -454,7 +463,9 @@ ospf_zebra_delete (struct prefix_ipv4 *p, struct ospf_route *or)
       psize = PSIZE (p->prefixlen);
       stream_putc (s, p->prefixlen);
       stream_write (s, (u_char *) & p->prefix, psize);
-
+#ifdef HAVE_OSPFD_DCN
+  	  ospf_zebra_auto_arp(0, (struct prefix_ipv4 *)p, NULL, NULL);
+#endif /* HAVE_OSPFD_DCN */
       /* Nexthop count. */
       stream_putc (s, or->paths->count);
 

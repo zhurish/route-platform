@@ -66,6 +66,10 @@
 #include "ospfd/ospf_te.h"
 #endif /* HAVE_OSPF_TE */
 
+#ifdef HAVE_OSPFD_DCN
+#include "ospfd/ospf_dcn.h"
+#endif /* HAVE_OSPFD_DCN */
+
 #ifdef SUPPORT_OSPF_API
 int ospf_apiserver_init (void);
 void ospf_apiserver_term (void); 
@@ -91,7 +95,10 @@ ospf_opaque_init (void)
   if (ospf_mpls_te_init () != 0)
     exit (1);
 #endif /* HAVE_OSPF_TE */
-
+#ifdef HAVE_OSPFD_DCN
+  if (ospf_dcn_init () != 0)
+    exit (1);
+#endif /* HAVE_OSPFD_DCN */
 #ifdef SUPPORT_OSPF_API
   if ((ospf_apiserver_enable) && (ospf_apiserver_init () != 0))
     exit (1);
@@ -106,7 +113,9 @@ ospf_opaque_term (void)
 #ifdef HAVE_OSPF_TE
   ospf_mpls_te_term ();
 #endif /* HAVE_OSPF_TE */
-
+#ifdef HAVE_OSPFD_DCN
+  ospf_dcn_term () ;
+#endif /* HAVE_OSPFD_DCN */
 #ifdef SUPPORT_OSPF_API
   ospf_apiserver_term ();
 #endif /* SUPPORT_OSPF_API */

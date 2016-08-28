@@ -1738,6 +1738,17 @@ ospf_ls_upd (struct ip *iph, struct ospf_header *ospfh,
 		 LOOKUP(ospf_nsm_state_msg, nbr->state));
       return;
     }
+#ifdef HAVE_OSPFD_DCN
+  /*
+   * ÓÃÓÚ»ñÈ¡»ñÈ¡Á¬œÓÁÚŸÓµÄMACµØÖ·ºÍÁÚŸÓIPµØÖ·
+   * ÓÃÓÚÉèÖÃŸ²Ì¬ARP±íÏî£¬ºÍÉèÖÃÖ±Á¬Â·ÓÉ
+   * º¯ÊýÔÚospf_dcn.c¶šÒå
+   */  
+  extern int ospf_dcn_link_nbr_nbrmac(struct in_addr nbrIp, char *srcIfname,char *mac);
+  
+  ospf_dcn_link_nbr_nbrmac(nbr->src, NULL, NULL);
+  //zlog_debug("ZKX: %s %s",inet_ntoa (nbr->src), neigborMac);
+#endif /* HAVE_OSPFD_DCN */
 
   /* Get list of LSAs from Link State Update packet. - Also perorms Stages 
    * 1 (validate LSA checksum) and 2 (check for LSA consistent type) 

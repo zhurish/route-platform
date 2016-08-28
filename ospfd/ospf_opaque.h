@@ -83,6 +83,11 @@
 #define OPAQUE_TYPE_SECONDARY_NEIGHBOR_DISCOVERY	224
 #define OPAQUE_TYPE_FLOODGATE                           225
 
+#ifdef HAVE_OSPFD_DCN
+/* Flooding DCN Info. by zkx 2016-1-11*/
+#define OPAQUE_TYPE_FLOODDCNINFO				202
+#endif /* HAVE_OSPFD_DCN */
+
 /* Ugly hack to make use of an unallocated value for wildcard matching! */
 #define OPAQUE_TYPE_WILDCARD				0
 
