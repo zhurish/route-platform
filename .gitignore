@@ -8,6 +8,13 @@
 *.log
 *.log.*
 *.sig
-
+*.o
+*.lo
+*.Plo
+*.a
+*.la
+*.so
+*.so.*
+*.bak
 pkg/
 src/
