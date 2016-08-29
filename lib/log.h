@@ -54,6 +54,19 @@ typedef enum
   ZLOG_OSPF6,
   ZLOG_ISIS,
   ZLOG_PIM,
+/* 2016年6月27日 21:05:11 zhurish: 扩展路由协议后定义LOG信息节点 */
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+  ZLOG_OLSR,
+  ZLOG_HSLS,  
+  ZLOG_ICRP,
+  ZLOG_FRP,
+#endif//HAVE_EXPAND_ROUTE_PLATFORM
+/* 2016年6月27日 21:05:11 zhurish: 扩展路由协议后定义LOG信息节点 */
+/* 2016年6月27日 21:05:43  zhurish: 使能IMI Module模块后定义IMI Module单元的LOG信息节点 */
+#ifdef IMISH_IMI_MODULE
+  ZLOG_IMISH,
+#endif /* IMISH_IMI_MODULE */
+/* 2016年6月27日 21:05:43  zhurish: 使能IMI Module模块后定义IMI Module单元的LOG信息节点 */
   ZLOG_MASC
 } zlog_proto_t;
 

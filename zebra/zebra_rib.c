@@ -52,12 +52,38 @@ extern struct zebra_t zebrad;
 int rib_process_hold_time = 10;
 
 /* Each route type's string and default distance value. */
+#ifdef IMISH_IMI_MODULE
+static  struct
+#else //IMISH_IMI_MODULE
 static const struct
+#endif// IMISH_IMI_MODULE
 {  
   int key;
   int distance;
 } route_info[ZEBRA_ROUTE_MAX] =
 {
+/* 2016年6月27日 21:25:59 zhurish: 使能IMI Module模块后增加修改路由默认管理距离的操作 */
+#ifdef IMISH_IMI_MODULE
+  [ZEBRA_ROUTE_SYSTEM]  = {ZEBRA_ROUTE_SYSTEM,    ZEBRA_SYSTEM_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_KERNEL]  = {ZEBRA_ROUTE_KERNEL,    ZEBRA_KERNEL_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_CONNECT] = {ZEBRA_ROUTE_CONNECT,   ZEBRA_CONNECT_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_STATIC]  = {ZEBRA_ROUTE_STATIC,    ZEBRA_STATIC_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_RIP]     = {ZEBRA_ROUTE_RIP,     ZEBRA_RIP_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_RIPNG]   = {ZEBRA_ROUTE_RIPNG,   ZEBRA_RIPNG_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_OSPF]    = {ZEBRA_ROUTE_OSPF,    ZEBRA_OSPF_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_OSPF6]   = {ZEBRA_ROUTE_OSPF6,   ZEBRA_OSPF6_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_ISIS]    = {ZEBRA_ROUTE_ISIS,    ZEBRA_ISIS_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_BGP]     = {ZEBRA_ROUTE_BGP,      ZEBRA_EBGP_DISTANCE_DEFAULT  /* IBGP is 200. */},
+  [ZEBRA_ROUTE_PIM]    = {ZEBRA_ROUTE_PIM,    ZEBRA_PIM_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_HSLS]   = {ZEBRA_ROUTE_HSLS,   ZEBRA_HSLS_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_OLSR]    = {ZEBRA_ROUTE_OLSR,    ZEBRA_OLSR_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_BABEL]   = {ZEBRA_ROUTE_BABEL,    ZEBRA_BABEL_DISTANCE_DEFAULT},
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM  
+  [ZEBRA_ROUTE_ICRP]    = {ZEBRA_ROUTE_ICRP,    ZEBRA_ICRP_DISTANCE_DEFAULT},
+  [ZEBRA_ROUTE_FRP]   = {ZEBRA_ROUTE_FRP,    ZEBRA_FRP_DISTANCE_DEFAULT},
+#endif  
+
+#else //IMISH_IMI_MODULE
   [ZEBRA_ROUTE_SYSTEM]  = {ZEBRA_ROUTE_SYSTEM,    0},
   [ZEBRA_ROUTE_KERNEL]  = {ZEBRA_ROUTE_KERNEL,    0},
   [ZEBRA_ROUTE_CONNECT] = {ZEBRA_ROUTE_CONNECT,   0},
@@ -69,6 +95,8 @@ static const struct
   [ZEBRA_ROUTE_ISIS]    = {ZEBRA_ROUTE_ISIS,    115},
   [ZEBRA_ROUTE_BGP]     = {ZEBRA_ROUTE_BGP,      20  /* IBGP is 200. */},
   [ZEBRA_ROUTE_BABEL]   = {ZEBRA_ROUTE_BABEL,    95},
+#endif// IMISH_IMI_MODULE
+/* 2016年6月27日 21:25:59  zhurish: 使能IMI Module模块后增加修改路由默认管理距离的操作 */
   /* no entry/default: 150 */
 };
 
@@ -1619,6 +1647,27 @@ meta_queue_process (struct work_queue *dummy, void *data)
  * Map from rib types to queue type (priority) in meta queue
  */
 static const u_char meta_queue_map[ZEBRA_ROUTE_MAX] = {
+/* 2016年6月27日 21:27:05 zhurish: 使能IMI Module模块后增加扩展路由协议数据队列映射 */
+#ifdef IMISH_IMI_MODULE
+  [ZEBRA_ROUTE_SYSTEM]  = 4,
+  [ZEBRA_ROUTE_KERNEL]  = 0,
+  [ZEBRA_ROUTE_CONNECT] = 0,
+  [ZEBRA_ROUTE_STATIC]  = 1,
+  [ZEBRA_ROUTE_RIP]     = 2,
+  [ZEBRA_ROUTE_RIPNG]   = 2,
+  [ZEBRA_ROUTE_OSPF]    = 2,
+  [ZEBRA_ROUTE_OSPF6]   = 2,
+  [ZEBRA_ROUTE_ISIS]    = 2,
+  [ZEBRA_ROUTE_BGP]     = 3,
+  [ZEBRA_ROUTE_PIM]    = 1,
+  [ZEBRA_ROUTE_HSLS]    = 4,
+  [ZEBRA_ROUTE_OLSR]    = 2,
+  [ZEBRA_ROUTE_BABEL]   = 2,
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM  
+  [ZEBRA_ROUTE_ICRP]    = 2,
+  [ZEBRA_ROUTE_FRP]   = 2,
+#endif
+#else// IMISH_IMI_MODULE
   [ZEBRA_ROUTE_SYSTEM]  = 4,
   [ZEBRA_ROUTE_KERNEL]  = 0,
   [ZEBRA_ROUTE_CONNECT] = 0,
@@ -1631,6 +1680,8 @@ static const u_char meta_queue_map[ZEBRA_ROUTE_MAX] = {
   [ZEBRA_ROUTE_BGP]     = 3,
   [ZEBRA_ROUTE_HSLS]    = 4,
   [ZEBRA_ROUTE_BABEL]   = 2,
+#endif// IMISH_IMI_MODULE
+/* 2016年6月27日 21:27:05  zhurish: 使能IMI Module模块后增加扩展路由协议数据队列映射 */
 };
 
 /* Look into the RN and queue it into one or more priority queues,
@@ -3480,3 +3531,155 @@ rib_tables_iter_next (rib_tables_iter_t *iter)
 
   return table;
 }
+/* 2016年6月27日 21:28:27 zhurish: 使能IMI Module模块后增加用于设置显示路由默认管理距离的功能 */
+#ifdef IMISH_IMI_MODULE
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+#include "vty.h"
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+static  struct
+{  
+  int key;
+  int distance;
+} route_info_back[ZEBRA_ROUTE_MAX];
+
+int zebra_route_update_default_distance(int type, int value)
+{
+  static int flag = 0;
+  if(flag == 0)
+  {
+    memcpy(route_info_back, route_info, sizeof(route_info_back));
+    flag = 1;
+  }
+	if( (type >= ZEBRA_ROUTE_SYSTEM)&&
+		(type < ZEBRA_ROUTE_MAX)&&
+		(route_info[type].key == type) )
+		{
+		   if(value == -1) 
+		    route_info[type].distance = route_info_back[type].distance;
+		   else 
+			route_info[type].distance = value;
+			return CMD_SUCCESS;
+		}
+	return CMD_WARNING;
+}
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+int zebra_route_default_distance_show(int type, struct vty *vty)
+{
+	int index = 0;
+	if(!type)
+	{
+		//vty_out (vty, "%s	default distance of routing %s",VTY_NEWLINE,  VTY_NEWLINE);	
+		vty_out (vty, "%s	%-10s %s  %s%s",VTY_NEWLINE,"routing","default distance"," val",VTY_NEWLINE);	
+		vty_out (vty, "	---------- -----------------  ---%s",VTY_NEWLINE);			
+	}
+	
+	for(index = 0; index < ZEBRA_ROUTE_MAX; index ++)
+	{
+		if(type)
+		{
+			switch (route_info[index].key)
+			{
+			case ZEBRA_ROUTE_SYSTEM:
+				if(route_info[index].distance != ZEBRA_SYSTEM_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_KERNEL:
+				if(route_info[index].distance != ZEBRA_KERNEL_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_CONNECT:
+				if(route_info[index].distance != ZEBRA_CONNECT_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_STATIC:
+				if(route_info[index].distance != ZEBRA_STATIC_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_RIP:
+				if(route_info[index].distance != ZEBRA_RIP_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_RIPNG:
+				if(route_info[index].distance != ZEBRA_RIPNG_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_OSPF:
+				if(route_info[index].distance != ZEBRA_OSPF_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_OSPF6:
+				if(route_info[index].distance != ZEBRA_OSPF6_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_ISIS:
+				if(route_info[index].distance != ZEBRA_ISIS_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_BGP:
+				if(route_info[index].distance != ZEBRA_EBGP_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_PIM:
+				if(route_info[index].distance != ZEBRA_PIM_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_HSLS:
+				if(route_info[index].distance != ZEBRA_HSLS_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_OLSR:
+				if(route_info[index].distance != ZEBRA_OLSR_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_BABEL:
+				if(route_info[index].distance != ZEBRA_BABEL_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM				
+			case ZEBRA_ROUTE_ICRP:
+				if(route_info[index].distance != ZEBRA_ICRP_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+			case ZEBRA_ROUTE_FRP:
+				if(route_info[index].distance != ZEBRA_FRP_DISTANCE_DEFAULT)
+					vty_out (vty, "ip protocol %s	default-distance %d%s", zebra_route_string(route_info[index].key), 
+						route_info[index].distance, VTY_NEWLINE);
+				break;
+#endif				
+			default:
+				break;
+			}
+		}
+		else
+		{
+		  if( (index != ZEBRA_ROUTE_MANAGE)&&(index != ZEBRA_ROUTE_SWITCH) )
+		    if(index > 1 && route_info[index].key != 0)
+			vty_out (vty, "	%-10s default-distance:  %d%s", zebra_route_string(route_info[index].key), 
+				route_info[index].distance, VTY_NEWLINE);
+		}
+	}
+   return CMD_SUCCESS;
+}	
+
+#endif// IMISH_IMI_MODULE
+/* 2016年6月27日 21:28:27  zhurish: 使能IMI Module模块后增加用于设置显示路由默认管理距离的功能 */

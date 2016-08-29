@@ -69,6 +69,11 @@ enum node_type
   ENABLE_NODE,			/* Enable node. */
   CONFIG_NODE,			/* Config node. Default mode of config file. */
   SERVICE_NODE, 		/* Service node. */
+/* 2016年6月27日 21:01:23 zhurish: 使能IMI Module统一CLI管理界面的时候增加执行linux内核单元的命令节点 */
+#ifdef IMISH_IMI_MODULE  
+  LINUX_SHELL_NODE,			/* IMI Module protocol node. */
+#endif//IMISH_IMI_MODULE   
+/* 2016年6月27日 21:01:23  zhurish: 使能IMI Module统一CLI管理界面的时候增加执行linux内核单元的命令节点 */
   DEBUG_NODE,			/* Debug node. */
   AAA_NODE,			/* AAA node. */
   KEYCHAIN_NODE,		/* Key-chain node. */
@@ -89,6 +94,14 @@ enum node_type
   OSPF6_NODE,			/* OSPF protocol for IPv6 mode */
   ISIS_NODE,			/* ISIS protocol mode */
   PIM_NODE,			/* PIM protocol mode */
+/* 2016年6月27日 21:02:05 zhurish: 扩展路由协议增加命令节点 */
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM  
+  HSLS_NODE,			/* HSLS protocol node. */
+  OLSR_NODE,			/* OLSR protocol node. */
+  ICRP_NODE,		/* ICRP protocol node. */
+  FRP_NODE,                /* FRP protocol node */
+#endif//#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+/* 2016年6月27日 21:02:05  zhurish: 扩展路由协议增加命令节点 */
   MASC_NODE,			/* MASC for multicast.  */
   IRDP_NODE,			/* ICMP Router Discovery Protocol mode. */ 
   IP_NODE,			/* Static ip route node. */

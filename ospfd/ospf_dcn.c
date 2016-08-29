@@ -41,7 +41,6 @@
 #include "sockunion.h"		/* for inet_aton() */
 #include "privs.h"
 
-
 #ifdef HAVE_OSPFD_DCN
 
 #include "ospfd/ospfd.h"
@@ -59,6 +58,7 @@
 #include "ospfd/ospf_route.h"
 #include "ospfd/ospf_ase.h"
 #include "ospfd/ospf_zebra.h"
+
 #include "ospfd/ospf_dcn.h"
 
 
@@ -79,8 +79,17 @@ static void ospf_dcn_link_lsa_schedule (struct dcn_link *lp, enum sched_opcode o
 
 static struct ospf_lsa * ospf_dcn_link_lsa_install (struct ospf_area *area, struct dcn_link *lp, int flood);
 /*******************************************************************************************/
-enum sched_event { UPDATE_THIS_LSA, FLOOD_THIS_LSA, INSTALL_THIS_LSA, DELETE_THIS_LSA };
-static int ospf_dcn_link_foreach_area (int event,  void (*func)(void *, void *));
+enum sched_event { 
+	DELETE_LOCAL_LSA 	= 0, 	/*删除本地LSA*/
+	DELETE_ALL_LSA 		= 1,	/*删除所有LSA*/
+	DELETE_OTHER_LSA 	= 2,	/*删除非本地LSA*/
+	
+	UPDATE_LINK_LSA 	= 6, /*刷新本地LSA*/
+	FLOOD_LINK_LSA		= 7, /*泛洪本地LSA*/
+	INSTALL_LINK_LSA	= 8, /*安装本地LSA*/
+	UPDATE_LINK_LSA_REQ	= 9, /*发送LSR请求*/
+};
+static int ospf_dcn_link_foreach_area (enum sched_event event,  void (*func)(void *, void *));
 /*******************************************************************************************/
 int ospf_dcn_debug = 0;
 /*******************************************************************************************/
@@ -102,6 +111,30 @@ static int dcn_link_is_loopback (struct interface *ifp)
 	if(strcmp(ifp->name,"lo")==0)
 		return 1;
 	return 0;
+}
+/*****************************************************************************
+* function	: ospf_if_lookup_by_ifp
+* declare	: 根据 interface 查找 ospf_interface 接口
+* input	: 
+* output	: 
+* return	: 
+* other	: 
+* auther	: zhurish (zhurish@163.com)
+* create 	: 2016/8/17 14:33:55
+*****************************************************************************/
+static struct ospf_interface * ospf_if_lookup_by_ifp (struct ospf *ospf,struct interface *ifp)
+{
+  struct listnode *node;
+  struct ospf_interface *oi;
+
+  for (ALL_LIST_ELEMENTS_RO (ospf->oiflist, node, oi))
+    if (oi->type != OSPF_IFTYPE_VIRTUALLINK)
+      {
+    	if (ifp && oi->ifp->ifindex == ifp->ifindex)
+    		return oi;
+      }
+
+  return NULL;
 }
 /*****************************************************************************
 * function	: set_dcn_router_addr
@@ -365,7 +398,7 @@ static unsigned long ospf_dcn_link_ip_address(struct interface   *ifp)
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: 初始化接口的DCN LINK数据，并设置已经初始化完毕标识
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:32:11
 *****************************************************************************/
@@ -425,7 +458,8 @@ static struct dcn_link *ospf_dcn_link_lookup_by_ifp (struct interface *ifp)
   if(ifp == NULL)
 	  return NULL;
   for (ALL_LIST_ELEMENTS (OspfDcn.iflist, node, nnode, lp))
-    if (lp && lp->ifp && lp->ifp->ifindex == ifp->ifindex)
+    //if (lp && lp->ifp && lp->ifp->ifindex == ifp->ifindex)
+	  if (lp && lp->ifp && lp->ifp == ifp)
       return lp;
   if(IS_OSPF_DCN_EVENT_DEBUG)
 	  zlog_warn ("can not lookup dcn link by interface:%s", ifp->name);
@@ -496,32 +530,36 @@ static u_int32_t ospf_dcn_link_get_instance (void)
 *****************************************************************************/
 static int ospf_dcn_link_new_hook (struct interface *ifp)
 {
-  struct dcn_link *new;
+  struct dcn_link *lp = NULL;
   if(ifp == NULL)
 	  return -1;
   
   if(if_is_loopback(ifp))
   	return -1;
   /*确认这个接口是否已经创建*/
+  
   if (ospf_dcn_link_lookup_by_ifp (ifp) != NULL)
     {
       zlog_warn ("%s: %s already in use?", __func__,ifp->name);
       return -1;
     }
-  new = XCALLOC (MTYPE_OSPF_IF,sizeof (struct dcn_link));
-  if (new == NULL)
+  
+  lp = XCALLOC (MTYPE_OSPF_IF,sizeof (struct dcn_link));
+  if (lp == NULL)
     {
       zlog_warn ("%s: XMALLOC: %s", __func__,safe_strerror (errno));
       return -1;
     }
-  memset(new, 0, sizeof(struct dcn_link));
-  new->area = NULL;
-  new->instance = ospf_dcn_link_get_instance ();
-  new->ifp = ifp;
+  memset(lp, 0, sizeof(struct dcn_link));
+  lp->area = NULL;
+  lp->instance = ospf_dcn_link_get_instance ();
+  lp->ifp = ifp;
+  //lp->ifp->ifindex = ifp->ifindex;
   
   GT_DEBUG("%s:create an interface :%s\n",__func__,ifp->name);
   /*把接口加入DCN LINK数据链表*/
-  listnode_add (OspfDcn.iflist, new);
+  listnode_add (OspfDcn.iflist, lp);
+  ospf_dcn_link_initialize (lp);
   /* Schedule Opaque-LSA refresh. *//* XXX */
   return 0;
 }
@@ -556,7 +594,7 @@ static int ospf_dcn_link_del_hook (struct interface *ifp)
 }
 /*****************************************************************************
 * function	: ospf_dcn_link_lsa_lookup
-* declare	: 根据接口相关参数查找接口的LSA（本地）
+* declare	: 根据接口相关参数查找接口的本地LSA
 * input	: 
 * output	: 
 * return	: 
@@ -584,7 +622,7 @@ static struct ospf_lsa *ospf_dcn_link_lsa_lookup(struct dcn_link *lp)
 }
 /*****************************************************************************
 * function	: ospf_dcn_link_lsa_local_flush
-* declare	: 根据接口参数强制删除本地LSA
+* declare	: 根据接口参数强制删除LSA,当LSA为空的时候表示删除本地LSA
 * input	: 
 * output	: 
 * return	: 
@@ -596,10 +634,12 @@ static int ospf_dcn_link_lsa_local_flush(struct dcn_link *lp, struct ospf_lsa *l
 {
 	int maxage_delay = 0;
 	struct ospf_lsa *dcn_lsa = NULL;
+	/*输入参数为空，表示删除本地LSA*/
 	if(lsa == NULL)
 		dcn_lsa = ospf_dcn_link_lsa_lookup(lp);
 	else
-		dcn_lsa = lsa;		
+		dcn_lsa = lsa;	
+	
 	if(dcn_lsa && lp && lp->ifp && lp->area && lp->area->ospf)
 	{
 		/* Unregister LSA from Refresh queue. */
@@ -618,21 +658,26 @@ static int ospf_dcn_link_lsa_local_flush(struct dcn_link *lp, struct ospf_lsa *l
 }
 /*****************************************************************************
 * function	: ospf_dcn_link_lsa_flush
-* declare	: 根据接口参数强制删除接口的所有LSA
-* input	: 
+* declare	: 根据接口参数强制删除接口LSA,
+* input	: 当type=1表示删除所有，当type=0表示删除本地，type=2表示删除非本地的
 * output	: 
 * return	: 
 * other	: 
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:32:50
 *****************************************************************************/
-static int ospf_dcn_link_lsa_flush(struct dcn_link *lp)
+static int ospf_dcn_link_lsa_flush(struct dcn_link *lp, int type)
 {
 	struct prefix_ls lps;	
 	struct route_table *table = NULL;
 	struct route_node *rn = NULL;
 	struct route_node *start = NULL;
 	struct ospf_lsa *lsa = NULL;
+	if(lp == NULL || lp->area == NULL || lp->area->lsdb == NULL || /*lp->ifp == NULL || */lp->ifp == NULL)
+		return 0;
+	/*删除本地LSA*/
+	if(type == 0)
+		return ospf_dcn_link_lsa_local_flush(lp, NULL);
 	
 	memset (&lps, 0, sizeof (struct prefix_ls));
 	lps.family = 0;
@@ -655,9 +700,16 @@ static int ospf_dcn_link_lsa_flush(struct dcn_link *lp)
 			        
 				if(OPAQUE_TYPE_FLOODDCNINFO != GET_OPAQUE_TYPE (ntohl (lsa->data->id.s_addr)))
 					continue;
-			    /*找到OSPF DCN的LSA*/
-				ospf_dcn_link_lsa_local_flush(lp, lsa);
-
+				/*找到OSPF DCN的LSA*/
+				if(type == 2)
+				{
+					/*删除接口内所有非本地LSA*/
+					if(lp->area->ospf->router_id.s_addr != lsa->data->adv_router.s_addr)
+						ospf_dcn_link_lsa_local_flush(lp, lsa);
+				}
+				/*删除接口内所有LSA*/
+				else
+					ospf_dcn_link_lsa_local_flush(lp, lsa);
 			} 
 			route_unlock_node (start);
 		}
@@ -715,8 +767,8 @@ static void ospf_dcn_link_ism_change_hook_handle (struct ospf_interface *oi, int
 		  GT_DEBUG("%s: %s delete area id\n",__func__,IF_NAME (oi));
 		  if(lp->install_lsa == 1)
 		  {
-			  ospf_dcn_link_lsa_flush(lp);/*删除接口内所有LSA*/
-			  lp->install_lsa = 0;
+			  ospf_dcn_link_lsa_flush(lp, DELETE_OTHER_LSA);/*删除接口内所有非本地LSA*/
+			  //lp->install_lsa = 0;
 		  }
 		  lp->area = NULL;
 	  }
@@ -727,8 +779,8 @@ static void ospf_dcn_link_ism_change_hook_handle (struct ospf_interface *oi, int
 		  GT_DEBUG("%s: %s ip address change\n",__func__,IF_NAME (oi));
 		  if(lp->install_lsa == 1)
 		  {
+			  ospf_dcn_link_lsa_flush(lp, DELETE_ALL_LSA);/*删除接口内所有LSA*/
 			  lp->install_lsa = 0;
-			  ospf_dcn_link_lsa_flush(lp);/*删除接口内所有LSA*/
 		  }
 		  else //if(lp->isInitialed == 1 && lp->install_lsa == 0)
 		  {
@@ -765,7 +817,7 @@ void ospf_dcn_link_ism_change_hook (struct ospf_interface *oi, int old_state)
   /*DCN功能没有启动，返回*/
   if (OspfDcn.status == disabled)
   {
-	  GT_DEBUG ("%s: DCN is disabled now.\n",__func__,oi->ifp->name);
+	  GT_DEBUG ("%s: DCN is disabled now on %s.\n",__func__,oi->ifp->name);
       return ;
   }
   GT_DEBUG("%s: ==========================================:%s\n ",__func__,oi->ifp->name);
@@ -835,8 +887,8 @@ void ospf_dcn_link_ism_change_hook (struct ospf_interface *oi, int old_state)
       {/* 当前接口已经安装LSA，现在接口状态发生变化，强行删除接口的所有LSA */
     	  if(lp->install_lsa == 1 && lp->area && lp->enable == 1 )
     	  {
-    		  ospf_dcn_link_lsa_flush(lp);
-    		  lp->install_lsa = 0;
+    		  ospf_dcn_link_lsa_flush(lp, DELETE_OTHER_LSA);//删除所有非本地LSA
+    		  //lp->install_lsa = 0;
     	  } 
       }
       break;
@@ -889,7 +941,7 @@ static void ospf_dcn_link_nsm_change_hook (struct ospf_neighbor *nbr, int old_st
 				zlog_warn ("%s: Cannot get %s dcn link ?", __func__,nbr->oi->ifp->name);
 				return;
 			}
-			ospf_dcn_link_lsa_flush(lp);
+			ospf_dcn_link_lsa_flush(lp, DELETE_OTHER_LSA);//删除所有非本地LSA
 		}
 		break;
 
@@ -910,7 +962,7 @@ static void ospf_dcn_link_nsm_change_hook (struct ospf_neighbor *nbr, int old_st
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: 安装本地LSA并在区域内泛洪
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:33:12
 *****************************************************************************/
@@ -958,7 +1010,7 @@ static int ospf_dcn_link_lsa_originate_sublayer (struct ospf_area *area, struct 
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: 安装LSA钩子函数
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:33:16
 *****************************************************************************/
@@ -1030,7 +1082,7 @@ static int ospf_dcn_link_lsa_originate_hook (void *arg)
 *****************************************************************************/
 struct ospf_lsa * ospf_dcn_link_lsa_refresh_hook (struct ospf_lsa *lsa)
 {
-  int lsa_seqnum = 0;
+  //int lsa_seqnum = 0;
   struct dcn_link *lp;
   struct ospf_area *area = lsa->area;
   struct ospf_lsa *new = NULL;
@@ -1103,7 +1155,7 @@ struct ospf_lsa * ospf_dcn_link_lsa_refresh_hook (struct ospf_lsa *lsa)
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: OSPF DCN功能配置写文件钩子函数
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:33:27
 *****************************************************************************/
@@ -1128,7 +1180,7 @@ static void ospf_dcn_link_config_write_router_hook (struct vty *vty)
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: OSPF DCN功能接口配置写文件钩子函数
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:33:32
 *****************************************************************************/
@@ -1152,7 +1204,7 @@ static void ospf_dcn_link_config_write_if_hook (struct vty *vty, struct interfac
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: OSPF DCN功能debug配置写文件钩子函数
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:33:32
 *****************************************************************************/
@@ -1302,7 +1354,6 @@ static struct ospf_lsa * ospf_dcn_link_lsa_new (struct ospf_area *area, struct d
   stream_free (s);
   return new;
 }
-
 /*****************************************************************************
 * function	: ospf_dcn_link_lsa_install
 * declare	: 向本地LSDB安装OSPF DCN 的 LSA（仅仅负责安装到本地LSDB）
@@ -1337,71 +1388,149 @@ static struct ospf_lsa * ospf_dcn_link_lsa_install (struct ospf_area *area, stru
 }
 /*******************************************************************************************/
 /*******************************************************************************************/
+/*****************************************************************************
+* function	: ospf_dcn_link_send_lsa_req
+* declare	: DCN LINK接口发送LSA REQ报文
+* input	: event 功能码（未使用）
+* output	: 
+* return	: 
+* other	: 接口发送LSR报文，
+* auther	: zhurish (zhurish@163.com)
+* create 	: 2016/8/17 14:33:55
+*****************************************************************************/
 /*******************************************************************************************/
-static void show_dcn_lsa_prefix_set (struct vty *, struct prefix_ls *, struct in_addr *, struct in_addr *);
+static int ospf_dcn_link_send_lsa_req(struct dcn_link *lp, enum sched_event event)
+{
+	struct ospf_lsa *new = NULL;  
+	struct lsa_header lsah;
+	struct ospf_neighbor *nbr = NULL;
+	struct ospf_interface *oi = NULL;
+	struct route_node *rn = NULL;
+	
+	if(lp == NULL || lp->ifp == NULL || lp->area == NULL || lp->area->ospf == NULL)
+		return; 
+	//struct opaque_info_per_type *oipt;
+	GT_DEBUG ("%s:  chk it's need to send LSR on %s\n",__func__,lp->ifp->name);
+
+	oi = ospf_if_lookup_by_ifp (lp->area->ospf, lp->ifp);
+	
+	if(oi && oi->nbrs)
+	{
+		memset (&lsah, 0, sizeof (lsah));
+		lsah.type = OSPF_OPAQUE_AREA_LSA;
+		lsah.id.s_addr = SET_OPAQUE_LSID (OPAQUE_TYPE_FLOODDCNINFO, lp->instance);
+		lsah.id.s_addr = htonl (lsah.id.s_addr);
+		new = ospf_ls_request_new (&lsah); 
+		
+		for (rn = route_top (oi->nbrs); rn; rn = route_next (rn))
+		{
+			if ((nbr = rn->info) != NULL)
+			{
+				//route_unlock_node(rn);
+				/*
+				 * NSM_Exchange,NSM_Loading,NSM_Full
+				 * 邻居状态大于NSM_Loading的 时候需要发送LSR报文
+				 */
+				if( (nbr->state >= NSM_Loading)&&(nbr->state < OSPF_NSM_STATE_MAX) )
+				{
+					ospf_ls_request_add (nbr, new);
+					GT_DEBUG ("%s:sending LSR on %s\n",__func__,lp->ifp->name);
+					//ospf_ls_req_event(nbr);
+				}
+			}
+		}
+	}
+	return 0;
+}
 /*******************************************************************************************/
 /*******************************************************************************************/
-static int ospf_dcn_link_foreach_area (int event,  void (*func)(void *, void *))
+/*****************************************************************************
+* function	: ospf_dcn_link_foreach_area
+* declare	: 
+* input	: event：操作功能码；func回调函数（未使用）
+* output	: 
+* return	: 
+* other	: 遍历OSPF DCN LINK接口链表并根据参数event做相关操作
+* auther	: zhurish (zhurish@163.com)
+* create 	: 2016/8/17 14:33:55
+*****************************************************************************/
+static int ospf_dcn_link_foreach_area (enum sched_event event,  void (*func)(void *, void *))
 {
 	struct listnode *node = NULL;
 	struct listnode *nnode = NULL;
 	struct dcn_link *lp = NULL;
-	struct route_table *table = NULL;
+	//struct ospf_neighbor *nbr = NULL;
+	//struct ospf_interface *oi = NULL;
 	
-	struct prefix_ls lps;
-	struct route_node *rn = NULL;
-	struct route_node *start = NULL;
-	struct ospf_lsa *lsa = NULL;
-	  
 	for (ALL_LIST_ELEMENTS (OspfDcn.iflist, node, nnode, lp))
 	{
 		if(lp == NULL || lp->area == NULL)
 			continue;
-		if(event == UPDATE_THIS_LSA)
+		if(event == UPDATE_LINK_LSA)/*刷新本地LSA*/
 		{
 			ospf_dcn_link_lsa_schedule(lp, REFRESH_THIS_LSA);
-			//ospf_opaque_lsa_refresh_schedule();
-			if(func)
-				(* func)(lp, NULL);
-			continue;
+			//if(func)
+			//	(* func)(lp, NULL);
+			//continue;
 		}
-		/*删除接口内所有LSA*/
-		if(event == DELETE_THIS_LSA)
-			ospf_dcn_link_lsa_flush(lp);		
-#if 0		
-		/*获取LSDB节点*/
-		table = AREA_LSDB (lp->area, OSPF_OPAQUE_AREA_LSA);
-		if(table)
+		else if(event == FLOOD_LINK_LSA)/*泛洪本地LSA*/
 		{
-			show_dcn_lsa_prefix_set (NULL, &lps, NULL, NULL);
-			start = route_node_get (table, (struct prefix *) &lps);
-			if (start)
-			{
-				route_lock_node (start);//在LSDB链表里遍历
-				for (rn = start; rn; rn = route_next_until (rn, start))
-			    {
-					if (!(lsa = rn->info))
-						continue;
-			        
-					if(OPAQUE_TYPE_FLOODDCNINFO != GET_OPAQUE_TYPE (ntohl (lsa->data->id.s_addr)))
-						continue;
-			        /*找到OSPF DCN的LSA*/
-					if(event == DELETE_THIS_LSA)
-					{
-						ospf_dcn_link_lsa_local_flush(lp, lsa);/*根据lp接口删除接口内所有LSA*/
-						if(func)
-							(* func)(lp, lsa);
-						continue;
-					}
-			    } 
-				route_unlock_node (start);
-			}
 		}
-#endif
+		else if(event == INSTALL_LINK_LSA)/*安装本地LSA*/
+		{
+		}
+		else if(event == UPDATE_LINK_LSA_REQ)/*发送LSR请求*/
+		{
+			ospf_dcn_link_send_lsa_req(lp, UPDATE_LINK_LSA_REQ);
+		}
+		/*删除接口内所有本地LSA*/
+		else if(event == DELETE_LOCAL_LSA)
+			ospf_dcn_link_lsa_flush(lp, DELETE_LOCAL_LSA);
+		/*删除接口内所有LSA*/
+		else if(event == DELETE_ALL_LSA)
+			ospf_dcn_link_lsa_flush(lp, DELETE_ALL_LSA);
+		/*删除接口内所有非本地LSA*/
+		else if(event == DELETE_OTHER_LSA)
+			ospf_dcn_link_lsa_flush(lp, DELETE_OTHER_LSA);		
 	}
+	return 0;
 }
 /*******************************************************************************************/
 /*******************************************************************************************/
+/*******************************************************************************************/
+/*******************************************************************************************/
+/*****************************************************************************
+* function	: ospf_dcn_link_area_update
+* declare	: 未使用
+* input	: 
+* output	: 
+* return	: 
+* other	: 遍历OSPF DCN LINK接口链表跟新接口区域号
+* auther	: zhurish (zhurish@163.com)
+* create 	: 2016/8/17 14:33:55
+*****************************************************************************/
+static int ospf_dcn_link_area_update(void)
+{
+	  struct listnode *node, *nnode;
+	  struct dcn_link *lp;
+	  struct ospf_interface *oifp;
+	  struct ospf *ospf = ospf_lookup ();
+	  
+	  for (ALL_LIST_ELEMENTS (OspfDcn.iflist, node, nnode, lp))
+	  {
+		  oifp = ospf_if_lookup_by_ifp (ospf,lp->ifp);
+		  if(oifp)
+			  lp->area = oifp->area;
+	  }
+	  return 0;
+}
+/*******************************************************************************************/
+/*******************************************************************************************/
+/*****************************************************************************
+* 设地LSA数据操作函数
+* auther	: zhurish (zhurish@163.com)
+* create 	: 2016/8/17 14:33:55
+*****************************************************************************/
 static void build_tlv_header (struct stream *s, struct dcn_tlv_header *tlvh)
 {
   stream_put (s, tlvh, sizeof (struct dcn_tlv_header));
@@ -1503,7 +1632,7 @@ static void build_link_subtlv_ipaddr (struct stream *s, struct dcn_link *lp)
     }
   return;
 }
-
+#ifdef HAVE_IPV6
 static void build_link_subtlv_ipaddrv6 (struct stream *s, struct dcn_link *lp)
 {
   struct dcn_tlv_header *tlvh = &lp->lv_ipaddrv6.header;
@@ -1519,13 +1648,14 @@ static void build_link_subtlv_ipaddrv6 (struct stream *s, struct dcn_link *lp)
     }
   return;
 }
+#endif /* HAVE_IPV6 */
 /*****************************************************************************
 * function	: ospf_dcn_link_build_lsa_tlv
 * declare	: 
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: 设地接口的DCN  LSA相关数据
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:34:7
 *****************************************************************************/
@@ -1536,14 +1666,16 @@ static void ospf_dcn_link_build_lsa_tlv (struct stream *s, struct dcn_link *lp)
   if(IS_OSPF_DCN_LINK_DEBUG)
   {
   	//GT_DEBUG("build_link_subtlv_manu: lenth=%d",DCN_TLV_BODY_SIZE (tlvh));
-  	GT_DEBUG("OSPF DCN LSA :  %s\n");
+  	GT_DEBUG("OSPF DCN LSA :  %s\n",__func__);
   }  
   build_link_subtlv_manu(s, lp);
   build_link_subtlv_devmodel(s, lp);
   build_link_subtlv_mac(s, lp);
   build_link_subtlv_neId(s, lp);
   build_link_subtlv_ipaddr(s, lp);
+#ifdef HAVE_IPV6  
   build_link_subtlv_ipaddrv6(s, lp);
+#endif /* HAVE_IPV6 */  
   return;
 }
 /*******************************************************************************************/
@@ -1555,7 +1687,7 @@ static void ospf_dcn_link_build_lsa_tlv (struct stream *s, struct dcn_link *lp)
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: 显示设备厂家信息
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:34:19
 *****************************************************************************/
@@ -1576,7 +1708,16 @@ static u_int16_t show_vty_subtlv_manualfactory (struct vty *vty, struct dcn_tlv_
     zlog_debug ("    ManualFactory: %s", tmp);
   return DCN_TLV_SIZE (tlvh);
 }
-
+/*****************************************************************************
+* function	: show_vty_subtlv_devmodel
+* declare	: 
+* input	: 
+* output	: 
+* return	: 
+* other	: 显示设备型号信息
+* auther	: zhurish (zhurish@163.com)
+* create 	: 2016/8/17 14:34:19
+*****************************************************************************/
 static u_int16_t show_vty_subtlv_devmodel (struct vty *vty, struct dcn_tlv_header *tlvh)
 {
   char tmp[MAX_BUFFER_SIZE] = {0};
@@ -1655,7 +1796,16 @@ static u_int16_t show_vty_router_addr (struct vty *vty, struct dcn_tlv_header *t
   return DCN_TLV_SIZE (tlvh);
 }
 #endif /*OSPF_DCN_ROUTE_ID*/
-
+/*****************************************************************************
+* function	: show_vty_link_header
+* declare	: 未使用
+* input	: 
+* output	: 
+* return	: 
+* other	: 显示LSA HEADER信息
+* auther	: zhurish (zhurish@163.com)
+* create 	: 2016/8/17 14:34:19
+*****************************************************************************/
 static u_int16_t show_vty_link_header (struct vty *vty, struct dcn_tlv_header *tlvh)
 {
   struct dcn_tlv_link *top = (struct dcn_tlv_link *) tlvh;
@@ -1688,7 +1838,7 @@ static u_int16_t show_vty_unknown_tlv (struct vty *vty, struct dcn_tlv_header *t
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: 显示LSA信息钩子函数
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:34:28
 *****************************************************************************/
@@ -1733,22 +1883,19 @@ static void ospf_dcn_link_show_hook (struct vty *vty, struct ospf_lsa *lsa)
 /*******************************************************************************************/
 /*******************************************************************************************/
 /*******************************************************************************************/
-/*------------------------------------------------------------------------*
- * Followings are vty command functions.
- *------------------------------------------------------------------------*/
 /*******************************************************************************************/
 /*******************************************************************************************/
 /*****************************************************************************
-* function	: ospf_dcn_link_show_info
-* declare	: use for cmd :show ip ospf dcn-link ;this func well be call by 'ospf_dcn_link_show'
+* function	: ospf_dcn_link_lsa_show_detail
+* declare	: use for cmd :show ip ospf dcn ;this func well be call by 'ospf_dcn_link_lsa_show'
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: 显示LSA列表信息，用于命令行 
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:34:33
 *****************************************************************************/
-static void ospf_dcn_link_show_info (struct vty *vty, struct ospf_lsa *lsa)
+static void ospf_dcn_link_lsa_show_detail (struct vty *vty, struct ospf_lsa *lsa)
 {
   struct lsa_header *lsah = NULL;
   struct dcn_tlv_header *tlvh, *next;
@@ -1832,7 +1979,7 @@ static void ospf_dcn_link_show_info (struct vty *vty, struct ospf_lsa *lsa)
  * @Purpose show DCN NE-INFO
  * @note added by zkx, July 15 2016
  */
-static void show_dcn_lsa_prefix_set (struct vty *vty, struct prefix_ls *lp, struct in_addr *id,
+static void ospf_dcn_lsa_prefix_set (struct vty *vty, struct prefix_ls *lp, struct in_addr *id,
 		     struct in_addr *adv_router)
 {
   memset (lp, 0, sizeof (struct prefix_ls));
@@ -1853,23 +2000,23 @@ static void show_dcn_lsa_prefix_set (struct vty *vty, struct prefix_ls *lp, stru
   return;
 }
 /*****************************************************************************
-* function	: ospf_dcn_link_show
-* declare	: use for cmd :show ip ospf dcn-link ;this func well be call by 'show_dcn_link_lsa'
+* function	: ospf_dcn_link_lsa_show
+* declare	: use for cmd :show ip ospf dcn ;this func well be call by 'show_ip_ospf_dcn_link'
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: 遍历LSDB链表显示DCN的LSA信息
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:34:45
 *****************************************************************************/
-static void ospf_dcn_link_show (struct vty *vty, struct route_table *rt)
+static void ospf_dcn_link_lsa_show (struct vty *vty, struct route_table *rt)
 {
   struct prefix_ls lp;
   struct route_node *rn, *start;
   struct ospf_lsa *lsa;
   if(vty == NULL || rt == NULL)
 	  return;
-  show_dcn_lsa_prefix_set (vty, &lp, 0, 0);
+  ospf_dcn_lsa_prefix_set (vty, &lp, 0, 0);
   start = route_node_get (rt, (struct prefix *) &lp);
   if (start)
   {
@@ -1882,7 +2029,7 @@ static void ospf_dcn_link_show (struct vty *vty, struct route_table *rt)
       if(OPAQUE_TYPE_FLOODDCNINFO != GET_OPAQUE_TYPE (ntohl (lsa->data->id.s_addr)))
         continue;
       
-      ospf_dcn_link_show_info(vty, lsa);
+      ospf_dcn_link_lsa_show_detail(vty, lsa);
     } 
     route_unlock_node (start);
   }
@@ -1907,16 +2054,16 @@ static const char *show_database_desc[] =
 };
    
 /*****************************************************************************
-* function	: show_dcn_link_lsa
-* declare	: use for cmd :show ip ospf dcn-link ;this func well be call 
+* function	: show_ip_ospf_dcn_link
+* declare	: use for cmd :show ip ospf dcn ;this func well be call 
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: 遍历area链表显示LSDB信息
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:34:54
 *****************************************************************************/
-void show_dcn_link_lsa (struct vty *vty, struct ospf *ospf)
+static void show_ip_ospf_dcn_link (struct vty *vty, struct ospf *ospf)
 {
   int type;
   struct listnode *node;
@@ -1938,7 +2085,7 @@ void show_dcn_link_lsa (struct vty *vty, struct ospf *ospf)
       "COMPANY",
       VTY_NEWLINE);
 
-    ospf_dcn_link_show (vty, AREA_LSDB (area, type));
+    ospf_dcn_link_lsa_show (vty, AREA_LSDB (area, type));
   }
 }
 /*****************************************************************************
@@ -1947,11 +2094,11 @@ void show_dcn_link_lsa (struct vty *vty, struct ospf *ospf)
 * input	: 
 * output	: 
 * return	: 
-* other	: 
+* other	: 显示DCN接口状态信息
 * auther	: zhurish (zhurish@163.com)
 * create 	: 2016/8/17 14:34:59
 *****************************************************************************/
-int show_dcn_link_interface_sub (struct vty *vty, struct interface *ifp)
+static int show_dcn_link_interface_sub (struct vty *vty, struct interface *ifp)
 {
   struct dcn_link *lp;
   int is_up;
@@ -1974,12 +2121,12 @@ int show_dcn_link_interface_sub (struct vty *vty, struct interface *ifp)
   if (lp->enable == 0)
     {
       vty_out (vty, "  OSPF DCN not enabled on this interface%s", VTY_NEWLINE);
-      return;
+      return CMD_WARNING;
     }
   else if (!is_up)
     {
       vty_out (vty, "  OSPF DCN is enabled, but not running on this interface%s", VTY_NEWLINE);
-      return;
+      return CMD_WARNING;
     }
     vty_out (vty, "  DCN instance %x %s", lp->instance ,VTY_NEWLINE);
 	if(lp->area)	
@@ -2044,14 +2191,13 @@ DEFUN (show_ip_ospf_dcn_interface,
 * added by zkx.
 * 2016 July 15.
 */
-/* show ip ospf dcn-link 命令，显示DCN数据库信息简要信息 */
-DEFUN (show_ip_ospf_dcn_link,
-       show_ip_ospf_dcn_link_cmd,
-       "show ip ospf dcn link",
+/* show ip ospf dcn 命令，显示DCN数据库信息简要信息 */
+DEFUN (show_ip_ospf_dcn,
+       show_ip_ospf_dcn_cmd,
+       "show ip ospf dcn",
        SHOW_STR
        IP_STR
        "OSPF interface commands\n"
-       "DCN information\n"
        "Dcn lsa information\n")
 {
   struct ospf *ospf;
@@ -2069,65 +2215,10 @@ DEFUN (show_ip_ospf_dcn_link,
   /* Show all LSA. */
   if (argc == 0)
   {
-    show_dcn_link_lsa (vty, ospf);
-    return CMD_SUCCESS;
+	  show_ip_ospf_dcn_link (vty, ospf);
+	  return CMD_SUCCESS;
   }
   return CMD_SUCCESS;
-}
-
-/* show ip ospf dcn 命令，显示DCN router-id 信息 */
-#ifdef OSPF_DCN_ROUTE_ID  
-DEFUN (show_ip_ospf_dcn,
-		show_ip_ospf_dcn_cmd,
-       "show ip ospf dcn",
-       SHOW_STR
-       IP_STR
-       "OSPF information\n"
-       "DCN information\n")
-{
-  if (OspfDcn.status == enabled)
-    {
-      vty_out (vty, "--- DCN router parameters ---%s",
-               VTY_NEWLINE);
-
-      if (ntohs (OspfDcn.router_addr.header.type) != 0)
-        show_vty_router_addr (vty, &OspfDcn.router_addr.header);
-      else if (vty != NULL)
-        vty_out (vty, "  N/A%s", VTY_NEWLINE);
-    }
-  return CMD_SUCCESS;
-}
-#endif/* OSPF_DCN_ROUTE_ID */ 
-
-static struct ospf_interface * ospf_if_lookup_by_ifp (struct ospf *ospf,struct interface *ifp)
-{
-  struct listnode *node;
-  struct ospf_interface *oi;
-
-  for (ALL_LIST_ELEMENTS_RO (ospf->oiflist, node, oi))
-    if (oi->type != OSPF_IFTYPE_VIRTUALLINK)
-      {
-    	if (ifp && oi->ifp->ifindex == ifp->ifindex)
-    		return oi;
-      }
-
-  return NULL;
-}
-
-static int ospf_dcn_link_area_update(void)
-{
-	  struct listnode *node, *nnode;
-	  struct dcn_link *lp;
-	  struct ospf_interface *oifp;
-	  struct ospf *ospf = ospf_lookup ();
-	  
-	  for (ALL_LIST_ELEMENTS (OspfDcn.iflist, node, nnode, lp))
-	  {
-		  oifp = ospf_if_lookup_by_ifp (ospf,lp->ifp);
-		  if(oifp)
-			  lp->area = oifp->area;
-	  }
-	  return 0;
 }
 
 /* ospf dcn 命令，全局使能 DCN功能 */
@@ -2149,7 +2240,7 @@ DEFUN (ospf_dcn,
 
   OspfDcn.status = enabled;
   
-  ospf_dcn_link_area_update();
+  //ospf_dcn_link_area_update();
   /*
    * Following code is intended to handle two cases;
    *
@@ -2162,7 +2253,7 @@ DEFUN (ospf_dcn,
 	  ret = 0;
 	  if(lp == NULL)
 		  continue;
-	  //if(lp->isInitialed == 0)
+	  if(lp->isInitialed == 0)
 		  ret = ospf_dcn_link_initialize (lp);
 	  if(lp->isInitialed == 1 && lp->enable && lp->area)
 	  {
@@ -2175,9 +2266,10 @@ DEFUN (ospf_dcn,
 			  /*
 			   * 安装完毕后需要泛洪出去,在执行no ospf dcn 后再执行ospf dcn，没有实现LSA泛洪（请求）
 			   * 只有本地LSA，没有学习到对端LSA,ospf_dcn_link_lsa_refresh_hook函数有被调用，
-			   * 但是没有学习到对端信息
+			   * 但是没有学习到对端信息(对端学习到自己的LSA，但是自己没有学习到对端)
 			   */
 			  ospf_dcn_link_lsa_schedule (lp, REORIGINATE_PER_AREA);
+			  //ospf_dcn_link_send_lsa_req(lp, UPDATE_LINK_LSA_REQ);
 		  }
 		  else
 		  {
@@ -2187,25 +2279,13 @@ DEFUN (ospf_dcn,
 	  }
 	  else
 	  {
-		  GT_DEBUG("%s: unstall local LSA by isInitialed=%d in %s\n",__func__,lp->isInitialed,lp->ifp->name);
-		  GT_DEBUG("%s:unstall local LSA by enable=%d in %s\n",__func__,lp->enable,lp->ifp->name);
-		  if(lp->area)
-			  GT_DEBUG("%s:unstall local LSA by AREA = FULL in %s\n",__func__,lp->ifp->name);
-		  else
-			  GT_DEBUG("%s:unstall local LSA by AREA = NULL in %s\n",__func__,lp->ifp->name);
+		  GT_DEBUG("%s: unstall local LSA by isInitialed=%d enable=%d AREA = %s on %s\n",
+				  __func__,lp->isInitialed,lp->enable,lp->area ? "FULL":"NULL",lp->ifp->name);
 	  }
-	  //ospf_dcn_link_lsa_schedule (lp, REORIGINATE_PER_AREA);
   }
- // ospf_dcn_foreach_area (ospf_dcn_link_lsa_schedule, REORIGINATE_PER_AREA);
+  ospf_dcn_link_foreach_area (UPDATE_LINK_LSA_REQ,  NULL);
   return CMD_SUCCESS;
 }
-
-ALIAS (ospf_dcn,
-       ospf_dcn_on_cmd,
-       "ospf dcn on",
-       "OSPF interface commands\n"
-       "Configure DCN parameters\n"
-       "Enable the DCN functionality\n")
 
 /* no ospf dcn 命令，全局去使能 DCN功能 */
 DEFUN (no_ospf_dcn,
@@ -2235,11 +2315,159 @@ DEFUN (no_ospf_dcn,
 	  }
   }
   /*去使能OSPF DCN功能，删除所有缓存的DCN LSA（非本地）*/
-  ospf_dcn_link_foreach_area (DELETE_THIS_LSA,  NULL);
+  ospf_dcn_link_foreach_area (DELETE_OTHER_LSA,  NULL);
   /*遍历缓存的LSA，清除所有存在缓存区的数据*/
   OspfDcn.status = disabled;
   return CMD_SUCCESS;
 }
+
+/* ip ospf link dcn 命令，在接口下使能 DCN功能 */
+DEFUN (ip_ospf_dcn_link,
+       ip_ospf_dcn_link_cmd,
+       "ip ospf link dcn",
+       "IP Information\n"
+       "OSPF interface commands\n"
+       "Configure ospf interface link type\n"
+       "set Link type for DCN purpose\n")
+{
+	struct interface *ifp = (struct interface *) vty->index;
+	struct dcn_link *lp = NULL;
+
+	if ((lp = ospf_dcn_link_lookup_by_ifp (ifp)) == NULL)
+	{
+		vty_out (vty, "interface:%s is not in dcn link table%s", ifp->name,VTY_NEWLINE);
+		return CMD_WARNING;
+    }
+	if(lp->enable == 0)
+	{
+		lp->enable = 1;
+		GT_DEBUG ("ip ospf link dcn on %s\n",lp->ifp->name);
+		//GT_DEBUG ("ip ospf link dcn:to init DCN LINK\n");
+		if(lp->isInitialed == 0)
+			ospf_dcn_link_initialize(lp);//初始化接口数据
+		if(lp->isInitialed)
+		{
+			if (lp->install_lsa == 0)
+			{
+				if(lp->area != NULL)//安装LSA
+				{
+					//install DCN LSA into ospf LSDB  
+					//lp->install_lsa = 1;
+					zlog_debug("%s:ospf_dcn_lsa_install_local",__FUNCTION__);
+					//ospf_dcn_link_lsa_install (lp->area, lp, 1);
+					//REORIGINATE_PER_AREA, REFRESH_THIS_LSA, FLUSH_THIS_LSA, INSTALL_THIS_LSA;
+					ospf_dcn_link_lsa_schedule (lp, REORIGINATE_PER_AREA);
+					//需要根据当前接口邻居状态进行泛洪操作（发送LSU）
+					GT_DEBUG ("ip ospf link dcn on %s (request LSA Update)\n",ifp->name);
+					ospf_dcn_link_send_lsa_req(lp, UPDATE_LINK_LSA_REQ);
+				}
+			}
+			//ospf_dcn_link_foreach_area (UPDATE_LINK_LSA_REQ,  NULL);
+		}
+	}
+	/*
+	 * 安装完毕后需要泛洪出去,在执行no ip ospf link dcn 后再执行ip ospf link dcn，没有实现LSA泛洪（请求）
+	 * 只有本地LSA，没有学习到对端LSA,ospf_dcn_link_lsa_refresh_hook函数有被调用，
+	 * 但是没有学习到对端信息(对端学习到自己的LSA，但是自己没有学习到对端)
+	 */
+	//GT_DEBUG ("ip ospf link dcn on %s\n",ifp->name);
+	return CMD_SUCCESS;
+}
+/* no ip ospf link dcn 命令，在接口下去使能 DCN功能 */
+DEFUN (no_ip_ospf_dcn_link,
+       no_ip_ospf_dcn_link_cmd,
+       "no ip ospf link dcn",
+       NO_STR
+       IP_STR
+       "OSPF interface commands\n"
+       "Configure ospf interface link type\n"
+       "set Link type for DCN purpose\n")
+{
+  struct interface *ifp = (struct interface *) vty->index;
+  struct dcn_link *lp = NULL;
+  if(OspfDcn.status == disabled)
+  {
+      vty_out (vty, "dcn is not enable%s", VTY_NEWLINE);
+      return CMD_WARNING;
+  }
+  if ((lp = ospf_dcn_link_lookup_by_ifp (ifp)) == NULL)
+    {
+	  vty_out (vty, "interface:%s is not in dcn link table%s", ifp->name,VTY_NEWLINE);
+      return CMD_WARNING;
+    }
+  if(lp->enable)
+  {
+	 // int maxage_delay = 0;
+    /* 接口已经启动DCN功能，清除LSA并清除安装标志 */
+    //lp->enable = 0;
+    //ospf_dcn_link_initialize (lp);
+    GT_DEBUG("ospf_dcn_link_lsa_local_flush by cmd: no ip ospf dcn link\n");
+    /*
+     * 需要告诉对端，删除LSA
+     * 同时要删除本地存储的所有从这个接口学习到的
+     */
+   /*禁用DCN功能，删除所有LSA*/
+    ospf_dcn_link_lsa_flush(lp, DELETE_ALL_LSA); 
+    lp->install_lsa = 0;
+    lp->enable = 0;
+  }
+  GT_DEBUG ("no ip ospf link dcn on %s\n",ifp->name);
+  return CMD_SUCCESS;
+}
+/*
+ * service device-model NAME命令，用于设置设备型号名称
+ * 改命令安装在service节点下
+ */
+DEFUN (ospf_dcn_device,
+		ospf_dcn_device_cmd,
+       "service device-model NAME",
+       "Set up miscellaneous service\n"
+       "device model information\n"
+       "device name for OSPF DCN module\n")
+{
+  struct listnode *node, *nnode;
+  struct dcn_link *lp;	
+  if(argc != 1)
+  {
+	  vty_out (vty, "something of argv wrong!%s", VTY_NEWLINE);  
+	  return CMD_WARNING;
+  }
+  if(argv[0] == NULL || (strlen(argv[0])>MAX_MODEL_LENGTH) )
+  {
+	vty_out (vty, "something of argv len wrong!%s", VTY_NEWLINE);  
+	return CMD_WARNING;
+  }
+  memset(CPE_DEVICEMODEL, 0, MAX_MODEL_LENGTH+1);
+  strcpy(CPE_DEVICEMODEL,argv[0]);
+  vty_out (vty, "setting device model name:%s%s", CPE_DEVICEMODEL, VTY_NEWLINE); 
+  /*遍历每一个接口，*/
+  for (ALL_LIST_ELEMENTS (OspfDcn.iflist, node, nnode, lp))
+  {
+	  if(lp->isInitialed)//接口已经初始化，重新设置设备类型字段
+	  {
+		  set_dcn_link_devmodel (lp);
+		  if(lp->install_lsa == 1)//接口安装LSA
+		  {
+			  //删除旧的LSA，安装新的LSA并泛洪
+		  }
+	  }
+  }
+  return CMD_SUCCESS;
+}
+
+static struct cmd_node dcn_node =
+{
+ SERVICE_NODE,
+  "",
+  1
+};
+
+static int config_write_ospf_dcn_device (struct vty *vty)
+{
+  vty_out (vty, "service device-model %s%s", CPE_DEVICEMODEL, VTY_NEWLINE); 
+  return 1;
+}
+
 /* ospf dcn router-address A.B.C.D，配置DCN路由ID */
 #ifdef OSPF_DCN_ROUTE_ID  
 DEFUN (ospf_dcn_router_addr,
@@ -2301,151 +2529,31 @@ DEFUN (ospf_dcn_router_addr,
 out:
   return CMD_SUCCESS;
 }	
+/* show ip ospf dcn router 命令，显示DCN router-id 信息 */ 
+DEFUN (show_ip_ospf_dcn_router,
+		show_ip_ospf_dcn_router_cmd,
+       "show ip ospf dcn router",
+       SHOW_STR
+       IP_STR
+       "OSPF information\n"
+       "DCN information\n"
+       "router id information\n")
+{
+  if (OspfDcn.status == enabled)
+    {
+      vty_out (vty, "--- DCN router parameters ---%s",
+               VTY_NEWLINE);
+
+      if (ntohs (OspfDcn.router_addr.header.type) != 0)
+        show_vty_router_addr (vty, &OspfDcn.router_addr.header);
+      else if (vty != NULL)
+        vty_out (vty, "  N/A%s", VTY_NEWLINE);
+    }
+  return CMD_SUCCESS;
+}
 #endif /*OSPF_DCN_ROUTE_ID*/
 
-/* ip ospf link dcn 命令，在接口下使能 DCN功能 */
-DEFUN (ip_ospf_dcn_link,
-       ip_ospf_dcn_link_cmd,
-       "ip ospf link dcn",
-       "IP Information\n"
-       "OSPF interface commands\n"
-       "Configure ospf interface link type\n"
-       "set Link type for DCN purpose\n")
-{
-  struct interface *ifp = (struct interface *) vty->index;
-  struct dcn_link *lp = NULL;
-
-  if ((lp = ospf_dcn_link_lookup_by_ifp (ifp)) == NULL)
-    {
-      vty_out (vty, "interface:%s is not in dcn link table%s", ifp->name,VTY_NEWLINE);
-      return CMD_WARNING;
-    }
-  if(lp->enable == 0)
-  {
-    lp->enable = 1;
-    GT_DEBUG ("ip ospf link dcn:to init DCN LINK\n");
-    //if(lp->isInitialed == 0)
-    //ospf_dcn_link_area_update();
-     ospf_dcn_link_initialize(lp);//初始化接口数据
-     
-     if (lp->install_lsa == 0)
-     {
-       	  if(lp->area != NULL)//安装LSA
-       	  {
-   		//install DCN LSA into ospf LSDB  
-       		//lp->install_lsa = 1;
-       		zlog_debug("%s:ospf_dcn_lsa_install_local",__FUNCTION__);
-       		//ospf_dcn_link_lsa_install (lp->area, lp, 1);
-       		//REORIGINATE_PER_AREA, REFRESH_THIS_LSA, FLUSH_THIS_LSA, INSTALL_THIS_LSA;
-       		ospf_dcn_link_lsa_schedule (lp, REORIGINATE_PER_AREA);
-       		//需要根据当前接口邻居状态进行泛洪操作（发送LSU）
-       	  }
-       	  //else
-           //if (lp->flags & DCNFLG_LSA_ENGAGED)
-           //  ospf_dcn_link_lsa_schedule (lp, REFRESH_THIS_LSA);
-           //else
-             //ospf_dcn_link_lsa_schedule (lp, REORIGINATE_PER_AREA);
-         }
-  }
-  /*
-   * 安装完毕后需要泛洪出去,在执行no ip ospf link dcn 后再执行ip ospf link dcn，没有实现LSA泛洪（请求）
-   * 只有本地LSA，没有学习到对端LSA,ospf_dcn_link_lsa_refresh_hook函数有被调用，
-   * 但是没有学习到对端信息
-   */
-  GT_DEBUG ("ip ospf link dcn\n");
-  return CMD_SUCCESS;
-}
-/* no ip ospf link dcn 命令，在接口下去使能 DCN功能 */
-DEFUN (no_ip_ospf_dcn_link,
-       no_ip_ospf_dcn_link_cmd,
-       "no ip ospf link dcn",
-       NO_STR
-       IP_STR
-       "OSPF interface commands\n"
-       "Configure ospf interface link type\n"
-       "set Link type for DCN purpose\n")
-{
-  struct interface *ifp = (struct interface *) vty->index;
-  struct dcn_link *lp = NULL;
-  if(OspfDcn.status == disabled)
-  {
-      vty_out (vty, "dcn is not enable%s", VTY_NEWLINE);
-      return CMD_WARNING;
-  }
-  if ((lp = ospf_dcn_link_lookup_by_ifp (ifp)) == NULL)
-    {
-	  vty_out (vty, "interface:%s is not in dcn link table%s", ifp->name,VTY_NEWLINE);
-      return CMD_WARNING;
-    }
-  if(lp->enable)
-  {
-	  int maxage_delay = 0;
-    /* 接口已经启动DCN功能，清除LSA并清除安装标志 */
-    //lp->enable = 0;
-    //ospf_dcn_link_initialize (lp);
-    GT_DEBUG("ospf_dcn_link_lsa_local_flush by cmd: no ip ospf dcn link\n");
-    /*
-     * 需要告诉对端，删除LSA
-     * 同时要删除本地存储的所有从这个接口学习到的
-     */
-   
-    ospf_dcn_link_lsa_flush(lp); 
-    lp->install_lsa = 0;
-    lp->enable = 0;
-  }
-  GT_DEBUG ("no ip ospf link dcn\n");
-  return CMD_SUCCESS;
-}
-DEFUN (ospf_dcn_device,
-		ospf_dcn_device_cmd,
-       "service device-model NAME",
-       "Set up miscellaneous service\n"
-       "device model information\n"
-       "device name for OSPF DCN module\n")
-{
-  struct listnode *node, *nnode;
-  struct dcn_link *lp;	
-  if(argc != 1)
-  {
-	  vty_out (vty, "something of argv wrong!%s", VTY_NEWLINE);  
-	  return CMD_WARNING;
-  }
-  if(argv[0] == NULL || (strlen(argv[0])>MAX_MODEL_LENGTH) )
-  {
-	vty_out (vty, "something of argv len wrong!%s", VTY_NEWLINE);  
-	return CMD_WARNING;
-  }
-  memset(CPE_DEVICEMODEL, 0, MAX_MODEL_LENGTH+1);
-  strcpy(CPE_DEVICEMODEL,argv[0]);
-  vty_out (vty, "setting device model name:%s%s", CPE_DEVICEMODEL, VTY_NEWLINE); 
-  /*遍历每一个接口，*/
-  for (ALL_LIST_ELEMENTS (OspfDcn.iflist, node, nnode, lp))
-  {
-	  if(lp->isInitialed)//接口已经初始化，重新设置设备类型字段
-	  {
-		  set_dcn_link_devmodel (lp);
-		  if(lp->install_lsa == 1)//接口安装LSA
-		  {
-			  //删除旧的LSA，安装新的LSA并泛洪
-		  }
-	  }
-  }
-  return CMD_SUCCESS;
-}
-static struct cmd_node dcn_node =
-{
- SERVICE_NODE,
-  "",
-  1
-};
-static int config_write_ospf_dcn_device (struct vty *vty)
-{
-  vty_out (vty, "service device-model %s%s", CPE_DEVICEMODEL, VTY_NEWLINE); 
-  return 1;
-}
-
-
-//#ifdef GT_DCN_DEBUG
+#ifdef GT_DCN_DEBUG
 DEFUN (show_ip_ospf_dcn_table,
        show_ip_ospf_dcn_table_cmd,
        "show ip ospf dcn-table",
@@ -2478,7 +2586,7 @@ DEFUN (show_ip_ospf_dcn_table,
       }
       return CMD_SUCCESS;
 }
-//#endif /*GT_DCN_DEBUG*/
+#endif /*GT_DCN_DEBUG*/
 
 static void ospf_dcn_register_vty (void)
 { 
@@ -2488,16 +2596,16 @@ static void ospf_dcn_register_vty (void)
   install_element (VIEW_NODE, &show_ip_ospf_dcn_interface_cmd);
   install_element (ENABLE_NODE, &show_ip_ospf_dcn_interface_cmd);
 
-  install_element (VIEW_NODE, &show_ip_ospf_dcn_link_cmd);
-  install_element (ENABLE_NODE, &show_ip_ospf_dcn_link_cmd);
+  install_element (VIEW_NODE, &show_ip_ospf_dcn_cmd);
+  install_element (ENABLE_NODE, &show_ip_ospf_dcn_cmd);
 
   install_element (OSPF_NODE, &ospf_dcn_cmd);
   install_element (OSPF_NODE, &no_ospf_dcn_cmd);
-  install_element (OSPF_NODE, &ospf_dcn_on_cmd);
-//#ifdef GT_DCN_DEBUG
+
+#ifdef GT_DCN_DEBUG
   install_element (VIEW_NODE, &show_ip_ospf_dcn_table_cmd);
   install_element (ENABLE_NODE, &show_ip_ospf_dcn_table_cmd);
-//#endif	   
+#endif	   
 #ifdef OSPF_DCN_ROUTE_ID  
   install_element (VIEW_NODE, &show_ip_ospf_dcn_cmd);
   install_element (ENABLE_NODE, &show_ip_ospf_dcn_cmd);  
@@ -2517,7 +2625,7 @@ static void ospf_dcn_register_vty (void)
 
 #include <net/if_arp.h>
 
-
+struct dcn_link_nbr nbrmac;
 /*
  * 获取root用户权限，并执行命令
  */
@@ -2536,17 +2644,19 @@ static int super_system(const char *cmd)
 	
 	return ret;
 }
-
-struct dcn_link_nbr dcn_link_nbr;
-
-//int ospf_dcn_link_nbr_detail(struct in_addr nbrIp, char *srcIfname,char *mac);
 /*
- *# arping -I dtl0 128.35.244.29 -c 1
- * ARPING to 128.35.244.29 from 128.35.244.210 via dtl0
- * Unicast reply from 128.35.244.29 [20:cf:30:26:3c:af] 0.432ms
- * Sent 1 probe(s) (1 broadcast(s))
- * Received 1 replies (0 request(s), 0 broadcast(s))
+ * 获取已经启动DCN功能的接口的名称（目前只支持一个接口启动DCN）
  */
+static char * ospf_dcn_link_name (void)
+{
+  struct listnode *node = NULL;
+  struct listnode *nnode = NULL;
+  struct dcn_link *lp = NULL;
+  for (ALL_LIST_ELEMENTS (OspfDcn.iflist, node, nnode, lp))
+    if (lp && lp->ifp && lp->enable && lp->isInitialed)
+      return lp->ifp->name;
+  return NULL;
+}
 /*
  * 用于获取获取连接邻居的MAC地址和邻居IP地址
  * 用于设置静态ARP表项，和设置直连路由
@@ -2554,85 +2664,97 @@ struct dcn_link_nbr dcn_link_nbr;
  */
 int ospf_dcn_link_nbr_nbrmac(struct in_addr nbrIp, char *srcIfname,char *mac)
 {
-//¡§a?¡ì1ysnmpget?¡§1¡§¡é???¡§¡§??????¡ì?¡§¡ä?š€??š¢??¡§??
-	FILE *stream;
+	FILE *fd;
 	char *pStart = NULL;
 	char *pEnd = NULL;
-	char  cmd[256], buf[4096];	
-	int   ret = -1;	
-	/*
-	 * 当本地保存本地邻居IP地址和收数据包的IP地址不一样的时候才重新获取邻居的MAC弟子
-	 */
-	if(dcn_link_nbr.nbrIp1.s_addr == nbrIp.s_addr)
-		return 1;
-	/*
-	 * 跟新本地保存的邻居IP地址；并且获取邻居MAC地址
-	 */
-	if(dcn_link_nbr.nbrIp1.s_addr != nbrIp.s_addr)
+	char  cmd[256], buf[512];	
+	int init = 0;	
+	int count = 0;
+	
+	if(nbrIp.s_addr != nbrmac.nbrIp.s_addr)
 	{
-		/*
-		 * 设置到网络10.10.10.0/24的路由经过网关192.233.7.65：ip route add 10.10.10.0/24 via 192.233.7.65
-		 * 设置到网络10.10.10.0/24直接路由经过设备：ip route add 10.10.10.0/24 dev eth0
-		 */
-		if(dcn_link_nbr.nbrIp1.s_addr != 0)
+		/*邻居地址发生变化，删除ARP和直连路由信息*/
+		if(nbrmac.nbrIp.s_addr != 0)
 		{
 			memset(cmd, 0, sizeof(cmd));
-			sprintf(cmd,"ip route del %s", inet_ntoa (dcn_link_nbr.nbrIp1));	
+			sprintf(cmd, "arp -i %s -d %s",srcIfname? srcIfname:OSPF_DCN_LINK_IF_NAME, inet_ntoa(nbrmac.nbrIp));
 			super_system(cmd);
-			GT_DEBUG("%s:execute:%s\n",__func__,cmd);
+			GT_DEBUG("%s:delete arp table(%s)\n",__func__,cmd);
+			sprintf(cmd,"ip route del %s dev %s",inet_ntoa(nbrmac.nbrIp),srcIfname? srcIfname:OSPF_DCN_LINK_IF_NAME);
+			super_system(cmd);
+			GT_DEBUG("%s:delete connect route table(%s)\n",__func__,cmd);
 		}
-		memset(cmd, 0, sizeof(cmd));
-		sprintf(cmd,"ip route add %s  dev %s", inet_ntoa (nbrIp), srcIfname? srcIfname:OSPF_DCN_LINK_IF_NAME);	
-		super_system(cmd);
-		GT_DEBUG("%s:execute:%s\n",__func__,cmd);
-		
-		dcn_link_nbr.nbrIp1.s_addr = nbrIp.s_addr;
 	}
+	else
+		return 1;
 	
 	memset(cmd, 0, sizeof(cmd));
-	if(srcIfname)
-		sprintf(cmd,"arping -I %s -c 1 %s", srcIfname, inet_ntoa (nbrIp));
-	else
-		sprintf(cmd,"arping -I %s -c 1 %s", OSPF_DCN_LINK_IF_NAME, inet_ntoa (nbrIp));
-	/*
-	 * 获取root用户权限，并执行命令
-	 */
-	if ( ospfd_privs.change (ZPRIVS_RAISE) )
-		zlog_err ("ospf_sock_init: could not raise privs, %s",safe_strerror (errno) );
-	
-	stream = popen(cmd,"r");
-	if(stream != NULL)
+	if(srcIfname == NULL)
 	{
-		memset(buf, 0, sizeof(buf));
-		fread(buf,sizeof(buf),1,stream);
-		if(0 == ferror(stream))
+		sprintf(cmd,"arping -I %s -c 1 %s", OSPF_DCN_LINK_IF_NAME, inet_ntoa(nbrIp));
+	}
+	else
+	{
+		sprintf(cmd,"arping -I %s -c 1 %s", srcIfname, inet_ntoa(nbrIp));
+	}	
+	/* 可能一次获取不到，需要多次获取 */
+	while(init == 0 && count <= 5)
+	{
+		fd = popen(cmd,"r");
+		GT_DEBUG("%s:to get mac address by arping(%s) \n",__func__,cmd);
+		if(fd != NULL)
 		{
-			pStart = strstr(buf,"[");
-			pEnd = strstr(buf,"]");
-			if(NULL != pStart && NULL != pEnd)
+			memset(buf, 0, sizeof(buf));
+			while(fgets(buf, 512, fd)!=NULL && init !=1)
 			{
-				ret = 1;
-				if(mac == NULL)
+				pStart = strstr(buf,"[");
+				pEnd = strstr(buf,"]");
+				if(NULL != pStart && NULL != pEnd)
 				{
-					memcpy(dcn_link_nbr.nbrMac1, pStart+1, MIN(pEnd-pStart-1, OSPF_DCN_NBR_MAC_SIZE));
-					GT_DEBUG("%s:get mac by(ZKX local mac): %s %s\n",__func__,inet_ntoa (nbrIp), dcn_link_nbr.nbrMac1);
-				}
-				else
-				{
-					memcpy(mac, pStart+1, pEnd-pStart-1);
-					GT_DEBUG("%s:get mac by(ZKX): %s %s\n",__func__,inet_ntoa (nbrIp), mac);
+					init = 1;
+					/*成功获取到对端MAC地址，添加直连路由的ARP表*/
+					memcpy(nbrmac.nbrMac, pStart+1, MIN(pEnd-pStart-1, OSPF_DCN_NBR_MAC_SIZE));
+					sprintf(cmd, "arp -i %s -s %s %s", srcIfname? srcIfname: OSPF_DCN_LINK_IF_NAME, inet_ntoa(nbrIp), nbrmac.nbrMac);
+					super_system(cmd);
+					GT_DEBUG("%s:get mac address and setting arp table(%s)\n",__func__,cmd);
 				}
 			}
+			pclose(fd);
 		}
-		pclose(stream);
+		count++;
 	}
-	/*
-	 * 获取root用户权限，并执行命令
-	 */
-	if ( ospfd_privs.change (ZPRIVS_LOWER) )
-		zlog_err ("ospf_sock_init: could not lower privs, %s",safe_strerror (errno) );
-	return ret;
+	if(init == 1)
+	{	/*成功获取到对端MAC地址，添加直连路由*/
+		memset(cmd, 0, sizeof(cmd));
+		sprintf(cmd,"ip route add %s dev %s",inet_ntoa(nbrIp),srcIfname? srcIfname:OSPF_DCN_LINK_IF_NAME);
+		super_system(cmd);
+		GT_DEBUG("%s:get mac address setting connect route table(%s)\n",__func__,cmd);	
+		nbrmac.nbrIp.s_addr = nbrIp.s_addr;
+		nbrmac.initialed = 1;
+	}
+	return init;
 }
+/*根据IP地址信息查找接口*/
+static struct interface * ospf_dcn_link_if_lookup_prefix (struct prefix *p)
+{
+	struct listnode *node;
+	struct listnode *cnode;
+	struct interface *ifp;
+	struct connected *c;
+
+	for (ALL_LIST_ELEMENTS_RO (iflist, node, ifp))
+	{
+		for (ALL_LIST_ELEMENTS_RO (ifp->connected, cnode, c))
+		{
+			if (prefix_cmp(c->address, p) == 0)
+			{
+				return ifp;
+			}
+		}
+	}
+	return NULL;
+}
+
 static int ospf_zebra_route_dcn_handle(int type, struct prefix_ipv4 *p, char *ifname)
 {
 	char ipstr[64];	
@@ -2644,6 +2766,20 @@ static int ospf_zebra_route_dcn_handle(int type, struct prefix_ipv4 *p, char *if
 	
 	if(p == NULL)
 		return -1; 
+	/*目的地址和下一跳相同的路由不需要在操作*/
+	if( (nbrmac.nbrIp.s_addr != 0) &&
+		(nbrmac.nbrIp.s_addr == p->prefix.s_addr) &&
+		(p->prefix.s_addr != 0) )
+		return 0;
+	
+	/* 这里需要判断出目的地址和自己系统内相同网段的不需要操作
+	 * 目的地址和自己同网段的属于直连路由，不需要操作
+	 */
+	if(ospf_dcn_link_if_lookup_prefix((struct prefix *)p))
+	{
+		GT_DEBUG("%s: destination address is same to local(%s)\n",__func__,inet_ntoa(p->prefix));	
+		return 0;
+	}
 	
 	if(ifname == NULL)
 		sprintf(if_name,"%s",OSPF_DCN_LINK_IF_NAME);
@@ -2679,23 +2815,32 @@ static int ospf_zebra_route_dcn_handle(int type, struct prefix_ipv4 *p, char *if
  	inet_ntop (p->family, &p->prefix, ipstr, sizeof(ipstr));
  	if(type==1)
  	{
- 		if(p->prefixlen != IPV4_MAX_PREFIXLEN)
+ 		if(p->prefixlen != IPV4_MAX_PREFIXLEN)/*非32位掩码，网络路由*/
  		sprintf(cmd,"route %s -net %s/%d gw %s dev %s",ty,ipstr, p->prefixlen, 
-			inet_ntoa(dcn_link_nbr.nbrIp1), if_name);
+			inet_ntoa(nbrmac.nbrIp), if_name);
  		else
- 	 		sprintf(cmd,"route %s -host %s gw %s dev %s",ty,ipstr,inet_ntoa(dcn_link_nbr.nbrIp1), if_name);
+ 		{	/*32位掩码，主机路由*/
+ 			if(nbrmac.nbrIp.s_addr != p->prefix.s_addr)
+ 				sprintf(cmd,"route %s -host %s gw %s dev %s",ty,ipstr,inet_ntoa(nbrmac.nbrIp), if_name);
+ 			else
+ 				sprintf(cmd,"route %s -host %s dev %s",ty, ipstr, if_name);
+ 		}
  	}
  	else
  	{
  		if(p->prefixlen != IPV4_MAX_PREFIXLEN)
 		sprintf(cmd,"route %s -net %s/%d gw %s dev %s",ty,ipstr, p->prefixlen, 
-				inet_ntoa(dcn_link_nbr.nbrIp1), if_name);
- 		else
- 			sprintf(cmd,"route %s -host %s gw %s dev %s",ty,ipstr,inet_ntoa(dcn_link_nbr.nbrIp1), if_name);
+				inet_ntoa(nbrmac.nbrIp), if_name);
+ 		else 
+ 		{
+ 			if(nbrmac.nbrIp.s_addr != p->prefix.s_addr)
+ 				sprintf(cmd,"route %s -host %s gw %s dev %s",ty,ipstr,inet_ntoa(nbrmac.nbrIp), if_name);
+ 			else 
+ 				sprintf(cmd,"route %s -host %s dev %s",ty,ipstr, if_name);
+ 		}
  	}
 	super_system(cmd);
-	GT_DEBUG("%s:excute CMD:%s\n",__func__,cmd);
-	return 0;
+	GT_DEBUG("%s:kernel route table handle(%s)\n",__func__,cmd);
 }
 /*****************************************************************************
 * function	: ospf_zebra_auto_arp
@@ -2730,28 +2875,34 @@ int ospf_zebra_auto_arp(int type, struct prefix_ipv4 *p, char *mac, char *ifname
 	char macstr[64];
 	char ty[5] = "s";
 	char if_name[64];
-	if(p == NULL)
+	if(p == NULL /*|| strlen(neigborMac) < 6*/)
 		return -1; 
-	
-	//if(p->prefix.s_addr == INADDR_LOOPBACK)
-	//    return -1;
-	
+	//return 0;
 	if(ntohl(p->prefix.s_addr) == INADDR_LOOPBACK)
 	{
-		GT_DEBUG("%s: it is loopback ip address\n",__func__);
+		GT_DEBUG("%s: loopback ip address,do nothing\n",__func__);
 	    return -1;
 	}
 	
-	/* 不是主机地址返回，不需要添加静态ARP 表项 */
-    //if(p->prefixlen != IPV4_MAX_PREFIXLEN)
-	if(dcn_link_nbr.nbrIp1.s_addr != 0)
-		ospf_zebra_route_dcn_handle(type, p, ifname);
+	/* 先处理路由信息 */
+    if(nbrmac.nbrIp.s_addr != 0)
+    	ospf_zebra_route_dcn_handle(type, p, ifname);
     
+    /* 不是主机地址返回，不需要添加静态ARP 表项 */
     if(p->prefixlen != IPV4_MAX_PREFIXLEN)
     {
-    	GT_DEBUG("%s: it is network ip address\n",__func__);
+    	GT_DEBUG("%s: network ip address do nothing\n",__func__);
     	return -1;
     }
+	/* 这里需要判断出目的地址和自己系统内相同网段的不需要操作
+	 * 防止把自己的IP地址和MAC写在ARP表上；例如192.168.1.197运行点对点OSPF，
+	 * 通过这个检测防止把192.168.1.197的MAC写在ARP表
+	 */
+	if(ospf_dcn_link_if_lookup_prefix((struct prefix *)p))
+	{
+		GT_DEBUG("%s: destination address is same to local(%s)\n",__func__,inet_ntoa(p->prefix));	
+		return 0;
+	}    
 	memset(ipstr, 0, sizeof(ipstr));
 	memset(macstr, 0, sizeof(macstr));	
 	memset(cmd, 0, sizeof(cmd));
@@ -2762,16 +2913,9 @@ int ospf_zebra_auto_arp(int type, struct prefix_ipv4 *p, char *mac, char *ifname
 		sprintf(if_name,"%s",ifname);
     if(mac)
 		sprintf(macstr,"%s",mac);
-	else
-	{
-		/*邻居MAC地址还没有设置（获取）*/
-		if(memcmp(dcn_link_nbr.nbrMac1, dcn_link_nbr.nbrMac3, OSPF_DCN_NBR_MAC_SIZE) == 0)
-		{
-			GT_DEBUG("%s:邻居MAC地址还没有设置（获取）: %s \n",__func__,if_name);
-			return;
-		}
-		sprintf(macstr,"%s",dcn_link_nbr.nbrMac1);
-	}
+    else
+    	sprintf(macstr,"%s",nbrmac.nbrMac);
+    
  	inet_ntop (p->family, &p->prefix, ipstr, sizeof(ipstr));
  	//snprintf (str, size, "%s/%d", buf, p->prefixlen);
 	//sprintf(macstr, "%02x:%02x:%02x:%02x:%02x:%02x",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
@@ -2786,7 +2930,7 @@ int ospf_zebra_auto_arp(int type, struct prefix_ipv4 *p, char *mac, char *ifname
 		sprintf(cmd, "arp -i %s -%s %s",if_name, ty, ipstr);/*delete arp table on eth0 */	
 	
 	super_system(cmd);
-	GT_DEBUG("%s:excute ZKX-CMD: %s \n",__func__,cmd);
+	GT_DEBUG("%s:add arp table for host route(%s) \n",__func__,cmd);
 	return 0;
 }
 /****************************************************************************************/
@@ -2801,8 +2945,7 @@ static void ospf_dcn_link_if_del_hook (void *val)
 /****************************************************************************************/
 /****************************************************************************************/
 int ospf_dcn_init (void)
-{
-#if 1	
+{	
 	int rc;
 	rc = ospf_register_opaque_functab (
 		  OSPF_OPAQUE_AREA_LSA,
@@ -2824,16 +2967,13 @@ int ospf_dcn_init (void)
 		zlog_warn ("ospf_dcn_init: Failed to register functions");
 		return -1;
 	}
-
+	memset (&nbrmac, 0, sizeof (struct dcn_link_nbr));	
 	memset (&OspfDcn, 0, sizeof (struct ospf_dcn));
-	memset (&dcn_link_nbr, 0, sizeof (struct dcn_link_nbr));  
-  
 	OspfDcn.status = disabled;
 	OspfDcn.iflist = list_new ();
 	OspfDcn.iflist->del = ospf_dcn_link_if_del_hook;
 	ospf_dcn_register_vty ();
 	return 0;
-#endif
 }
 
 void ospf_dcn_term (void)
@@ -2843,6 +2983,7 @@ void ospf_dcn_term (void)
 	OspfDcn.status = disabled;
 	ospf_delete_opaque_functab (OSPF_OPAQUE_AREA_LSA,
 			OPAQUE_TYPE_FLOODDCNINFO);
+	memset (&nbrmac, 0, sizeof (struct dcn_link_nbr));	
 	return;
 }
 

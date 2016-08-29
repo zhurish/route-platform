@@ -59,8 +59,13 @@ static void vty_event (enum event, int, struct vty *);
 extern struct host host;
 
 /* Vector which store each vty structure. */
+/* 2016年7月2日 21:58:39 zhurish: 增加IMI Module单元后优化shell登陆节点存放向量 */
+#ifdef IMISH_IMI_MODULE
+vector vtyvec = NULL;
+#else /* IMISH_IMI_MODULE */
 static vector vtyvec;
-
+#endif/* IMISH_IMI_MODULE */
+/* 2016年7月2日 21:58:39  zhurish: 增加IMI Module单元后优化shell登陆节点存放向量 */
 /* Vty timeout value. */
 static unsigned long vty_timeout_val = VTY_TIMEOUT_DEFAULT;
 
@@ -89,7 +94,11 @@ static u_char restricted_mode = 0;
 /* Integrated configuration file path */
 char integrate_default[] = SYSCONFDIR INTEGRATE_DEFAULT_CONFIG;
 
-
+/* 2016年6月21日 23:32:39 zhurish: log重定向到IMI module单元  */
+#ifdef IMISH_IMI_MODULE
+static int imi_sh_log_write (const char *format, int size);
+#endif// IMISH_IMI_MODULE
+/* 2016年6月21日 23:32:39  zhurish: log重定向到IMI module单元  */
 /* VTY standard output function. */
 int
 vty_out (struct vty *vty, const char *format, ...)
@@ -183,7 +192,12 @@ vty_log_out (struct vty *vty, const char *level, const char *proto_str,
 
   buf[len++] = '\r';
   buf[len++] = '\n';
-
+/* 2016年6月21日 23:32:16 zhurish: 当前是IMI module登陆，重定向到IMI module  */
+#ifdef IMISH_IMI_MODULE
+	if(vty->type == VTY_SHELL_SERV)
+		return imi_sh_log_write (buf, len);
+#endif// IMISH_IMI_MODULE
+/* 2016年6月21日 23:32:16  zhurish: 当前是IMI module登陆，重定向到IMI module  */
   if (write(vty->fd, buf, len) < 0)
     {
       if (ERRNO_IO_RETRY(errno))
@@ -715,6 +729,14 @@ vty_end_config (struct vty *vty)
     case MASC_NODE:
     case PIM_NODE:
     case VTY_NODE:
+/* 2016年7月2日 21:59:15 zhurish: 扩展路由协议后增加命令节点操作 */
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+    case HSLS_NODE:		/* HSLS protocol node. */
+    case OLSR_NODE:			/* OLSR protocol node. */
+    case ICRP_NODE:		/* ICRP protocol node. */
+    case FRP_NODE:                /* FRP protocol node */
+#endif /* HAVE_EXPAND_ROUTE_PLATFORM */     	
+/* 2016年7月2日 21:59:15  zhurish: 扩展路由协议后增加命令节点操作 */
       vty_config_unlock (vty);
       vty->node = ENABLE_NODE;
       break;
@@ -1120,6 +1142,14 @@ vty_stop_input (struct vty *vty)
     case MASC_NODE:
     case PIM_NODE:
     case VTY_NODE:
+/* 2016年7月2日 21:59:32 zhurish: 扩展路由协议后增加命令节点操作 */
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+    case HSLS_NODE:		/* HSLS protocol node. */
+    case OLSR_NODE:			/* OLSR protocol node. */
+    case ICRP_NODE:		/* ICRP protocol node. */
+    case FRP_NODE:                /* FRP protocol node */
+#endif /* HAVE_EXPAND_ROUTE_PLATFORM */     	
+/* 2016年7月2日 21:59:32  zhurish: 扩展路由协议后增加命令节点操作 */
       vty_config_unlock (vty);
       vty->node = ENABLE_NODE;
       break;
@@ -1266,7 +1296,11 @@ vty_telnet_option (struct vty *vty, unsigned char *buf, int nbytes)
     }
   return 1;
 }
-
+/* 2016年6月26日 14:14:33 zhurish: 执行IMI统一CLI接口命令 */
+#ifdef IMISH_IMI_MODULE
+int (*imi_sh_execute)(struct vty *vty, char *buf);
+#endif// IMISH_IMI_MODULE
+/* 2016年6月26日 14:14:33  zhurish: 执行IMI统一CLI接口命令 */
 /* Execute current command line. */
 static int
 vty_execute (struct vty *vty)
@@ -1282,7 +1316,17 @@ vty_execute (struct vty *vty)
       vty_auth (vty, vty->buf);
       break;
     default:
+/* 2016年6月26日 14:14:47 zhurish: 执行IMI统一CLI接口命令  */
+#ifdef IMISH_IMI_MODULE
+      if( imi_sh_execute != NULL )
+        ret =  (imi_sh_execute)(vty, vty->buf);
+      else
+        ret = vty_command (vty, vty->buf);
+	//		fprintf(stdout,"%s (ret:%d)\n",vty->buf,ret);
+#else
       ret = vty_command (vty, vty->buf);
+#endif// IMISH_IMI_MODULE
+/* 2016年6月26日 14:14:47  zhurish: 执行IMI统一CLI接口命令  */
       if (vty->type == VTY_TERM)
 	vty_hist_add (vty);
       break;
@@ -1913,6 +1957,74 @@ vty_serv_sock_family (const char* addr, unsigned short port, int family)
 #ifdef VTYSH
 /* For sockaddr_un. */
 #include <sys/un.h>
+/* 2016年6月21日 23:36:50 zhurish: log信息重定向到IMI module 的实现代码 */
+#ifdef IMISH_IMI_MODULE
+static int imishlogfd = -1;
+/*************************************************************************************************/
+static int imi_sh_log_sock_init(void)
+{
+  int sock = -1;
+  sock = socket (AF_INET, SOCK_DGRAM, 0);
+  if (sock < 0)
+  {
+    fprintf(stderr," zebra msg socket init");
+    return -1;
+  }  
+  if(setsockopt_so_recvbuf (sock, 8192) < 0)
+  {
+    close (sock);
+    fprintf(stderr," zserv_sock_init:setsockopt_so_recvbuf  error:");
+    return -1;
+  }
+  if(setsockopt_so_sendbuf (sock, 8192) < 0)
+  {
+    close (sock);
+    fprintf(stderr," zserv_sock_init:setsockopt_so_sendbuf  error:");
+    return -1;
+  }
+  if (set_nonblocking(sock) < 0)
+  {
+    close (sock);
+    fprintf(stderr," zserv_sock_init:set_nonblocking  error:");
+    return -1;
+  }  
+  imishlogfd = sock;
+  return sock;		
+}
+//udp模式向设备管理单元发送应答命令
+static int imi_sh_log_write (const char *format, int size)
+{
+	int ret = 0;	
+	struct sockaddr_in srvAddr;
+	if( imishlogfd > 0 )
+	{
+		memset ((char *)&srvAddr, 0, sizeof(srvAddr));
+		srvAddr.sin_family      = AF_INET;
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+		srvAddr.sin_len=(u_char)sizeof(struct sockaddr_in);
+#endif 
+		srvAddr.sin_port        = htons(IMISH_IMI_MODULE);
+		srvAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+		ret = sendto (imishlogfd, format, size, 0, (struct sockaddr *)&srvAddr, sizeof(struct sockaddr_in));
+		if(ret == -1)
+		{
+        	if(errno == EPIPE)  
+          {
+            close (imishlogfd);
+            imishlogfd = -1;
+            imi_sh_log_sock_init();
+            sleep(1);
+          }
+			fprintf(stderr,"%s: udp sending failed !(%s)\n","server write msg to manage module",strerror(errno));
+			return -1;
+	   }
+		return 0;
+	}
+	fprintf(stderr,"%s:%s\n","server write msg to manage module","udp socket id is empty!");
+	return -1;
+}
+#endif /* IMISH_IMI_MODULE */
+/* 2016年6月21日 23:36:50  zhurish: log信息重定向到IMI module 的实现代码 */
 
 /* VTY shell UNIX domain socket. */
 static void
@@ -2024,7 +2136,20 @@ vtysh_accept (struct thread *thread)
   vty->fd = sock;
   vty->type = VTY_SHELL_SERV;
   vty->node = VIEW_NODE;
-
+  //zhurish
+/* 2016年6月21日 23:37:56 zhurish: 用于log信息重定向到IMI module */
+#ifdef IMISH_IMI_MODULE
+  if(imishlogfd > 0)
+  {
+    vector_unset (vtyvec, imishlogfd);
+    close(imishlogfd);
+    imishlogfd = -1;
+  }
+  vty->node = ENABLE_NODE;
+  imi_sh_log_sock_init();
+  vector_set_index (vtyvec, sock, vty);
+#endif
+/* 2016年6月21日 23:37:56  zhurish: 用于log信息重定向到IMI module */
   vty_event (VTYSH_READ, sock, vty);
 
   return 0;
@@ -2184,6 +2309,17 @@ vty_close (struct vty *vty)
 
   /* Unset vector. */
   vector_unset (vtyvec, vty->fd);
+  
+  //zhurish
+/* 2016年6月21日 23:38:33 zhurish: log信息重定向到IMI module功能资源释放 */
+#ifdef IMISH_IMI_MODULE
+	if(vty->type == VTY_SHELL_SERV && imishlogfd > 0)
+	{
+		close(imishlogfd);
+		imishlogfd = -1;
+	}
+#endif
+/* 2016年6月21日 23:38:33  zhurish: log信息重定向到IMI module功能资源释放 */
 
   /* Close socket. */
   if (vty->fd > 0)
@@ -2267,7 +2403,7 @@ vty_read_file (FILE *confp)
 static FILE *
 vty_use_backup_config (char *fullpath)
 {
-  char *fullpath_sav, *fullpath_tmp;
+  char *fullpath_sav = NULL, *fullpath_tmp = NULL;
   FILE *ret = NULL;
   struct stat buf;
   int tmp, sav;
@@ -2327,6 +2463,39 @@ vty_use_backup_config (char *fullpath)
   free (fullpath_tmp);
   return ret;
 }
+/* 2016年6月21日 23:39:01 zhurish: 没有配置文件的时候设置默认参数 */
+static int host_config_default(char *password, char *defult_config)
+{
+	  if(password == NULL || defult_config == NULL)
+	  {
+	  	fprintf (stderr, "%s: failed to setting defa configuration file :%s\n",
+                   __func__, safe_strerror (errno));
+		exit(0);		   
+	  }	
+	  if (host.name)//
+	    XFREE (MTYPE_HOST, host.name);
+	  host.name = XSTRDUP (MTYPE_HOST, QUAGGA_PROGNAME);
+	  
+	  if (host.enable)//设置enable的默认密码
+    		XFREE (MTYPE_HOST, host.enable);
+  	  host.enable = XSTRDUP(MTYPE_HOST, password);
+
+  	  if (host.enable_encrypt)
+    		XFREE (MTYPE_HOST, host.enable_encrypt);
+  	  host.enable_encrypt = XSTRDUP(MTYPE_HOST, password);
+	  
+	  if (host.password)//设置configure terminal默认密码
+    		XFREE (MTYPE_HOST, host.password);
+  	  host.password = XSTRDUP(MTYPE_HOST, password);
+  	  if (host.password_encrypt)
+    		XFREE (MTYPE_HOST, host.password_encrypt);
+  	  host.password_encrypt = XSTRDUP(MTYPE_HOST, password);
+	  host_config_set (defult_config);
+	  if(zlog_default)
+	  	zlog_set_level (NULL, ZLOG_DEST_STDOUT, zlog_default->default_lvl);
+	  return 0;
+}	  
+/* 2016年6月21日 23:39:01  zhurish: 没有配置文件的时候设置默认参数 */
 
 /* Read up configuration file from file_name. */
 void
@@ -2335,7 +2504,7 @@ vty_read_config (char *config_file,
 {
   char cwd[MAXPATHLEN];
   FILE *confp = NULL;
-  char *fullpath;
+  char *fullpath = NULL;
   char *tmp = NULL;
 
   /* If -f flag specified. */
@@ -2366,7 +2535,9 @@ vty_read_config (char *config_file,
             {
               fprintf (stderr, "can't open configuration file [%s]\n", 
   	               config_file);
-              exit(1);
+/* 2016年6月21日 23:39:50 zhurish: 屏蔽退出操作，实现没有配置文件的时候正常启动路由进程 */
+              //exit(1);
+/* 2016年6月21日 23:39:50  zhurish: 屏蔽退出操作，实现没有配置文件的时候正常启动路由进程 */
             }
         }
     }
@@ -2414,18 +2585,36 @@ vty_read_config (char *config_file,
             {
               fprintf (stderr, "can't open configuration file [%s]\n",
   		                 config_default_dir);
-  	          exit (1);
+/* 2016年6月21日 23:40:11 zhurish: 屏蔽退出操作，实现没有配置文件的时候正常启动路由进程 */
+  	          //exit (1);
+/* 2016年6月21日 23:40:11  zhurish: 屏蔽退出操作，实现没有配置文件的时候正常启动路由进程 */
             }
         }      
       else
         fullpath = config_default_dir;
     }
+  if(confp)
+  {
+	  vty_read_file (confp);
 
-  vty_read_file (confp);
-
-  fclose (confp);
-
-  host_config_set (fullpath);
+	  fclose (confp);
+	  if(fullpath)
+		host_config_set (fullpath);
+  }
+/* 2016年6月21日 23:40:23 zhurish: 屏蔽退出操作，实现没有配置文件的时候正常启动路由进程 */
+  else//zhurish edit default information
+  {
+  	//设置默认主机名和log信息，主要是完成在配置文件不存在的时候可以生成默认配置名称
+	if(fullpath)
+		host_config_default("zebra", fullpath);
+	else if(config_default_dir)
+		host_config_default("zebra", config_default_dir);
+	else if(config_file)
+		host_config_default("zebra", config_file);
+	else
+		host_config_default("zebra", integrate_default);
+  }
+/* 2016年6月21日 23:40:23  zhurish: 屏蔽退出操作，实现没有配置文件的时候正常启动路由进程 */
   
   if (tmp)
     XFREE (MTYPE_TMP, fullpath);
@@ -2475,7 +2664,16 @@ vty_log_fixed (char *buf, size_t len)
       if (((vty = vector_slot (vtyvec, i)) != NULL) && vty->monitor)
 	/* N.B. We don't care about the return code, since process is
 	   most likely just about to die anyway. */
-	writev(vty->fd, iov, 2);
+/* 2016年6月21日 23:41:31 zhurish: 用于log信息重定向到IMI module单元 */
+#ifdef IMISH_IMI_MODULE
+	if(vty->type == VTY_SHELL_SERV)
+		imi_sh_log_write (buf, len);
+	else
+	  writev(vty->fd, iov, 2);	
+#else
+		writev(vty->fd, iov, 2);		
+#endif// IMISH_IMI_MODULE	   
+/* 2016年6月21日 23:41:31  zhurish: 用于log信息重定向到IMI module单元 */
     }
 }
 
@@ -3015,3 +3213,52 @@ vty_terminate (void)
       vector_free (Vvty_serv_thread);
     }
 }
+/* 2016年6月27日 21:00:17 zhurish: 用于IMIModule单元初始化CLI命令 */
+#ifdef IMISH_IMI_MODULE
+void imi_shell_init (struct thread_master *master_thread)
+{
+  /* For further configuration read, preserve current directory. */
+  vty_save_cwd ();
+
+  vtyvec = vector_init (VECTOR_MIN_SIZE);
+
+  master = master_thread;
+
+  //atexit (vty_stdio_reset);
+  /* Initilize server thread vector. */
+  Vvty_serv_thread = vector_init (VECTOR_MIN_SIZE);
+  
+	//install_node (&vty_node, vty_config_write);
+
+  install_element (RESTRICTED_NODE, &config_who_cmd);
+  install_element (RESTRICTED_NODE, &show_history_cmd);
+  install_element (VIEW_NODE, &config_who_cmd);
+  install_element (VIEW_NODE, &show_history_cmd);
+  install_element (ENABLE_NODE, &config_who_cmd);
+  //install_element (CONFIG_NODE, &line_vty_cmd);
+  
+  install_element (CONFIG_NODE, &service_advanced_vty_cmd);
+  install_element (CONFIG_NODE, &no_service_advanced_vty_cmd);
+  install_element (CONFIG_NODE, &show_history_cmd);
+  //install_element (ENABLE_NODE, &terminal_monitor_cmd);
+  //install_element (ENABLE_NODE, &terminal_no_monitor_cmd);
+  //install_element (ENABLE_NODE, &no_terminal_monitor_cmd);
+  install_element (ENABLE_NODE, &show_history_cmd);
+
+  //install_default (VTY_NODE);
+  install_element (VTY_NODE, &exec_timeout_min_cmd);
+  install_element (VTY_NODE, &exec_timeout_sec_cmd);
+  install_element (VTY_NODE, &no_exec_timeout_cmd);
+  install_element (VTY_NODE, &vty_access_class_cmd);
+  install_element (VTY_NODE, &no_vty_access_class_cmd);
+  install_element (VTY_NODE, &vty_login_cmd);
+  install_element (VTY_NODE, &no_vty_login_cmd);
+  install_element (VTY_NODE, &vty_restricted_mode_cmd);
+  install_element (VTY_NODE, &vty_no_restricted_mode_cmd);
+#ifdef HAVE_IPV6
+  install_element (VTY_NODE, &vty_ipv6_access_class_cmd);
+  install_element (VTY_NODE, &no_vty_ipv6_access_class_cmd);
+#endif /* HAVE_IPV6 */ 
+}
+#endif/* IMISH_IMI_MODULE */
+/* 2016年6月27日 21:00:17  zhurish: 用于IMIModule单元初始化CLI命令 */

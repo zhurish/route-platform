@@ -52,6 +52,19 @@ const char *zlog_proto_names[] =
   "OSPF6",
   "ISIS",
   "PIM",
+/* 2016年6月27日 21:05:11 zhurish: 扩展路由协议后定义LOG信息节点 */
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+  "OLSR",
+  "HSLS",
+  "ICRP",
+  "FRP",
+#endif /* HAVE_EXPAND_ROUTE_PLATFORM */
+/* 2016年6月27日 21:05:11  zhurish: 扩展路由协议后定义LOG信息节点 */
+/* 2016年6月27日 21:05:43 zhurish: 使能IMI Module模块后定义IMI Module单元的LOG信息节点 */
+#ifdef IMISH_IMI_MODULE
+  "IMISH",
+#endif /* IMISH_IMI_MODULE */
+/* 2016年6月27日 21:05:43  zhurish: 使能IMI Module模块后定义IMI Module单元的LOG信息节点 */
   "MASC",
   NULL,
 };
@@ -960,7 +973,76 @@ proto_redistnum(int afi, const char *s)
 {
   if (! s)
     return -1;
-
+/* 2016年6月27日 21:06:21 zhurish: 扩展路由协议后修改 */
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM    
+  if (afi == AFI_IP)
+    {
+      if (strncmp (s, "sy", 2) == 0)
+	return ZEBRA_ROUTE_SYSTEM;
+      else if (strncmp (s, "ke", 2) == 0)
+	return ZEBRA_ROUTE_KERNEL;
+      else if (strncmp (s, "co", 2) == 0)
+	return ZEBRA_ROUTE_CONNECT;
+      else if (strncmp (s, "st", 2) == 0)
+	return ZEBRA_ROUTE_STATIC;
+      else if (strncmp (s, "ri", 2) == 0)
+	return ZEBRA_ROUTE_RIP;
+      else if (strncmp (s, "os", 2) == 0)
+	return ZEBRA_ROUTE_OSPF;
+      else if (strncmp (s, "is", 2) == 0)
+	return ZEBRA_ROUTE_ISIS;
+      else if (strncmp (s, "bg", 2) == 0)
+	return ZEBRA_ROUTE_BGP;
+      else if (strncmp (s, "pi", 2) == 0)
+	return ZEBRA_ROUTE_PIM;
+      else if (strncmp (s, "hs", 2) == 0)
+	return ZEBRA_ROUTE_HSLS;	
+      else if (strncmp (s, "ol", 2) == 0)
+	return ZEBRA_ROUTE_OLSR;
+      else if (strncmp (s, "ba", 2) == 0)
+	return ZEBRA_ROUTE_BABEL;
+      else if (strncmp (s, "ic", 2) == 0)
+	return ZEBRA_ROUTE_ICRP;
+      else if (strncmp (s, "fr", 2) == 0)
+	return ZEBRA_ROUTE_FRP;
+      else if (strncmp (s, "ao", 2) == 0)
+	return ZEBRA_ROUTE_AODV;
+    }
+  if (afi == AFI_IP6)
+    {
+      if (strncmp (s, "sy", 2) == 0)
+	return ZEBRA_ROUTE_SYSTEM;
+      else if (strncmp (s, "ke", 2) == 0)
+	return ZEBRA_ROUTE_KERNEL;
+      else if (strncmp (s, "co", 2) == 0)
+	return ZEBRA_ROUTE_CONNECT;
+      else if (strncmp (s, "st", 2) == 0)
+	return ZEBRA_ROUTE_STATIC;
+      else if (strncmp (s, "ri", 2) == 0)
+	return ZEBRA_ROUTE_RIPNG;
+      else if (strncmp (s, "os", 2) == 0)
+	return ZEBRA_ROUTE_OSPF6;
+      else if (strncmp (s, "is", 2) == 0)
+	return ZEBRA_ROUTE_ISIS;
+      else if (strncmp (s, "bg", 2) == 0)
+	return ZEBRA_ROUTE_BGP;
+      else if (strncmp (s, "pi", 2) == 0)
+	return ZEBRA_ROUTE_PIM;
+      else if (strncmp (s, "hs", 2) == 0)
+	return ZEBRA_ROUTE_HSLS;	
+      else if (strncmp (s, "ol", 2) == 0)
+	return ZEBRA_ROUTE_OLSR;
+      else if (strncmp (s, "ba", 2) == 0)
+	return ZEBRA_ROUTE_BABEL;
+      else if (strncmp (s, "ic", 2) == 0)
+	return ZEBRA_ROUTE_ICRP;
+      else if (strncmp (s, "fr", 2) == 0)
+	return ZEBRA_ROUTE_FRP;
+      else if (strncmp (s, "ao", 2) == 0)
+	return ZEBRA_ROUTE_AODV;
+    }
+  return -1;    
+#else//#ifdef HAVE_EXPAND_ROUTE_PLATFORM
   if (afi == AFI_IP)
     {
       if (strncmp (s, "k", 1) == 0)
@@ -1000,4 +1082,6 @@ proto_redistnum(int afi, const char *s)
 	return ZEBRA_ROUTE_BABEL;
     }
   return -1;
+#endif//#ifdef HAVE_EXPAND_ROUTE_PLATFORM  
+/* 2016年6月27日 21:06:21  zhurish: 扩展路由协议后修改 */
 }

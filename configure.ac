@@ -280,7 +280,18 @@ AC_ARG_ENABLE(fpm,
 dnl ------------------------------ zhurish
 AC_ARG_ENABLE(ospf-dcn,
   AS_HELP_STRING([--enable-ospf-dcn], [build ospfd witch dcn support]))   
-    
+AC_ARG_ENABLE(imi,
+  AS_HELP_STRING([--enable-imi=ARG], [enable IMI module ,and set IMI shell server local port ]))
+AC_ARG_ENABLE(olsrd,
+  AS_HELP_STRING([--disable-olsrd], [do not build olsrd]))
+AC_ARG_ENABLE(frpd,
+  AS_HELP_STRING([--disable-frpd], [do not build frpd]))
+AC_ARG_ENABLE(vrrpd,
+  AS_HELP_STRING([--disable-vrrpd], [do not build vrrpd]))
+AC_ARG_ENABLE(icrpd,
+  AS_HELP_STRING([--disable-icrpd], [do not build icrpd]))
+AC_ARG_ENABLE(aodvd,
+  AS_HELP_STRING([--disable-aodvd], [do not build aodvd])) 
 dnl ------------------------------ zhurish
 
 if test x"${enable_gcc_ultra_verbose}" = x"yes" ; then
@@ -1536,6 +1547,7 @@ AC_DEFINE_UNQUOTED(ISIS_VTYSH_PATH, "$quagga_statedir/isisd.vty",isisd vty socke
 AC_DEFINE_UNQUOTED(PIM_VTYSH_PATH, "$quagga_statedir/pimd.vty",pimd vty socket)
 AC_DEFINE_UNQUOTED(DAEMON_VTY_DIR, "$quagga_statedir",daemon vty directory)
 
+dnl --------------------------------zhurish
 if test "${enable_ospf_dcn}" = "yes";then
 	if test "${enable_opaque_lsa}" = "no";then
   		AC_DEFINE(HAVE_OPAQUE_LSA,,OSPF Opaque LSA)
@@ -1546,6 +1558,127 @@ if test "${enable_ospf_dcn}" = "yes";then
 	AC_DEFINE(HAVE_OSPFD_DCN,1,enable ospf explain lsa )  
 fi
 AM_CONDITIONAL([HAVE_OSPFD_DCN], [test "x$enable_ospf_dcn" = "xyes"])
+
+
+if test "${enable_imi}" != ""; then
+  IMISHD="imi-cli"
+  AC_DEFINE_UNQUOTED(IMISH_IMI_MODULE, ${enable_imi}, Enable IMI module shell to Routting Protocol)
+  AC_DEFINE(HAVE_LINUX_SHELL,1,enable linux system shell)  
+  if test "${enable_vtysh}" = "no"; then  
+    AC_DEFINE(VTYSH,,VTY shell)
+  fi   
+else
+  IMISHD=""
+fi
+AM_CONDITIONAL(IMISHD, test "x$IMISHD" = "ximi-cli")
+
+if test "${enable_olsrd}" = "yes";then
+  OLSRD="olsrd"
+  AC_DEFINE_UNQUOTED(PATH_OLSRD_PID, "$quagga_statedir/olsrd.pid",olsrd PID)
+	AC_DEFINE_UNQUOTED(OLSR_VTYSH_PATH, "$quagga_statedir/olsrd.vty",olsrd vty socket)  
+else
+  OLSRD=""
+fi
+AM_CONDITIONAL(OLSRD, test "x$OLSRD" = "xolsrd")
+
+
+if test "${enable_frpd}" = "yes";then
+  FRPD="frpd"
+	AC_DEFINE_UNQUOTED(PATH_FRPD_PID, "$quagga_statedir/frpd.pid",frpd PID)
+	AC_DEFINE_UNQUOTED(FRP_VTYSH_PATH, "$quagga_statedir/frpd.vty",frpd vty socket)  
+else
+  FRPD=""
+fi
+AM_CONDITIONAL(FRPD, test "x$FRPD" = "xfrpd")
+
+if test "${enable_icrpd}" = "yes";then
+  ICRPD="icrpd"
+	AC_DEFINE_UNQUOTED(PATH_ICRPD_PID, "$quagga_statedir/icrpd.pid",icrpd PID)
+	AC_DEFINE_UNQUOTED(ICRP_VTYSH_PATH, "$quagga_statedir/icrpd.vty",icrpd vty socket)  
+else
+  ICRPD=""
+fi
+AM_CONDITIONAL(ICRPD, test "x$ICRPD" = "xicrpd")
+
+if test "${enable_aodvd}" = "yes";then
+  AODVD="aodvd"
+	AC_DEFINE_UNQUOTED(PATH_AODVD_PID, "$quagga_statedir/aodvd.pid",aodvd PID)
+	AC_DEFINE_UNQUOTED(AODV_VTYSH_PATH, "$quagga_statedir/aodvd.vty",aodvd vty socket)  
+else
+  AODVD=""
+fi
+AM_CONDITIONAL(AODVD, test "x$AODVD" = "xadovd")
+
+if test "${enable_vrrpd}" = "yes";then
+  VRRPD="vrrpd"
+	AC_DEFINE_UNQUOTED(PATH_VRRPD_PID, "$quagga_statedir/vrrpd.pid",vrrpd PID)
+	AC_DEFINE_UNQUOTED(VRRP_VTYSH_PATH, "$quagga_statedir/vrrpd.vty",vrrpd vty socket)  
+else
+  VRRPD=""
+fi
+AM_CONDITIONAL(VRRPD, test "x$VRRPD" = "xvrrpd")
+
+if test "${enable_fpm}" = "yes"; then
+  FPMD="fpm"
+else
+  FPMD=""
+fi
+AM_CONDITIONAL(FPMD, test "x$FPMD" = "xfpm")
+
+if test "${enable_olsrd}" = "yes" || test "${enable_frpd}" = "yes" || 
+	test "${enable_icrpd}" = "yes" || test "${enable_aodvd}" = "yes" || 
+	test "${enable_vrrpd}" = "yes"; then
+	
+  AC_DEFINE(HAVE_EXPAND_ROUTE_PLATFORM,1,Expand routing protocol Platform :enable other route protocol)
+fi
+
+AC_SUBST(OLSRD)
+AC_SUBST(FRPD)
+AC_SUBST(ICRPD)
+AC_SUBST(AODVD)
+AC_SUBST(VRRPD)
+AC_SUBST(IMISHD)
+AC_SUBST(FPMD)
+
+if test "${enable_imi}" != ""; then
+	if test -d $quagga_statedir; then
+		echo ""
+	else
+		mkdir -p $quagga_statedir
+	fi
+	if test -d ${prefix}/log; then 
+		echo ""
+	else
+		mkdir -p ${prefix}/log
+	fi
+	AC_DEFINE_UNQUOTED(PATH_IMISH_PID, "$quagga_statedir/imi-cli.pid",IMI Mdoule PID)
+	AC_DEFINE_UNQUOTED(IMISH_UNIX_PATH, "$quagga_statedir/imi-cli.vty",IMI Mdoule socket)  
+	AC_DEFINE_UNQUOTED(DAEMON_CONFIG_DIR, "${prefix}", default daemon app root dir )
+	AC_DEFINE_UNQUOTED(DAEMON_LOG_FILE_DIR, "${prefix}/log",  default daemon logmsg directory)
+	AC_DEFINE_UNQUOTED(HOST_DEFAULT_OEM_FILE, "${prefix}/etc/oem.bin",  default oem file)
+	
+	AC_DEFINE_UNQUOTED(OEM_PACKAGE_AUTHER, "zhurish",  this OEM auther name)
+	AC_DEFINE_UNQUOTED(OEM_PACKAGE_BUGREPORT, "zhurish163@com",   Define to the address where bug reports for this OEM package should be sent.)	
+	AC_DEFINE_UNQUOTED(OEM_PACKAGE_NAME, "routing-plaform",    Name of OEM package)	
+	
+	AC_DEFINE_UNQUOTED(OEM_PACKAGE_VERSION, "V0.0.0.9",    Define to the version of this OEM package.)	
+	
+	makedate=`date +"%Y/%m/%d"`
+	AC_DEFINE_UNQUOTED(OEM_PACKAGE_COPYRIGHT, "Copyright 2016/03/03 - $makedate zhurish(zhurish@163.com) et al.",  this copyright for OEM version)
+	AC_DEFINE(OEM_PACKAGE_BASE, PACKAGE_STRING,  this OEM base of Quagga version)
+
+	VALUE=`echo ${PACKAGE_VERSION} | awk -F. '{ printf "%x\n",lshift($1,16)+lshift($2,8) }'`
+	AC_DEFINE_UNQUOTED(OEM_BASE_VERSION, $VALUE,  this OEM base on Quagga version number(xx.xx.00))
+		
+	dnl if grep NET_RT_IFLIST /usr/include/sys/socket.h >/dev/null 2>&1; then
+	dnl 	echo ""
+	dnl else
+	dnl 	AC_DEFINE(HAVE_PROC_NET_DEV, 1, interfaces statistics in proc)
+	dnl fi
+
+fi
+
+dnl --------------------------------zhurish
 
 dnl -------------------------------
 dnl Quagga sources should always be 
@@ -1570,7 +1703,7 @@ AC_CONFIG_FILES([Makefile lib/Makefile zebra/Makefile ripd/Makefile
 	  ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile
 	  ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile
 	  doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile
-	  pimd/Makefile
+	  pimd/Makefile fpm/Makefile olsrd/Makefile imi-cli/Makefile
 	  tests/bgpd.tests/Makefile
 	  tests/libzebra.tests/Makefile
 	  redhat/Makefile
@@ -1584,6 +1717,7 @@ AC_CONFIG_FILES([Makefile lib/Makefile zebra/Makefile ripd/Makefile
 AC_CONFIG_FILES([solaris/Makefile])
 
 AC_CONFIG_FILES([vtysh/extract.pl],[chmod +x vtysh/extract.pl])
+AC_CONFIG_FILES([imi-cli/extract.pl],[chmod +x imi-cli/extract.pl])
 ## Hack, but working solution to avoid rebuilding of quagga.info.
 ## It's already in CVS until texinfo 4.7 is more common.
 AC_OUTPUT

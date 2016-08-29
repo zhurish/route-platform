@@ -58,8 +58,14 @@ ZEBRA_ROUTE_PIM,	pim,	   pimd,   'P', 1, 0, "PIM"
 # to 'switch on' redist support (direct numeric entry remaining
 # possible).
 ZEBRA_ROUTE_HSLS,       hsls,      hslsd,  'H', 0, 0, "HSLS"
-ZEBRA_ROUTE_OLSR,       olsr,      olsrd,  'o', 0, 0, "OLSR"
+ZEBRA_ROUTE_OLSR,       olsr,      olsrd,  'o', 1, 0, "OLSR"
 ZEBRA_ROUTE_BABEL,      babel,     babeld, 'A', 1, 1, "Babel"
+#扩展路由协议
+ZEBRA_ROUTE_ICRP,	 icrp,	icrpd,	'i', 1, 0, "ICRP"
+ZEBRA_ROUTE_FRP,	 frp,		frpd,		'F', 1, 0, "FRP"  
+ZEBRA_ROUTE_AODV,	 aodv,		aodvd,		'a', 1, 0, "AODV" 
+ZEBRA_ROUTE_MANAGE,	 manage,	mgtd,	'm', 0, 0, "manage"
+ZEBRA_ROUTE_SWITCH,	 switch,		switchd,		's', 0, 0, "switch"  
 
 ## help strings
 ZEBRA_ROUTE_SYSTEM, "Reserved route type, for internal use only"
@@ -76,3 +82,9 @@ ZEBRA_ROUTE_PIM,    "Protocol Independent Multicast (PIM)"
 ZEBRA_ROUTE_HSLS,   "Hazy-Sighted Link State Protocol (HSLS)"
 ZEBRA_ROUTE_OLSR,   "Optimised Link State Routing (OLSR)"
 ZEBRA_ROUTE_BABEL,  "Babel routing protocol (Babel)"
+#扩展路由协议
+ZEBRA_ROUTE_ICRP,	"Internet Based On Node Contact Time Routing Protocol  (ICRP)"
+ZEBRA_ROUTE_FRP,	"Fast and Reliable Routing Protocol  (FRP)"
+ZEBRA_ROUTE_AODV,	"AD HOT MANET Routing Protocol  (AODV)"
+ZEBRA_ROUTE_MANAGE,	 "board manage module"
+ZEBRA_ROUTE_SWITCH,	 "switch or sdn module"

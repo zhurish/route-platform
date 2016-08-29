@@ -276,7 +276,31 @@ struct memory_list memory_list_vtysh[] =
   { MTYPE_VTYSH_CONFIG_LINE,	"Vtysh configuration line"	},
   { -1, NULL },
 };
-
+/* 2016年6月27日 21:07:44 zhurish: 扩展路由协议增加的内存信息 */
+#ifdef ZEBRA_ROUTE_OLSR 
+struct memory_list memory_list_olsr[] =
+{
+  { MTYPE_OLSR_TOP,		"OLSR top",		},
+  { MTYPE_OLSR_IF,		"OLSR interface",	},
+  { MTYPE_OLSR_IF_INFO,		"OLSR interface info ",	},
+  { MTYPE_OLSR_HEADER,		"OLSR packet header",	},
+  { MTYPE_OLSR_HELLO_HEADER,	"OLSR hello header",	},
+  { MTYPE_OLSR_LINK_HEADER,	"OLSR link header",	},
+  { MTYPE_OLSR_LINK,		"OLSR link",		},
+  { MTYPE_OLSR_NEIGH,		"OLSR neighbor",	},
+  { MTYPE_OLSR_OI_LINK,		"OLSR interface link",	},
+  { MTYPE_OLSR_MSG,		"OLSR message",		},
+  { MTYPE_OLSR_FIFO,		"OLSR message fifo",	},
+  { MTYPE_OLSR_DUP,		"OLSR Duplicate Tuple",	},
+  { MTYPE_OLSR_MID,		"OLSR admin address",	},
+  { MTYPE_OLSR_HOP2,		"OLSR 2-hop tuples",	},
+  { MTYPE_OLSR_1N,		"OLSR mpr 1-hop",	},
+  { MTYPE_OLSR_2N,		"OLSR mpr 2-hop ",	},
+  { MTYPE_OLSR_ROUTE,  		"OLSR route",		},
+  { -1, NULL },
+}; 
+#endif
+/* 2016年6月27日 21:07:44  zhurish: 扩展路由协议增加的内存信息 */
 struct mlist mlists[] __attribute__ ((unused)) = {
   { memory_list_lib,	"LIB"	},
   { memory_list_zebra,	"ZEBRA"	},
@@ -287,5 +311,10 @@ struct mlist mlists[] __attribute__ ((unused)) = {
   { memory_list_isis,	"ISIS"	},
   { memory_list_bgp,	"BGP"	},
   { memory_list_pim,	"PIM"	},
+/* 2016年6月27日 21:07:44 zhurish: 扩展路由协议增加的内存信息 */  
+#ifdef ZEBRA_ROUTE_OLSR 
+  { memory_list_olsr,	"OLSR"	},
+#endif  
+/* 2016年6月27日 21:07:44 zhurish: 扩展路由协议增加的内存信息 */
   { NULL, NULL},
 };

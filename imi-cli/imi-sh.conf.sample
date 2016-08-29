@@ -1,0 +1,8 @@
+!
+! IMISH sample configuration file
+!
+!
+hostname IMISH
+password imish
+!
+log stdout

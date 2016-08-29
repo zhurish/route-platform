@@ -2875,6 +2875,14 @@ DEFUN (config_exit,
     case RMAP_NODE:
     case PIM_NODE:
     case VTY_NODE:
+/* 2016??7??2?? 21:55:37 zhurish: ??չ·??Э?????????????ڵ????? */
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+    case HSLS_NODE:		/* HSLS protocol node. */
+    case OLSR_NODE:			/* OLSR protocol node. */
+    case ICRP_NODE:		/* ICRP protocol node. */
+    case FRP_NODE:                /* FRP protocol node */
+#endif /* HAVE_EXPAND_ROUTE_PLATFORM */    	
+/* 2016??7??2?? 21:55:37  zhurish: ??չ·??Э?????????????ڵ????? */
       vty->node = CONFIG_NODE;
       break;
     case BGP_VPNV4_NODE:
@@ -2933,6 +2941,14 @@ DEFUN (config_end,
     case MASC_NODE:
     case PIM_NODE:
     case VTY_NODE:
+/* 2016??7??2?? 21:55:46 zhurish: ??չ·??Э?????????????ڵ????? */
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+    case HSLS_NODE:		/* HSLS protocol node. */
+    case OLSR_NODE:			/* OLSR protocol node. */
+    case ICRP_NODE:		/* ICRP protocol node. */
+    case FRP_NODE:                /* FRP protocol node */
+#endif /* HAVE_EXPAND_ROUTE_PLATFORM */     	
+/* 2016??7??2?? 21:55:46  zhurish: ??չ·??Э?????????????ڵ????? */
       vty_config_unlock (vty);
       vty->node = ENABLE_NODE;
       break;
@@ -2949,12 +2965,27 @@ DEFUN (show_version,
        SHOW_STR
        "Displays zebra version\n")
 {
+/* 2016??7??2?? 21:56:11 zhurish: ????IMI Module??Ԫ?????޸???ʾ?汾??Ϣ */
+#ifdef IMISH_IMI_MODULE	
+  int ret = -1;
+  //ret = vty_oem (vty);
+  if(ret == -1)
+  {
+	  vty_out (vty, " Hello this is %s (version:%s).%s", OEM_PACKAGE_NAME, OEM_PACKAGE_VERSION, VTY_NEWLINE);
+	  vty_out (vty, " %s%s%s", OEM_PACKAGE_COPYRIGHT, GIT_INFO, VTY_NEWLINE);
+	  vty_out (vty, " Design it Base on (%s).%s", OEM_PACKAGE_BASE, VTY_NEWLINE);
+	  if( (GIT_SUFFIX)&&(strlen(GIT_SUFFIX) > 2) )
+		vty_out (vty, " Git suffex:%s%s Git info:%s%s", GIT_SUFFIX, VTY_NEWLINE, GIT_INFO, VTY_NEWLINE);
+  }
+  vty_out (vty, " It't make: %s %s .%s", __DATE__,__TIME__, VTY_NEWLINE);	
+#else  /* IMISH_IMI_MODULE */ 
   vty_out (vty, "Quagga %s (%s).%s", QUAGGA_VERSION, host.name?host.name:"",
 	   VTY_NEWLINE);
   vty_out (vty, "%s%s%s", QUAGGA_COPYRIGHT, GIT_INFO, VTY_NEWLINE);
   vty_out (vty, "configured with:%s    %s%s", VTY_NEWLINE,
            QUAGGA_CONFIG_ARGS, VTY_NEWLINE);
-
+#endif /* IMISH_IMI_MODULE */ 
+/* 2016??7??2?? 21:56:11  zhurish: ????IMI Module??Ԫ?????޸???ʾ?汾??Ϣ */
   return CMD_SUCCESS;
 }
 
@@ -4062,7 +4093,11 @@ cmd_init (int terminal)
       install_element (ENABLE_NODE, &config_terminal_cmd);
       install_element (ENABLE_NODE, &copy_runningconfig_startupconfig_cmd);
     }
+/* 2016??6??23?? 21:48:01 zhurish: ?ƶ???terminalģʽ ??????IMI Module??Ԫ??д?⼸?????? */
+#ifndef IMISH_IMI_MODULE	
   install_element (ENABLE_NODE, &show_startup_config_cmd);
+#endif /* IMISH_IMI_MODULE */ 
+/* 2016??6??23?? 21:48:01 zhurish: ?ƶ???terminalģʽ ??????IMI Module??Ԫ??д?⼸?????? */  
   install_element (ENABLE_NODE, &show_version_cmd);
 
   if (terminal)
@@ -4075,12 +4110,21 @@ cmd_init (int terminal)
 
       install_default (CONFIG_NODE);
     }
-  
+/* 2016??6??23?? 21:48:01 zhurish: ?ƶ???terminalģʽ ??????IMI Module??Ԫ??д?⼸?????? */	
+#ifndef IMISH_IMI_MODULE	
   install_element (CONFIG_NODE, &hostname_cmd);
   install_element (CONFIG_NODE, &no_hostname_cmd);
-
+#endif /* IMISH_IMI_MODULE */   
+/* 2016??6??23?? 21:48:01 zhurish: ?ƶ???terminalģʽ ??????IMI Module??Ԫ??д?⼸?????? */  
   if (terminal)
     {
+/* 2016??6??23?? 21:48:01 zhurish: ?ƶ???terminalģʽ ??????IMI Module??Ԫ??д?⼸?????? */
+#ifdef IMISH_IMI_MODULE	
+  		install_element (CONFIG_NODE, &hostname_cmd);
+  		install_element (CONFIG_NODE, &no_hostname_cmd);
+  		install_element (ENABLE_NODE, &show_startup_config_cmd);
+#endif /* IMISH_IMI_MODULE */   		
+/* 2016??6??23?? 21:48:01  zhurish: ?ƶ???terminalģʽ ??????IMI Module??Ԫ??д?⼸?????? */
       install_element (CONFIG_NODE, &password_cmd);
       install_element (CONFIG_NODE, &password_text_cmd);
       install_element (CONFIG_NODE, &enable_password_cmd);

@@ -496,7 +496,17 @@ extern const char *zserv_command_string (unsigned int command);
 #define FILTER_IN                 0
 #define FILTER_OUT                1
 #define FILTER_MAX                2
-
+#ifdef IMISH_IMI_MODULE
+#define ZEBRA_SYSTEM_DISTANCE_DEFAULT      0
+#define ZEBRA_PIM_DISTANCE_DEFAULT      1
+#define ZEBRA_HSLS_DISTANCE_DEFAULT      100
+#define ZEBRA_OLSR_DISTANCE_DEFAULT      90
+#define ZEBRA_BABEL_DISTANCE_DEFAULT      120
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+#define ZEBRA_ICRP_DISTANCE_DEFAULT      95
+#define ZEBRA_FRP_DISTANCE_DEFAULT      80
+#endif
+#endif//#ifdef IMISH_IMI_MODULE
 /* Default Administrative Distance of each protocol. */
 #define ZEBRA_KERNEL_DISTANCE_DEFAULT      0
 #define ZEBRA_CONNECT_DISTANCE_DEFAULT     0

@@ -325,9 +325,8 @@ ospf_interface_address_delete (int command, struct zclient *zclient,
 }
 #ifdef HAVE_OSPFD_DCN
 /*
- * ÓÃÓÚOSPFÑ§Ï°µœÂ·ÓÉºóÌíŒÓŸ²Ì¬ARP±í£¬OSPFÑ§Ï°µœµÄÂ·ÓÉÊÇÖ±Á¬Â·ÓÉ£ºÏÂÒ»ÌøµØÖ·Îª0£¬Ö»ÓÐÏÂÒ»Ìø³ö¿Ú
- * Ä¿µÄµØÖ·£¬ÓÃÓÚÌíŒÓŸ²Ì¬ARP±í
- * º¯ÊýÔÚospf_dcn.cÎÄŒþ¶šÒå£¬
+ * 设置直连路由的ARP表
+ * 
  */
 extern int ospf_zebra_auto_arp(int type, struct prefix_ipv4 *p, char *mac, char *ifname);
 #endif /* HAVE_OSPFD_DCN */

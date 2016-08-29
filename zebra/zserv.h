@@ -66,6 +66,12 @@ struct zserv
 
   /* Router-id information. */
   u_char ridinfo;
+/* 2016年6月27日 21:31:53 zhurish: 使能IMI Module模块增加客户端标识 */
+#ifdef IMISH_IMI_MODULE
+  /* client proto information. */
+  u_char proto;  
+#endif//CONFIG_ZEBRA_ELASTIC
+/* 2016年6月27日 21:31:53  zhurish: 使能IMI Module模块增加客户端标识 */
 };
 
 /* Zebra instance */

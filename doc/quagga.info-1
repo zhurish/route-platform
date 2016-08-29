@@ -1,4 +1,4 @@
-This is quagga.info, produced by makeinfo version 5.2 from quagga.texi.
+This is quagga.info, produced by makeinfo version 5.1 from quagga.texi.
 
 Copyright (C) 1999-2005 Kunihiro Ishiguro, et al.
 
@@ -4545,7 +4545,6 @@ Example of a session to an upstream, advertising only one prefix to it.
      ip prefix-list pl-allowed-adv seq 5 permit 82.195.133.0/25
      ip prefix-list pl-allowed-adv seq 10 deny any
 
-
    A more complex example.  With upstream, peer and customer sessions.
 Advertising global prefixes and NO_EXPORT prefixes and providing actions
 for customer routes based on community values.  Extensive use of
@@ -6703,9 +6702,9 @@ Family == IP version 6
      |      BGP Attribute [variable length]    			    |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-   BGP4 Attribute must not contain MP_UNREACH_NLRI.	If BGP Attribute has
-MP_REACH_NLRI field, it must has	zero length NLRI, e.g., MP_REACH_NLRI
-has only Address	Family, SAFI and next-hop values.
+   BGP4 Attribute must not contain MP_UNREACH_NLRI. If BGP Attribute has
+MP_REACH_NLRI field, it must has zero length NLRI, e.g., MP_REACH_NLRI
+has only Address Family, SAFI and next-hop values.
 
    If 'type' is PROTOCOL_BGP4MP and 'subtype' is BGP4MP_SNAPSHOT,
 

@@ -32,8 +32,7 @@
 
 #define CPE_MANULFACTORY  "JIUBO"  //"GlobalTechnology Co., Ltd"
 //#define CPE_DEVICEMODEL   "GT-MSAP-PTAP240-SC320"
-
-#define OSPF_DCN_LINK_IF_NAME "dtl0"//"dtl0"
+#define OSPF_DCN_LINK_IF_NAME	ospf_dcn_link_name() ? ospf_dcn_link_name():"dtl0"
 
 
 //#define GT_DCN_DEBUG
@@ -241,14 +240,9 @@ struct dcn_link
 struct dcn_link_nbr
 {
 #define OSPF_DCN_NBR_MAC_SIZE	(64)	
-	char nbrMac1[OSPF_DCN_NBR_MAC_SIZE];
-	char nbrMac2[OSPF_DCN_NBR_MAC_SIZE];
-	char nbrMac3[OSPF_DCN_NBR_MAC_SIZE];
-	char nbrMac4[OSPF_DCN_NBR_MAC_SIZE];
-	struct in_addr nbrIp1;
-	struct in_addr nbrIp2;
-	struct in_addr nbrIp3;
-	struct in_addr nbrIp4;	
+	char nbrMac[OSPF_DCN_NBR_MAC_SIZE];
+	struct in_addr nbrIp;	
+	int initialed;
 };
 
 extern int ospf_dcn_debug;
@@ -266,7 +260,7 @@ extern void ospf_dcn_term (void);
 
 
 #ifdef GT_DCN_DEBUG
-#define GT_ZLOG_DEBUG	zlog_debug
+#define GT_ZLOG_DEBUG	printf
 #define GT_DEBUG	printf
 #define GT_TLV_DEBUG	printf
 #else

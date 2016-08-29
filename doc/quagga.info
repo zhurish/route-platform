@@ -1,4 +1,4 @@
-This is quagga.info, produced by makeinfo version 5.2 from quagga.texi.
+This is quagga.info, produced by makeinfo version 5.1 from quagga.texi.
 
 Copyright (C) 1999-2005 Kunihiro Ishiguro, et al.
 
@@ -20,32 +20,10 @@ START-INFO-DIR-ENTRY
 * Quagga: (quagga).		The Quagga Software Routing Suite
 END-INFO-DIR-ENTRY
 
-   This file documents the Quagga Software Routing Suite which manages
-common TCP/IP routing protocols.
-
-   This is Edition 0.99.24, last updated 3 March 2015 of 'The Quagga
-Manual', for Quagga Version 0.99.24.
-
-   Copyright (C) 1999-2005 Kunihiro Ishiguro, et al.
-
-     Permission is granted to make and distribute verbatim copies of
-     this manual provided the copyright notice and this permission
-     notice are preserved on all copies.
-
-     Permission is granted to copy and distribute modified versions of
-     this manual under the conditions for verbatim copying, provided
-     that the entire resulting derived work is distributed under the
-     terms of a permission notice identical to this one.
-
-     Permission is granted to copy and distribute translations of this
-     manual into another language, under the above conditions for
-     modified versions, except that this permission notice may be stated
-     in a translation approved by Kunihiro Ishiguro.
-
 
 Indirect:
-quagga.info-1: 1938
-quagga.info-2: 325272
+quagga.info-1: 963
+quagga.info-2: 324296
 
 Tag Table:
 (Indirect)
@@ -186,51 +164,51 @@ Node: Viewing the view166632
 Node: How to set up a 6-Bone connection166919
 Node: Dump BGP packets and table168293
 Node: BGP Configuration Examples168877
-Node: Configuring Quagga as a Route Server177834
-Node: Description of the Route Server model178821
-Ref: fig:normal-processing180414
-Ref: fig:full-mesh181106
-Ref: fig:route-server181283
-Ref: filter-delegation181758
-Ref: Route Server tasks182932
-Ref: Route-server path filter process183303
-Ref: fig:rs-processing185633
-Node: Commands for configuring a Route Server188041
-Node: Example of Route Server Configuration191086
-Node: Configuration of the BGP routers without Route Server192008
-Node: Configuration of the BGP routers with Route Server194892
-Node: Configuration of the Route Server itself196194
-Node: Further considerations about Import and Export route-maps201195
-Node: VTY shell204243
-Node: VTY shell username204912
-Node: VTY shell integrated configuration205545
-Node: Filtering206990
-Node: IP Access List207371
-Node: IP Prefix List207757
-Node: ip prefix-list description210800
-Node: ip prefix-list sequential number control211327
-Node: Showing ip prefix-list211869
-Node: Clear counter of ip prefix-list212975
-Node: Route Map213414
-Node: Route Map Command216885
-Node: Route Map Match Command217194
-Node: Route Map Set Command217817
-Node: Route Map Call Command218725
-Node: Route Map Exit Action Command219056
-Node: Route Map Examples219538
-Node: IPv6 Support220050
-Node: Router Advertisement220637
-Node: Kernel Interface226974
-Node: SNMP Support228931
-Node: Getting and installing an SNMP agent229590
-Node: AgentX configuration230401
-Node: SMUX configuration232204
-Node: MIB and command reference234324
-Node: Handling SNMP Traps235849
-Node: Zebra Protocol241932
-Node: Packet Binary Dump Format246032
-Node: Command Index257640
-Node: VTY Key Index325272
-Node: Index328188
+Node: Configuring Quagga as a Route Server177833
+Node: Description of the Route Server model178820
+Ref: fig:normal-processing180413
+Ref: fig:full-mesh181105
+Ref: fig:route-server181282
+Ref: filter-delegation181757
+Ref: Route Server tasks182931
+Ref: Route-server path filter process183302
+Ref: fig:rs-processing185632
+Node: Commands for configuring a Route Server188040
+Node: Example of Route Server Configuration191085
+Node: Configuration of the BGP routers without Route Server192007
+Node: Configuration of the BGP routers with Route Server194891
+Node: Configuration of the Route Server itself196193
+Node: Further considerations about Import and Export route-maps201194
+Node: VTY shell204242
+Node: VTY shell username204911
+Node: VTY shell integrated configuration205544
+Node: Filtering206989
+Node: IP Access List207370
+Node: IP Prefix List207756
+Node: ip prefix-list description210799
+Node: ip prefix-list sequential number control211326
+Node: Showing ip prefix-list211868
+Node: Clear counter of ip prefix-list212974
+Node: Route Map213413
+Node: Route Map Command216884
+Node: Route Map Match Command217193
+Node: Route Map Set Command217816
+Node: Route Map Call Command218724
+Node: Route Map Exit Action Command219055
+Node: Route Map Examples219537
+Node: IPv6 Support220049
+Node: Router Advertisement220636
+Node: Kernel Interface226973
+Node: SNMP Support228930
+Node: Getting and installing an SNMP agent229589
+Node: AgentX configuration230400
+Node: SMUX configuration232203
+Node: MIB and command reference234323
+Node: Handling SNMP Traps235848
+Node: Zebra Protocol241931
+Node: Packet Binary Dump Format246031
+Node: Command Index257639
+Node: VTY Key Index324296
+Node: Index327212
 
 End Tag Table

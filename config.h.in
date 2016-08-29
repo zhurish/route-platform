@@ -3,6 +3,9 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
+/* aodvd vty socket */
+#undef AODV_VTYSH_PATH
+
 /* babeld vty socket */
 #undef BABEL_VTYSH_PATH
 
@@ -15,11 +18,20 @@
 /* Consumed Time Check */
 #undef CONSUMED_TIME_CHECK
 
+/* default daemon app root dir */
+#undef DAEMON_CONFIG_DIR
+
+/* default daemon logmsg directory */
+#undef DAEMON_LOG_FILE_DIR
+
 /* daemon vty directory */
 #undef DAEMON_VTY_DIR
 
 /* Disable BGP installation to zebra */
 #undef DISABLE_BGP_ANNOUNCE
+
+/* frpd vty socket */
+#undef FRP_VTYSH_PATH
 
 /* include git version info */
 #undef GIT_VERSION
@@ -72,6 +84,9 @@
 
 /* Define to 1 if you have the `dup2' function. */
 #undef HAVE_DUP2
+
+/* Expand routing protocol Platform :enable other route protocol */
+#undef HAVE_EXPAND_ROUTE_PLATFORM
 
 /* Define to 1 if you have the `fcntl' function. */
 #undef HAVE_FCNTL
@@ -187,6 +202,9 @@
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
 
+/* enable linux system shell */
+#undef HAVE_LINUX_SHELL
+
 /* Define to 1 if you have the <linux/version.h> header file. */
 #undef HAVE_LINUX_VERSION_H
 
@@ -261,6 +279,9 @@
 
 /* Have openpam.h */
 #undef HAVE_OPENPAM_H
+
+/* enable ospf explain lsa */
+#undef HAVE_OSPFD_DCN
 
 /* OSPF TE */
 #undef HAVE_OSPF_TE
@@ -598,6 +619,18 @@
 /* Define to 1 if `vfork' works. */
 #undef HAVE_WORKING_VFORK
 
+/* default oem file */
+#undef HOST_DEFAULT_OEM_FILE
+
+/* icrpd vty socket */
+#undef ICRP_VTYSH_PATH
+
+/* Enable IMI module shell to Routting Protocol */
+#undef IMISH_IMI_MODULE
+
+/* IMI Mdoule socket */
+#undef IMISH_UNIX_PATH
+
 /* selected method for isis, == one of the constants */
 #undef ISIS_METHOD
 
@@ -626,8 +659,37 @@
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
 
-/* Define to the sub-directory where libtool stores uninstalled libraries. */
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
 #undef LT_OBJDIR
+
+/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+#undef NO_MINUS_C_MINUS_O
+
+/* this OEM base on Quagga version number(xx.xx.00) */
+#undef OEM_BASE_VERSION
+
+/* this OEM auther name */
+#undef OEM_PACKAGE_AUTHER
+
+/* this OEM base of Quagga version */
+#undef OEM_PACKAGE_BASE
+
+/* Define to the address where bug reports for this OEM package should be
+   sent. */
+#undef OEM_PACKAGE_BUGREPORT
+
+/* this copyright for OEM version */
+#undef OEM_PACKAGE_COPYRIGHT
+
+/* Name of OEM package */
+#undef OEM_PACKAGE_NAME
+
+/* Define to the version of this OEM package. */
+#undef OEM_PACKAGE_VERSION
+
+/* olsrd vty socket */
+#undef OLSR_VTYSH_PATH
 
 /* OpenBSD */
 #undef OPEN_BSD
@@ -662,14 +724,29 @@
 /* Have openpam_ttyconv */
 #undef PAM_CONV_FUNC
 
+/* aodvd PID */
+#undef PATH_AODVD_PID
+
 /* babeld PID */
 #undef PATH_BABELD_PID
 
 /* bgpd PID */
 #undef PATH_BGPD_PID
 
+/* frpd PID */
+#undef PATH_FRPD_PID
+
+/* icrpd PID */
+#undef PATH_ICRPD_PID
+
+/* IMI Mdoule PID */
+#undef PATH_IMISH_PID
+
 /* isisd PID */
 #undef PATH_ISISD_PID
+
+/* olsrd PID */
+#undef PATH_OLSRD_PID
 
 /* ospf6d PID */
 #undef PATH_OSPF6D_PID
@@ -685,6 +762,9 @@
 
 /* ripngd PID */
 #undef PATH_RIPNGD_PID
+
+/* vrrpd PID */
+#undef PATH_VRRPD_PID
 
 /* watchquagga PID */
 #undef PATH_WATCHQUAGGA_PID
@@ -782,6 +862,9 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* vrrpd vty socket */
+#undef VRRP_VTYSH_PATH
 
 /* VTY shell */
 #undef VTYSH

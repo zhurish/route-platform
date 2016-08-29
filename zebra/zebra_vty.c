@@ -640,7 +640,17 @@ DEFUN (no_ip_route_mask_flags_distance2,
 }
 
 char *proto_rm[AFI_MAX][ZEBRA_ROUTE_MAX+1];	/* "any" == ZEBRA_ROUTE_MAX */
-
+/* 2016年6月27日 21:29:20 zhurish: 使能IMI Module模块后优化ip protocol命令 */
+#ifdef IMISH_IMI_MODULE
+DEFUN (ip_protocol,
+       ip_protocol_cmd,
+       "ip protocol " QUAGGA_REDIST_STR_ZEBRA " route-map ROUTE-MAP",
+       IP_STR
+       "ip protocol \n"
+       QUAGGA_REDIST_HELP_STR_ZEBRA
+       "Route map\n"
+       "Name of Route map\n")
+#else//IMISH_IMI_MODULE
 DEFUN (ip_protocol,
        ip_protocol_cmd,
        "ip protocol PROTO route-map ROUTE-MAP",
@@ -648,6 +658,8 @@ DEFUN (ip_protocol,
        "Apply route map to PROTO\n"
        "Protocol name\n"
        "Route map name\n")
+#endif//IMISH_IMI_MODULE
+/* 2016年6月27日 21:29:20  zhurish: 使能IMI Module模块后优化ip protocol命令 */
 {
   int i;
 
@@ -666,13 +678,25 @@ DEFUN (ip_protocol,
   proto_rm[AFI_IP][i] = XSTRDUP (MTYPE_ROUTE_MAP_NAME, argv[1]);
   return CMD_SUCCESS;
 }
-
+/* 2016年6月27日 21:29:28 zhurish: 使能IMI Module模块后优化ip protocol命令 */
+#ifdef IMISH_IMI_MODULE
+DEFUN (no_ip_protocol,
+       no_ip_protocol_cmd,
+       "no ip protocol " QUAGGA_REDIST_STR_ZEBRA,
+       NO_STR
+       IP_STR
+       "ip protocol \n"
+       QUAGGA_REDIST_HELP_STR_ZEBRA
+       "Name of route map Remove from PROTO\n")
+#else// IMISH_IMI_MODULE
 DEFUN (no_ip_protocol,
        no_ip_protocol_cmd,
        "no ip protocol PROTO",
        NO_STR
        "Remove route map from PROTO\n"
        "Protocol name\n")
+#endif// IMISH_IMI_MODULE
+/* 2016年6月27日 21:29:28  zhurish: 使能IMI Module模块后优化ip protocol命令 */
 {
   int i;
 
@@ -728,10 +752,18 @@ vty_show_ip_route_detail (struct vty *vty, struct route_node *rn, int mcast)
 #define ONE_DAY_SECOND 60*60*24
 #define ONE_WEEK_SECOND 60*60*24*7
       if (rib->type == ZEBRA_ROUTE_RIP
-	  || rib->type == ZEBRA_ROUTE_OSPF
-	  || rib->type == ZEBRA_ROUTE_BABEL
-	  || rib->type == ZEBRA_ROUTE_ISIS
-	  || rib->type == ZEBRA_ROUTE_BGP)
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+    			|| rib->type == ZEBRA_ROUTE_HSLS	/* HSLS protocol node. */
+    			|| rib->type == ZEBRA_ROUTE_OLSR			/* OLSR protocol node. */
+    			|| rib->type == ZEBRA_ROUTE_ICRP		/* ICRP protocol node. */
+    			|| rib->type == ZEBRA_ROUTE_FRP                /* FRP protocol node */
+#endif /* HAVE_EXPAND_ROUTE_PLATFORM */       	
+          || rib->type == ZEBRA_ROUTE_RIPNG
+          || rib->type == ZEBRA_ROUTE_OSPF
+          || rib->type == ZEBRA_ROUTE_OSPF6
+          || rib->type == ZEBRA_ROUTE_BABEL
+          || rib->type == ZEBRA_ROUTE_ISIS
+          || rib->type == ZEBRA_ROUTE_BGP)
 	{
 	  time_t uptime;
 	  struct tm *tm;
@@ -923,10 +955,16 @@ vty_show_ip_route (struct vty *vty, struct route_node *rn, struct rib *rib)
                vty_out (vty, ", rej");
 
       if (rib->type == ZEBRA_ROUTE_RIP
-	  || rib->type == ZEBRA_ROUTE_OSPF
-	  || rib->type == ZEBRA_ROUTE_BABEL
-	  || rib->type == ZEBRA_ROUTE_ISIS
-	  || rib->type == ZEBRA_ROUTE_BGP)
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+    			|| rib->type == ZEBRA_ROUTE_HSLS	/* HSLS protocol node. */
+    			|| rib->type == ZEBRA_ROUTE_OLSR			/* OLSR protocol node. */
+    			|| rib->type == ZEBRA_ROUTE_ICRP		/* ICRP protocol node. */
+    			|| rib->type == ZEBRA_ROUTE_FRP                /* FRP protocol node */
+#endif /* HAVE_EXPAND_ROUTE_PLATFORM */        	
+          || rib->type == ZEBRA_ROUTE_OSPF
+          || rib->type == ZEBRA_ROUTE_BABEL
+          || rib->type == ZEBRA_ROUTE_ISIS
+          || rib->type == ZEBRA_ROUTE_BGP)
 	{
 	  time_t uptime;
 	  struct tm *tm;
@@ -1423,13 +1461,24 @@ static_config_ipv4 (struct vty *vty, safi_t safi, const char *cmd)
       }
   return write;
 }
-
+/* 2016年6月27日 21:29:45 zhurish: 使能IMI Module模块后优化ip protocol命令 */
+#ifdef IMISH_IMI_MODULE
+DEFUN (show_ip_protocol,
+       show_ip_protocol_cmd,
+       "show ip protocol filtering",
+        SHOW_STR
+        IP_STR
+       "IP protocol\n"
+       "IP protocol filtering status\n")
+#else//IMISH_IMI_MODULE
 DEFUN (show_ip_protocol,
        show_ip_protocol_cmd,
        "show ip protocol",
         SHOW_STR
         IP_STR
        "IP protocol filtering status\n")
+#endif//IMISH_IMI_MODULE
+/* 2016年6月27日 21:29:45  zhurish: 使能IMI Module模块后优化ip protocol命令 */
 {
     int i; 
 
@@ -2262,6 +2311,86 @@ DEFUN (show_ipv6_mroute,
   return CMD_SUCCESS;
 }
 
+/* 2016年6月27日 21:30:38 zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
+#ifdef IMISH_IMI_MODULE
+extern int zebra_route_update_default_distance(int type, int value);
+extern int zebra_route_default_distance_show(int type, struct vty *vty);
+DEFUN (ip_protocol_defaule_distance,
+       ip_protocol_defaule_distance_cmd,
+       "ip protocol "QUAGGA_REDIST_STR_ZEBRA "default-distance <0-255>",
+       SET_STR
+       "ip protocol\n"
+       QUAGGA_REDIST_HELP_STR_ZEBRA
+       "default distance of routing\n"
+       "distance value\n")
+{
+	int type = 0;
+	int value = 0;
+	if( (argv[0] == NULL)||(argv[1] == NULL) )
+	{
+		vty_out (vty, "%% invalue arg%s", argv[0], VTY_NEWLINE);
+		return CMD_WARNING;
+	}
+	type = proto_redistnum(AFI_IP, argv[0]);
+#ifdef HAVE_IPV6
+	if(type < 0)
+		type = proto_redistnum(AFI_IP6, argv[0]);
+#endif /* HAVE_IPV6 */
+	if( (type < ZEBRA_ROUTE_STATIC)||(type>ZEBRA_ROUTE_MAX) )
+	{
+		vty_out (vty, "%% routing protocol string%s", argv[0], VTY_NEWLINE);
+		return CMD_WARNING;
+	}	
+	value = atoi(argv[1]);
+	if( (value <1)||(value>255) )
+	{
+		vty_out (vty, "%% default distance value:%s%s", argv[1], VTY_NEWLINE);
+		return CMD_WARNING;
+	}
+	return zebra_route_update_default_distance(type,  value);
+}
+
+DEFUN (no_ip_protocol_defaule_distance,
+       no_ip_protocol_defaule_distance_cmd,
+       "no ip protocol "QUAGGA_REDIST_STR_ZEBRA "default-distance",
+       NO_STR
+       IP_STR
+       "ip protocol\n"
+       QUAGGA_REDIST_HELP_STR_ZEBRA
+       "default distance of routing\n")
+{
+	int type = 0;
+	if( (argv[0] == NULL))
+	{
+		vty_out (vty, "%% invalue arg%s", argv[0], VTY_NEWLINE);
+		return CMD_WARNING;
+	}
+	type = proto_redistnum(AFI_IP, argv[0]);
+#ifdef HAVE_IPV6
+	if(type < 0)
+		type = proto_redistnum(AFI_IP6, argv[0]);
+#endif /* HAVE_IPV6 */
+	if( (type < ZEBRA_ROUTE_STATIC)||(type>ZEBRA_ROUTE_MAX) )
+	{
+		vty_out (vty, "%% routing protocol string%s", argv[0], VTY_NEWLINE);
+		return CMD_WARNING;
+	}			
+	return zebra_route_update_default_distance(type,  -1);
+}
+
+DEFUN (show_defaule_distance,
+       show_defaule_distance_cmd,
+       "show ip protocol default-distance",
+       SHOW_STR
+       IP_STR
+       "ip protocol\n"
+       "default distance of routing\n")
+{
+  zebra_route_default_distance_show(0,  vty);
+  return CMD_SUCCESS;
+}
+#endif// IMISH_IMI_MODULE
+/* 2016年6月27日 21:30:38  zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
 /* Write IPv6 static route configuration. */
 static int
 static_config_ipv6 (struct vty *vty)
@@ -2327,7 +2456,11 @@ zebra_ip_config (struct vty *vty)
 #ifdef HAVE_IPV6
   write += static_config_ipv6 (vty);
 #endif /* HAVE_IPV6 */
-
+/* 2016年6月27日 21:30:50 zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
+#ifdef IMISH_IMI_MODULE
+  write += zebra_route_default_distance_show(1, vty);
+#endif// IMISH_IMI_MODULE
+/* 2016年6月27日 21:30:50  zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
   return write;
 }
 
@@ -2370,7 +2503,13 @@ zebra_vty_init (void)
 {
   install_node (&ip_node, zebra_ip_config);
   install_node (&protocol_node, config_write_vty);
-
+/* 2016年6月27日 21:30:58 zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
+#ifdef IMISH_IMI_MODULE
+  install_element (CONFIG_NODE, &ip_protocol_defaule_distance_cmd);
+  install_element (CONFIG_NODE, &no_ip_protocol_defaule_distance_cmd);
+  install_element (ENABLE_NODE, &show_defaule_distance_cmd);  
+#endif//IMISH_IMI_MODULE
+/* 2016年6月27日 21:30:58  zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
   install_element (CONFIG_NODE, &ip_mroute_cmd);
   install_element (CONFIG_NODE, &ip_mroute_dist_cmd);
   install_element (CONFIG_NODE, &no_ip_mroute_cmd);

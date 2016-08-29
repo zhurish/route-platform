@@ -209,6 +209,23 @@ enum
   MTYPE_PIM_SSMPINGD,
   MTYPE_VTYSH_CONFIG,
   MTYPE_VTYSH_CONFIG_LINE,
+  MTYPE_OLSR_TOP,
+  MTYPE_OLSR_IF,
+  MTYPE_OLSR_IF_INFO,
+  MTYPE_OLSR_HEADER,
+  MTYPE_OLSR_HELLO_HEADER,
+  MTYPE_OLSR_LINK_HEADER,
+  MTYPE_OLSR_LINK,
+  MTYPE_OLSR_NEIGH,
+  MTYPE_OLSR_OI_LINK,
+  MTYPE_OLSR_MSG,
+  MTYPE_OLSR_FIFO,
+  MTYPE_OLSR_DUP,
+  MTYPE_OLSR_MID,
+  MTYPE_OLSR_HOP2,
+  MTYPE_OLSR_1N,
+  MTYPE_OLSR_2N,
+  MTYPE_OLSR_ROUTE,
   MTYPE_MAX,
 };
 
@@ -223,6 +240,7 @@ extern struct memory_list memory_list_ospf6[];
 extern struct memory_list memory_list_isis[];
 extern struct memory_list memory_list_pim[];
 extern struct memory_list memory_list_vtysh[];
+extern struct memory_list memory_list_olsr[];
 
 #endif /* _QUAGGA_MEMTYPES_H */
 
