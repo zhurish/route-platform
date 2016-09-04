@@ -38,7 +38,6 @@
 //#define GT_DCN_DEBUG
 //#define OSPF_DCN_ROUTE_ID//if router id is useing in DCN module mey be defined this
 
-#define	OSPF_ADDR_LOOPBACK (oxe0001)
 
 #define OSPF_LEGAL_DCN_INSTANCE (0X00FFEE00)
 #define	MAX_LEGAL_DCN_INSTANCE_NUM (0xffff)

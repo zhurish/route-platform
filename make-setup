@@ -55,7 +55,7 @@ esac
 # for user 
 #
 #LR_USER="--enable-user=root --enable-group=root --enable-tcp-zebra --enable-zebra --enable-vtysh "
-LR_USER="--enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh "
+LR_USER="--enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga "
 #
 # libraries to pass to the linker
 #
@@ -64,7 +64,7 @@ LR_LIB_CONFIG="LIBS=-lpthread "
 # Optional Features:
 
 #
-LR_CONFIG_1="--disable-ripd  --disable-pimd --disable-ospf6d --disable-ripngd "
+LR_CONFIG_1="--disable-babeld --disable-ripd  --disable-pimd --disable-ospf6d --disable-ripngd "
 LR_CONFIG_2="--enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn ${OSPF_DEP_VER} "
 LR_CONFIG_3="--disable-bgpd --disable-isisd --disable-isis-topology "
 LR_CONFIG_4="--enable-fpm --disable-rtadv --disable-irdp "
@@ -96,7 +96,7 @@ if [ ! -f "$LR_OEM" ];then
 	Hello, this is routing-plaform (version $2).
 	Copyright 2014/11 - ${LR_DATE} zhurish(zhurish@163.com), et al.
 	Design it Base on (Quagga $2). " >>$LR_OEM
-fi	
+fi
 #
 #
 #

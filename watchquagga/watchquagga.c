@@ -41,8 +41,8 @@
 #define DEFAULT_TIMEOUT		10
 #define DEFAULT_RESTART_TIMEOUT	20
 #define DEFAULT_LOGLEVEL	LOG_INFO
-#define DEFAULT_MIN_RESTART	60
-#define DEFAULT_MAX_RESTART	600
+#define DEFAULT_MIN_RESTART	30
+#define DEFAULT_MAX_RESTART	60
 #ifdef PATH_WATCHQUAGGA_PID
 #define DEFAULT_PIDFILE		PATH_WATCHQUAGGA_PID
 #else
@@ -1338,11 +1338,12 @@ main(int argc, char **argv)
 
   zlog_default = openzlog(progname, ZLOG_NONE,
 			  LOG_CONS|LOG_NDELAY|LOG_PID, LOG_DAEMON);
-  zlog_set_level(NULL, ZLOG_DEST_MONITOR, ZLOG_DISABLED);
+  //zlog_set_level(NULL, ZLOG_DEST_MONITOR, ZLOG_ENABLED);
   if (daemon_mode)
     {
-      zlog_set_level(NULL, ZLOG_DEST_SYSLOG, MIN(gs.loglevel,LOG_DEBUG));
-      if (daemon (0, 0) < 0)
+	  zlog_set_file (NULL, "/var/log/watchquagga.log", MIN(gs.loglevel,LOG_DEBUG));
+      zlog_set_level(NULL, ZLOG_DEST_FILE, MIN(gs.loglevel,LOG_DEBUG));//ZLOG_DEST_SYSLOG
+      if (daemon(1, 0) < 0)
 	{
 	  fprintf(stderr, "Watchquagga daemon failed: %s", strerror(errno));
 	  exit (1);

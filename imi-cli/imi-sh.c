@@ -47,24 +47,44 @@ struct imish_client
   const char *name;
   const int flag;
   const char *path;
+  const char *pid_path; 
+#define IMISH_CLIENT_TABLE(a,b,c) .flag = IMISH_ ## a, .path = b ## _VTYSH_PATH, .pid_path = PATH_ ## c ## _PID 
+  pid_t	pid;//ä¿å­˜å­è¿›ç¨‹PIDä¿¡æ¯
 } imish_client[] =
-{
-  { .fd = -1, .name = "zebra", .flag = IMISH_ZEBRA, .path = ZEBRA_VTYSH_PATH},
-  { .fd = -1, .name = "ripd", .flag = IMISH_RIPD, .path = RIP_VTYSH_PATH},
-  { .fd = -1, .name = "ripngd", .flag = IMISH_RIPNGD, .path = RIPNG_VTYSH_PATH},
-  { .fd = -1, .name = "ospfd", .flag = IMISH_OSPFD, .path = OSPF_VTYSH_PATH},
-  { .fd = -1, .name = "ospf6d", .flag = IMISH_OSPF6D, .path = OSPF6_VTYSH_PATH},
-  { .fd = -1, .name = "bgpd", .flag = IMISH_BGPD, .path = BGP_VTYSH_PATH},
-  { .fd = -1, .name = "isisd", .flag = IMISH_ISISD, .path = ISIS_VTYSH_PATH},
-  { .fd = -1, .name = "pimd", .flag = IMISH_PIMD, .path = PIM_VTYSH_PATH},
-/* 2016Äê7ÔÂ2ÈÕ 22:04:29 zhurish: À©Õ¹Â·ÓÉĞ­ÒéºóÔö¼ÓÁ´½Óµ½Â·ÓÉĞ­Òé¿Í»§¶ËµÄ¶¨Òå  */
+{	
+  { .fd = -1, .name = "zebra", 	.flag = IMISH_ZEBRA, .path = ZEBRA_VTYSH_PATH, .pid_path = PATH_ZEBRA_PID, .pid = 0},
+  { .fd = -1, .name = "ripd", 	.flag = IMISH_RIPD, .path = RIP_VTYSH_PATH, .pid_path = PATH_RIPD_PID, .pid = 0},
+  { .fd = -1, .name = "ripngd", .flag = IMISH_RIPNGD, .path = RIPNG_VTYSH_PATH, .pid_path = PATH_RIPNGD_PID, .pid = 0},
+  { .fd = -1, .name = "ospfd", 	.flag = IMISH_OSPFD, .path = OSPF_VTYSH_PATH, .pid_path = PATH_OSPFD_PID, .pid = 0},
+  { .fd = -1, .name = "ospf6d", .flag = IMISH_OSPF6D, .path = OSPF6_VTYSH_PATH, .pid_path = PATH_OSPF6D_PID, .pid = 0},
+  { .fd = -1, .name = "bgpd", 	.flag = IMISH_BGPD, .path = BGP_VTYSH_PATH, .pid_path = PATH_BGPD_PID, .pid = 0},
+  { .fd = -1, .name = "isisd", 	.flag = IMISH_ISISD, .path = ISIS_VTYSH_PATH, .pid_path = PATH_ISISD_PID, .pid = 0},
+  { .fd = -1, .name = "pimd", 	.flag = IMISH_PIMD, .path = PIM_VTYSH_PATH, .pid_path = PATH_PIMD_PID, .pid = 0},
+/* 2016å¹´7æœˆ2æ—¥ 22:04:29  zhurish: æ‰©å±•è·¯ç”±åè®®åå¢åŠ é“¾æ¥åˆ°è·¯ç”±åè®®å®¢æˆ·ç«¯çš„å®šä¹‰  */
 #ifdef HAVE_EXPAND_ROUTE_PLATFORM    
-  { .fd = -1, .name = "olsrd", .flag = IMISH_OLSRD, .path = OLSR_VTYSH_PATH},  
+  { .fd = -1, .name = "olsrd", .flag = IMISH_OLSRD, .path = OLSR_VTYSH_PATH, .pid_path = PATH_OLSRD_PID, .pid = 0},  
 #endif /* HAVE_EXPAND_ROUTE_PLATFORM */   
-/* 2016Äê7ÔÂ2ÈÕ 22:04:29  zhurish: À©Õ¹Â·ÓÉĞ­ÒéºóÔö¼ÓÁ´½Óµ½Â·ÓÉĞ­Òé¿Í»§¶ËµÄ¶¨Òå  */
+/* 2016å¹´7æœˆ2æ—¥ 22:04:29  zhurish: æ‰©å±•è·¯ç”±åè®®åå¢åŠ é“¾æ¥åˆ°è·¯ç”±åè®®å®¢æˆ·ç«¯çš„å®šä¹‰  */
 };
 
-
+static pid_t imish_pid_input (const char *fullfath)
+{
+  FILE *fp;
+  char buf[64];
+  if(fullfath == NULL)
+	  return -1;
+  fp = fopen (fullfath, "r");
+  if (fp != NULL) 
+  {
+	  memset(buf, 0, sizeof(buf));
+      if(fgets (buf, sizeof(buf), fp))
+      {
+    	  fclose (fp);
+    	  return atoi(buf);
+      } 
+  }
+  return -1;
+}
 /* Making connection to protocol daemon. */
 static int imish_module_connect (struct imish_client *vclient)
 {
@@ -117,9 +137,13 @@ static int imish_module_connect (struct imish_client *vclient)
       return -1;
   }
   vclient->fd = sock;
+  ret = imish_pid_input (vclient->pid_path);
+  if(ret != -1)
+	  vclient->pid = ret;
+  zlog_debug("IMISH connect to %s",vclient->name);
   return 0;
 }
-//Á¬½ÓÂ·ÓÉ·şÎñ¶Ë
+//è¿æ¥è·¯ç”±æœåŠ¡ç«¯
 int imish_module_connect_all(const char *daemon_name)
 {
   u_int i;
@@ -139,13 +163,14 @@ int imish_module_connect_all(const char *daemon_name)
     fprintf(stderr, "Error: no daemons match name %s!\n", daemon_name);
   return rc;
 }
-//¹Ø±ÕÂ·ÓÉ·şÎñ¶Ë
+//å…³é—­è·¯ç”±æœåŠ¡ç«¯
 static void imish_module_vclient_close (struct imish_client *vclient)
 {
   if (vclient->fd >= 0)
     {
       //fprintf(stderr,
 	    //  "Warning: closing connection to %s because of an I/O error!\n",vclient->name);
+	  zlog_debug("IMISH disconnect to %s",vclient->name);
       close (vclient->fd);
       vclient->fd = -1;
     }
@@ -153,7 +178,7 @@ static void imish_module_vclient_close (struct imish_client *vclient)
 
 static int imish_module_close_all(void)
 {
-  u_int i;
+  u_int i; 
   for (i = 0; i < array_size(imish_client); i++)
   {
     if(imish_client[i].fd >= 0)
@@ -164,7 +189,14 @@ static int imish_module_close_all(void)
 
 static int imish_module_connect_thread(struct thread *thread)
 {
+  int ret = 0;	
   u_int i;
+  for (i = 0; i < array_size(imish_client); i++)
+  {
+	ret = imish_pid_input (imish_client[i].pid_path);
+    if( (imish_client[i].pid > 0)&&(imish_client[i].pid != ret) )
+	  	imish_module_vclient_close(&imish_client[i]);
+  }   
   for (i = 0; i < array_size(imish_client); i++)
   {
     if(imish_client[i].fd == -1)
@@ -199,7 +231,7 @@ int imish_module_client_put (struct vty *vty, const char *buf, int out)
   }
   return 0;
 }
-//Ö´ĞĞÂ·ÓÉ·şÎñ¶ËÃüÁî
+//æ‰§è¡Œè·¯ç”±æœåŠ¡ç«¯å‘½ä»¤
 #define ERR_WHERE_STRING "imish(): imish_module_client_execute_one(): "
 static int imish_module_client_execute_one (struct imish_client *vclient, char *cmd, struct vty *vty, int out)
 {
@@ -340,7 +372,7 @@ static int imish_module_client_execute_one (struct imish_client *vclient, char *
   }
   return ret;
 }
-//Ö´ĞĞÄ³¸ö¿Í»§¶ËÂ·ÓÉµÄÃüÁî
+//æ‰§è¡ŒæŸä¸ªå®¢æˆ·ç«¯è·¯ç”±çš„å‘½ä»¤
 int imish_module_client_execute(int client, const char *cmd, struct vty *vty, int out)
 {
   unsigned int i;
@@ -450,12 +482,12 @@ static int imish_module_execute_callbak (struct vty *vty, const char *line, int 
 }
 
 
-//Ìá¹©¸øÍâ²¿µ÷ÓÃÖ´ĞĞ;
+//æä¾›ç»™å¤–éƒ¨è°ƒç”¨æ‰§è¡Œ;
 int imish_module_execute (struct vty *vty, const char *line, int out)
 {
   return imish_module_execute_callbak (vty, line, out);
 }
-//Ä£¿é°²×°µ½vtyµÄ¹³×Óº¯Êı
+//æ¨¡å—å®‰è£…åˆ°vtyçš„é’©å­å‡½æ•°
 static int imish_sh_execute (struct vty *vty, const char *line)
 {
   return imish_module_execute_callbak (vty, line, 1);
@@ -479,7 +511,7 @@ static struct cmd_node isis_node =
   ISIS_NODE,
   "%s(config-router)# ",
 };
-/* 2016Äê7ÔÂ2ÈÕ 22:07:39 zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî½Úµã */
+/* 2016å¹´7æœˆ2æ—¥ 22:07:39 zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤èŠ‚ç‚¹ */
 #ifdef HAVE_EXPAND_ROUTE_PLATFORM
 static struct cmd_node olsr_node =
 {
@@ -487,7 +519,7 @@ static struct cmd_node olsr_node =
   "%s(config-router)# ",
 };
 #endif
-/* 2016Äê7ÔÂ2ÈÕ 22:07:39  zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî½Úµã */
+/* 2016å¹´7æœˆ2æ—¥ 22:07:39  zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤èŠ‚ç‚¹ */
 static struct cmd_node interface_node =
 {
   INTERFACE_NODE,
@@ -870,7 +902,7 @@ DEFUNSH (IMISH_RMAP,
   vty->node = RMAP_NODE;
   return CMD_SUCCESS;
 }
-/* 2016Äê7ÔÂ2ÈÕ 22:07:55 zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî */
+/* 2016å¹´7æœˆ2æ—¥ 22:07:55 zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤ */
 #ifdef HAVE_EXPAND_ROUTE_PLATFORM
 DEFUNSH (IMISH_OLSRD,
 	 router_olsr,
@@ -883,7 +915,7 @@ DEFUNSH (IMISH_OLSRD,
   return CMD_SUCCESS;
 }
 #endif
-/* 2016Äê7ÔÂ2ÈÕ 22:07:55  zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî */
+/* 2016å¹´7æœˆ2æ—¥ 22:07:55  zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤ */
        
 //DEFUNSH (IMISH_ALL,
 DEFUN (
@@ -1155,7 +1187,7 @@ DEFUNSH (IMISH_ALL,
 {
   return imish_exit (vty);
 }
-/* 2016Äê7ÔÂ2ÈÕ 22:08:08 zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî */
+/* 2016å¹´7æœˆ2æ—¥ 22:08:08 zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤ */
 #ifdef HAVE_EXPAND_ROUTE_PLATFORM
 DEFUNSH (IMISH_OLSRD,
 	 imish_exit_olsr,
@@ -1172,7 +1204,7 @@ ALIAS (imish_exit_olsr,
        "Exit current mode and down to previous mode\n")
 #endif
 
-/* 2016Äê7ÔÂ2ÈÕ 22:08:08  zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî */
+/* 2016å¹´7æœˆ2æ—¥ 22:08:08  zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤ */
 ALIAS (imish_exit_line_vty,
        imish_quit_line_vty_cmd,
        "quit",
@@ -2044,11 +2076,26 @@ DEFUN (imish_write_terminal,
   return CMD_SUCCESS; 
 }
 
+
 DEFUN (imish_write_memory,
        imish_write_memory_cmd,
        "write memory",
        "Write running configuration to memory, network, or terminal\n"
        "Write configuration to the file (same as write file)\n")
+{
+  char line[] = "write memory\n";
+  vty_out (vty, "Building configuration...%s", VTY_NEWLINE);   
+  imish_module_client_execute(IMISH_ALL, line, vty, 0);
+  imish_module_config_show(vty);
+  vty_out (vty,"[OK]%s",VTY_NEWLINE);  
+  return CMD_SUCCESS; 
+}
+DEFUN (imish_write_memory_imish,
+       imish_write_memory_imish_cmd,
+       "write memory integrated",
+       "Write running configuration to memory, network, or terminal\n"
+       "Write configuration to the file (same as write file)\n"
+	   "Write configuration to imish configure file\n")
 {
   int fd;
   char *config_file = NULL;
@@ -2278,8 +2325,8 @@ DEFUN (
 
 }
 
-//DEFUNSH (VTYSH_ALL,Õâ¸ö¶¨ÒåµÄÃüÁîÊÇ²»Ğ¯´ø²ÎÊı½øÀ´µÄ£¬argc ºÍargv¶¼ÊÇ0(NULL)
-//Ô­ÒòÊÇ 	  vtysh_execute_func º¯ÊıÖ´ĞĞ (*cmd->func) (cmd, vty, argc, argv);
+//DEFUNSH (VTYSH_ALL,è¿™ä¸ªå®šä¹‰çš„å‘½ä»¤æ˜¯ä¸æºå¸¦å‚æ•°è¿›æ¥çš„ï¼Œargc å’Œargvéƒ½æ˜¯0(NULL)
+//åŸå› æ˜¯ 	  vtysh_execute_func å‡½æ•°æ‰§è¡Œ (*cmd->func) (cmd, vty, argc, argv);
 DEFUN (
        imish_config_no_hostname, 
        imish_no_hostname_cmd,
@@ -2390,11 +2437,11 @@ void imish_module_init (void)
   install_node (&vty_node, NULL);
   
   imi_shell_init (master);
-/* 2016Äê7ÔÂ2ÈÕ 22:08:37 zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî */
+/* 2016å¹´7æœˆ2æ—¥ 22:08:37 zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤ */
 #ifdef HAVE_EXPAND_ROUTE_PLATFORM
   install_node (&olsr_node, NULL);
 #endif
-/* 2016Äê7ÔÂ2ÈÕ 22:08:37  zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî */
+/* 2016å¹´7æœˆ2æ—¥ 22:08:37  zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤ */
   imish_install_default (VIEW_NODE);
   imish_install_default (ENABLE_NODE);
   imish_install_default (CONFIG_NODE);
@@ -2419,11 +2466,11 @@ void imish_module_init (void)
   imish_install_default (KEYCHAIN_NODE);
   imish_install_default (KEYCHAIN_KEY_NODE);
   imish_install_default (VTY_NODE);
-/* 2016Äê7ÔÂ2ÈÕ 22:08:45 zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî */
+/* 2016å¹´7æœˆ2æ—¥ 22:08:45 zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤ */
 #ifdef HAVE_EXPAND_ROUTE_PLATFORM
   imish_install_default (OLSR_NODE);
 #endif
-/* 2016Äê7ÔÂ2ÈÕ 22:08:45  zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî */
+/* 2016å¹´7æœˆ2æ—¥ 22:08:45  zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤ */
 
   /* "exit" command. */
   install_element (VIEW_NODE, &imish_exit_imish_cmd);
@@ -2515,14 +2562,14 @@ void imish_module_init (void)
 #ifdef HAVE_IPV6
   install_element (CONFIG_NODE, &router_ospf6_cmd);
 #endif
-/* 2016Äê7ÔÂ2ÈÕ 22:08:58 zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî */
+/* 2016å¹´7æœˆ2æ—¥ 22:08:58 zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤ */
 #ifdef HAVE_EXPAND_ROUTE_PLATFORM
   install_element (CONFIG_NODE, &router_olsr_cmd);
   install_element (OLSR_NODE, &imish_exit_olsr_cmd);
   install_element (OLSR_NODE, &imish_quit_olsr_cmd);
   install_element (OLSR_NODE, &imish_end_all_cmd);  
 #endif
-/* 2016Äê7ÔÂ2ÈÕ 22:08:58  zhurish: À©Õ¹Â·ÓÉĞ­ÒéÔö¼ÓÃüÁî */
+/* 2016å¹´7æœˆ2æ—¥ 22:08:58  zhurish: æ‰©å±•è·¯ç”±åè®®å¢åŠ å‘½ä»¤ */
   install_element (CONFIG_NODE, &router_isis_cmd);
   install_element (CONFIG_NODE, &router_bgp_cmd);
   install_element (CONFIG_NODE, &router_bgp_view_cmd);
@@ -2598,6 +2645,7 @@ void imish_module_init (void)
   install_element (ENABLE_NODE, &imish_copy_runningconfig_startupconfig_cmd);
   install_element (ENABLE_NODE, &imish_write_file_cmd);
   install_element (ENABLE_NODE, &imish_write_cmd);
+  install_element (ENABLE_NODE, &imish_write_memory_imish_cmd);  
   
   /* "show xxxx" command*/
   install_element (VIEW_NODE, &imish_show_daemons_cmd);

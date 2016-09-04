@@ -3095,21 +3095,21 @@ DEFUN (config_write_file,
       }
   vty_close (file_vty);
 
-  if (unlink (config_file_sav) != 0)
+  if (0 == access(config_file_sav,0) && unlink (config_file_sav) != 0)
     if (errno != ENOENT)
       {
 	vty_out (vty, "Can't unlink backup configuration file %s.%s", config_file_sav,
 		 VTY_NEWLINE);
         goto finished;
       }
-  if (link (config_file, config_file_sav) != 0)
+  if (0 == access(config_file_sav,0) && link (config_file, config_file_sav) != 0)
     {
       vty_out (vty, "Can't backup old configuration file %s.%s", config_file_sav,
 	        VTY_NEWLINE);
       goto finished;
     }
   sync ();
-  if (unlink (config_file) != 0)
+  if (0 == access(config_file_sav,0) && unlink (config_file) != 0)
     {
       vty_out (vty, "Can't unlink configuration file %s.%s", config_file,
 	        VTY_NEWLINE);

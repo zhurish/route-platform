@@ -650,6 +650,7 @@ static int ospf_dcn_link_lsa_local_flush(struct dcn_link *lp, struct ospf_lsa *l
 		lp->area->ospf->maxage_delay = 1;
 		ospf_lsa_flush(lp->area->ospf, dcn_lsa);
 		lp->area->ospf->maxage_delay = maxage_delay;
+		lp->install_lsa = 0;
 		//事件调度设置完毕后要恢复MAX AGE 时间
 		GT_DEBUG("****************%s:if %s \n",__func__,lp->ifp->name);
 		return 0;
@@ -946,10 +947,21 @@ static void ospf_dcn_link_nsm_change_hook (struct ospf_neighbor *nbr, int old_st
 		break;
 
 	case NSM_Exchange:
-		break;
 	case NSM_Loading:
-		break;
 	case NSM_Full:
+		if(old_state <= NSM_Exchange)
+		{
+			lp = ospf_dcn_link_lookup_by_ifp (nbr->oi->ifp);
+	    	if(lp && lp->area && lp->install_lsa == 0 && lp->enable == 1)
+	    	{/*当前接口使能LSA，并且接口已经初始化完毕，安装本地LSA*/
+	    		if(lp->isInitialed)
+	    		{
+	    			//ospf_dcn_link_lsa_schedule (lp, REORIGINATE_PER_AREA);
+	    			ospf_dcn_link_lsa_install (lp->area, lp, 1);
+	    			lp->install_lsa = 1;
+	    		}
+	    	}
+		}
 		break;
     default:
     	break;
@@ -1855,6 +1867,7 @@ static void ospf_dcn_link_show_hook (struct vty *vty, struct ospf_lsa *lsa)
   for (tlvh = DCN_TLV_HDR_TOP (lsah); sum < total;
 			tlvh = (next ? next : DCN_TLV_HDR_NEXT (tlvh)))
     {
+	    next = NULL;
         switch (ntohs (tlvh->type))
         {
         case DCN_LINK_SUBTLV_MANUL:
@@ -1906,17 +1919,26 @@ static void ospf_dcn_link_lsa_show_detail (struct vty *vty, struct ospf_lsa *lsa
   char mac[MAX_MAC_LENGTH*3] = {0};
   char ip[MAX_IP_STRING_LENGTH] = {0};
   char id[MAX_IP_STRING_LENGTH] = {0};
+  u_int32_t lsid = 0;	
   
   if(lsa == NULL || vty == NULL)
+  {
 	  return ;	
+  }
   lsah = (struct lsa_header *) lsa->data;
+  lsid = ntohl (lsah->id.s_addr);
 
+  if(OPAQUE_TYPE_FLOODDCNINFO != GET_OPAQUE_TYPE (lsid))
+  {
+	  //vty_out (vty, " define %x get %x nget %x %s",OPAQUE_TYPE_FLOODDCNINFO, GET_OPAQUE_TYPE (lsid), lsid, VTY_NEWLINE);
+	  return;
+  }
   total = ntohs (lsah->length) - OSPF_LSA_HEADER_SIZE;
 
   for (tlvh = DCN_TLV_HDR_TOP (lsah); sum < total;
 		tlvh = (next ? next : DCN_TLV_HDR_NEXT (tlvh)))
   {
-    //next = NULL;
+    next = NULL;
     switch (ntohs (tlvh->type))
     {
     case DCN_LINK_SUBTLV_MANUL:
@@ -2011,25 +2033,29 @@ static void ospf_dcn_lsa_prefix_set (struct vty *vty, struct prefix_ls *lp, stru
 *****************************************************************************/
 static void ospf_dcn_link_lsa_show (struct vty *vty, struct route_table *rt)
 {
-  struct prefix_ls lp;
-  struct route_node *rn, *start;
-  struct ospf_lsa *lsa;
+  struct prefix_ls lps;
+  struct route_node *rn = NULL, *start = NULL;
+  struct ospf_lsa *lsa = NULL;
+
   if(vty == NULL || rt == NULL)
+  {
 	  return;
-  ospf_dcn_lsa_prefix_set (vty, &lp, 0, 0);
-  start = route_node_get (rt, (struct prefix *) &lp);
+  }
+  ospf_dcn_lsa_prefix_set (vty, &lps, 0, 0);
+  start = route_node_get (rt, (struct prefix *) &lps);
   if (start)
   {
     route_lock_node (start);
     for (rn = start; rn; rn = route_next_until (rn, start))
     {
-      if (!(lsa = rn->info))
-        continue;
-        
-      if(OPAQUE_TYPE_FLOODDCNINFO != GET_OPAQUE_TYPE (ntohl (lsa->data->id.s_addr)))
-        continue;
-      
-      ospf_dcn_link_lsa_show_detail(vty, lsa);
+      lsa = rn->info;
+      if ( lsa != NULL )
+      {
+    	  //vty_out(vty,"=================================== %s",VTY_NEWLINE);
+    	  //show_opaque_info_detail (vty, lsa);
+    	  ospf_dcn_link_lsa_show_detail(vty, lsa);
+    	  //vty_out(vty,"=================================== %s",VTY_NEWLINE);
+      }
     } 
     route_unlock_node (start);
   }
@@ -2085,7 +2111,7 @@ static void show_ip_ospf_dcn_link (struct vty *vty, struct ospf *ospf)
       "COMPANY",
       VTY_NEWLINE);
 
-    ospf_dcn_link_lsa_show (vty, AREA_LSDB (area, type));
+    ospf_dcn_link_lsa_show (vty, AREA_LSDB (area, OSPF_OPAQUE_AREA_LSA));
   }
 }
 /*****************************************************************************
