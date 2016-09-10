@@ -17,7 +17,9 @@
 *.so.*
 *.bak
 *.Po
-*.in
+*~
 *.m4
+*.libs/*
+*.deps/*
 pkg/
 src/
