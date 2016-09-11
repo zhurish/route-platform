@@ -1703,7 +1703,7 @@ AC_CONFIG_FILES([Makefile lib/Makefile zebra/Makefile ripd/Makefile
 	  ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile
 	  ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile
 	  doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile
-	  pimd/Makefile fpm/Makefile olsrd/Makefile imi-cli/Makefile
+	  pimd/Makefile fpm/Makefile imi-cli/Makefile
 	  tests/bgpd.tests/Makefile
 	  tests/libzebra.tests/Makefile
 	  redhat/Makefile

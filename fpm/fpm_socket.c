@@ -146,6 +146,8 @@ static void fpm_netlink_parse_rtattr (struct rtattr **tb, int max, struct rtattr
 #endif /*HAVE_NETLINK*/
 static void fpm_netlink_route_entry (int cmd, struct fpm_route_table *table)
 {
+	char ipstr[128];
+	//inet_ntop(PF_INET6,&rcv_udp_addr.sin6_addr,ip,sizeof(ip))
 	if( table->family == AF_INET)
 		printf("inte:");
 	else if( table->family == AF_INET6)
@@ -154,18 +156,34 @@ static void fpm_netlink_route_entry (int cmd, struct fpm_route_table *table)
 		printf("unknow:");	
 	if(table->dest)
 	{
-		printf("%s",inet_ntoa(*(table->dest)));
-		printf("/%d",table->masklen);
+		inet_ntop(table->family,(table->dest),ipstr,sizeof(ipstr));
+		//if( table->family == AF_INET)
+		//	printf("%s",inet_ntoa(*(table->dest)));
+		printf("%s/%d",ipstr,table->masklen);
 	}
 	else
 		printf(" ");
 	
 	if(table->gate)
-		printf(" gw %s ",inet_ntoa(*(table->gate)));
+	{
+		inet_ntop(table->family,(table->dest),ipstr,sizeof(ipstr));
+		printf("gw %s",ipstr);
+		//if( table->family == AF_INET)
+		//	printf(" gw %s ",inet_ntoa(*(table->gate)));
+		//if( table->family == AF_INET6)
+		//	printf("gw %s",inet6_ntoa(*(table->gate)));
+	}
 	else
 		printf(" ");
 	if(table->src)
-		printf("src %s ",inet_ntoa(*(table->src)));
+	{
+		inet_ntop(table->family,(table->dest),ipstr,sizeof(ipstr));
+		printf("src %s",ipstr);
+		//if( table->family == AF_INET)
+		//	printf("src %s ",inet_ntoa(*(table->src)));
+		//if( table->family == AF_INET6)
+		//	printf("src %s ",inet6_ntoa(*(table->src)));
+	}
 	else
 		printf(" ");
 	printf("0x%x %d metric %d 0x%x if %d \n",table->protocol,table->table,table->metric,table->flags,table->ifindex);
