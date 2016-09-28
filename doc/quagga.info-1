@@ -1,4 +1,4 @@
-This is quagga.info, produced by makeinfo version 6.1 from quagga.texi.
+This is quagga.info, produced by makeinfo version 5.1 from quagga.texi.
 
 Copyright (C) 1999-2005 Kunihiro Ishiguro, et al.
 
@@ -23,8 +23,8 @@ END-INFO-DIR-ENTRY
    This file documents the Quagga Software Routing Suite which manages
 common TCP/IP routing protocols.
 
-   This is Edition 0.99.24, last updated 10 September 2016 of 'The
-Quagga Manual', for Quagga Version 0.99.24.
+   This is Edition 0.99.24, last updated 3 March 2015 of 'The Quagga
+Manual', for Quagga Version 0.99.24.
 
    Copyright (C) 1999-2005 Kunihiro Ishiguro, et al.
 
@@ -4544,7 +4544,6 @@ Example of a session to an upstream, advertising only one prefix to it.
      !
      ip prefix-list pl-allowed-adv seq 5 permit 82.195.133.0/25
      ip prefix-list pl-allowed-adv seq 10 deny any
-
 
    A more complex example.  With upstream, peer and customer sessions.
 Advertising global prefixes and NO_EXPORT prefixes and providing actions

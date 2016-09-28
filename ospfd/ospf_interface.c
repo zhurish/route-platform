@@ -477,8 +477,10 @@ ospf_if_lookup_recv_if (struct ospf *ospf, struct in_addr src,
       if (if_is_loopback (oi->ifp))
         continue;
 #ifdef HAVE_OSPFD_DCN
-      if (oi->type == OSPF_IFTYPE_POINTOPOINT)
-        match = oi;
+    extern  struct ospf_interface * ospf_if_dcn_enable (struct ospf_interface *oi);
+    match = ospf_if_dcn_enable (oi);
+    //  if (oi->type == OSPF_IFTYPE_POINTOPOINT)
+    //    match = oi;
 #endif /* HAVE_OSPFD_DCN */
       if (prefix_match (CONNECTED_PREFIX(oi->connected),
       			(struct prefix *) &addr))
