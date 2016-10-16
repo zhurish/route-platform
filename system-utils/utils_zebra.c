@@ -1,5 +1,5 @@
 /*
- * vpn_zebra.c
+ * utils_zebra.c
  *
  *  Created on: Oct 15, 2016
  *      Author: zhurish
@@ -21,7 +21,7 @@ struct zclient *zclient = NULL;
 
 
 /* Inteface link down message processing. */
-static int vpn_interface_down (int command, struct zclient *zclient, zebra_size_t length)
+static int utils_interface_down (int command, struct zclient *zclient, zebra_size_t length)
 {
   struct interface *ifp;
   struct stream *s;
@@ -44,7 +44,7 @@ static int vpn_interface_down (int command, struct zclient *zclient, zebra_size_
 }
 
 /* Inteface link up message processing */
-static int vpn_interface_up (int command, struct zclient *zclient, zebra_size_t length)
+static int utils_interface_up (int command, struct zclient *zclient, zebra_size_t length)
 {
   struct interface *ifp;
 
@@ -64,7 +64,7 @@ static int vpn_interface_up (int command, struct zclient *zclient, zebra_size_t 
 }
 
 /* Inteface addition message from zebra. */
-static int vpn_interface_add (int command, struct zclient *zclient, zebra_size_t length)
+static int utils_interface_add (int command, struct zclient *zclient, zebra_size_t length)
 {
   struct interface *ifp;
 
@@ -92,7 +92,7 @@ static int vpn_interface_add (int command, struct zclient *zclient, zebra_size_t
   return 0;
 }
 
-static int vpn_interface_delete (int command, struct zclient *zclient,
+static int utils_interface_delete (int command, struct zclient *zclient,
 		      zebra_size_t length)
 {
   struct interface *ifp;
@@ -120,7 +120,7 @@ static int vpn_interface_delete (int command, struct zclient *zclient,
 
   return 0;
 }
-static int vpn_interface_address_add (int command, struct zclient *zclient,
+static int utils_interface_address_add (int command, struct zclient *zclient,
 			   zebra_size_t length)
 {
   struct connected *ifc;
@@ -151,7 +151,7 @@ static int vpn_interface_address_add (int command, struct zclient *zclient,
 
   return 0;
 }
-static int vpn_interface_address_delete (int command, struct zclient *zclient,
+static int utils_interface_address_delete (int command, struct zclient *zclient,
 			      zebra_size_t length)
 {
   struct connected *ifc;
@@ -185,17 +185,17 @@ static int vpn_interface_address_delete (int command, struct zclient *zclient,
   return 0;
 }
 
-void vpn_zclient_init ()
+void utils_zclient_init (void)
 {
   /* Set default value to the zebra client structure. */
   zclient = zclient_new ();
   zclient_init (zclient, 0);
-  zclient->interface_add = vpn_interface_add;
-  zclient->interface_delete = vpn_interface_delete;
-  zclient->interface_address_add = vpn_interface_address_add;
-  zclient->interface_address_delete = vpn_interface_address_delete;
+  zclient->interface_add = utils_interface_add;
+  zclient->interface_delete = utils_interface_delete;
+  zclient->interface_address_add = utils_interface_address_add;
+  zclient->interface_address_delete = utils_interface_address_delete;
   zclient->ipv4_route_add = NULL;
   zclient->ipv4_route_delete = NULL;
-  zclient->interface_up = vpn_interface_up;
-  zclient->interface_down = vpn_interface_down;
+  zclient->interface_up = utils_interface_up;
+  zclient->interface_down = utils_interface_down;
 }

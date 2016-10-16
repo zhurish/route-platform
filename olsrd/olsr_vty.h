@@ -26,6 +26,7 @@
 
 
 /* Macros. */
+#ifndef VTY_GET_IPV4_PREFIX
 #define VTY_GET_IPV4_PREFIX(NAME,V,STR)                                       \
 {                                                                             \
   int retv;                                                                   \
@@ -36,7 +37,7 @@
       return CMD_WARNING;                                                     \
     }                                                                         \
 }
-
+#endif
 
 /* Prototypes */
 int olsr_write_interface(struct vty *vty);

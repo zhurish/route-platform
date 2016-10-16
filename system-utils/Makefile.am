@@ -8,14 +8,13 @@ INSTALL_SDATA=@INSTALL@ -m 600
 AM_CFLAGS = $(PICFLAGS)
 AM_LDFLAGS = $(PILDFLAGS)
 
-noinst_LIBRARIES = libvpnd.a
-sbin_PROGRAMS = vpnd
-libvpnd_a_SOURCES = ip_tunnel.c vpn_zebra.c
+noinst_LIBRARIES = libutils.a
+sbin_PROGRAMS = utilsd
+libutils_a_SOURCES = utils.c utils_zebra.c ip_tunnel.c
 
-noinst_HEADERS = l2tp/l2tp.h
 
-vpnd_SOURCES = main.c $(libvpnd_a_SOURCES)
-vpnd_LDADD = ../lib/libzebra.la @LIBCAP@
+utilsd_SOURCES = main.c $(libutils_a_SOURCES)
+utilsd_LDADD = ../lib/libzebra.la @LIBCAP@
 
 
 

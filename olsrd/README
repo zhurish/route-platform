@@ -1,0 +1,123 @@
+						    September 25, 2005
+
+		    OLSRd - OLSR daemon for Quagga
+		    ==============================
+			    version 0.1.18
+
+			   Tudor Golubenco
+
+Table of contents:
+------------------
+1. Overview
+2. Installation
+3. Getting started
+
+
+1. Overview
+===========
+
+	 The pro-active routing  protocol Optimized Link State Routing
+(described in RFC 3626) is an optimization of the classical link state
+algorithm for wireless Mobile Ad-hoc Networks (MANETs). It provides an
+efficient  mechanism  for flooding  control  traffic  by reducing  the
+number  of  transmissions   required.  The  protocol  is  particularly
+suitable  for   large  and  dense   wireless  networks  as   the  OLSR
+optimization works well in this  context. 
+
+	Quagga  is a  routing  software suite  in  which each  routing
+protocol  is a  Unix  daemon. This  project  is about  making an  OLSR
+implementation for Quagga. For  information about Quagga, please visit
+www.quagga.net.
+
+	For  a  richer version  of  this  text  on for  OLSR  specific
+commands  and other options  please read  the `readme.html'  file from
+directory or from the web at:
+	
+	http://83.103.182.100/quagga_olsr/
+
+
+2. Installation
+===============
+
+	Before  installing  OLSRd one  needs  to  download the  Quagga
+sources  from http://www.quagga.net/download.php.  Current  version of
+OLSRd has been  tested with Quagga 0.98.5 which  is the current stable
+Quagga version  but it will probably  run as well with  older or newer
+versions because the Quagga core code changes relatively rare.
+
+	After downloading  uncompress the Quagga sources  and copy the
+OLSR tar ball inside the newly created directory.
+
+     $ tar xzvf quagga-0.98.5.tar.gz 
+     $ cd quagga-0.98.5 
+     $ cp ../quagga-olsrd-0.1.18.tar.gz .
+
+	Now uncompress the  quagga-olsrd-0.1.18.tar.gz file here. This
+will create a new directory named olsrd. You will find a patch in that
+directory that you have to apply before doing anything else.
+
+    $ tar xzvf quagga_olsrd-0.1.18.tar.gz
+    $ cd olsrd/
+    $ patch -p1 -d .. < quagga-0.98.5_olsrd-0.1.18.diff 
+
+	The  next step  is to  run the  ./configure script  which will
+generate Makefiles  for both Quagga  and OLSRd. Please  use /configure
+--help and read the INSTALL file from the Quagga directory. One of the
+interesting Quagga  features is  that it can  run as normal  Unix user
+providing good security. Read the  documentation about how to enable a
+normal  user to  run quagga  or --  if you're  in a  hurry --  use the
+following:
+
+    $ ./configure --enable-user=root --enable-group=root
+    $ make
+    $ sudo make install 
+
+	All remains to do now is to compile OLSRd:
+
+    $ cd olsrd/
+    $ make
+    $ sudo make install
+
+
+
+3. Getting started
+==================
+
+	To enable  the OLSR  routing one needs  to start  two daemons:
+zebra  which is  the process  responsible for  communicating  with the
+kernel and  olsrd. To see available  options use `man  zebra' and `man
+olsrd'.   But before  starting the  daemons, you  will need  to create
+configuration  files.  For  general Quagga  configuration  options see
+http://www.quagga.net/docs.php and  for configuration options specific
+to OLSRd read  the next section. For the moment, you  can just use the
+samples provided.
+
+    $ cp /usr/local/etc/zebra.conf.sample /usr/local/etc/zebra.conf
+    $ cp /usr/local/etc/olsrd.conf.sample /usr/local/etc/olsrd.conf
+    $ zebra -d
+    $ olsrd
+    2005/09/25 05:23:41 OLSR: OLSRd 0.1.18 starting: vty@2611
+
+	Quagga   daemons   can   be   configured  either   using   the
+configurations files from /usr/local/etc/  (or other directory at your
+option) either  using VTY  shells in an  interactive manner.   You can
+connect to  the zebra daemon  on port 2601  and to the OLSR  daemon on
+port 2611. If you haven't  changed the password then it's `zebra'. For
+basic information about VTYs please read
+
+http://www.quagga.net/docs/docs-multi/Virtual-Terminal-Interfaces.html
+
+    $ telnet localhost 2611
+    Trying 127.0.0.1...
+    Connected to localhost.localdomain.
+    Escape character is '^]'.
+
+    Hello, this is Quagga (version 0.98.5).
+    Copyright 1996-2005 Kunihiro Ishiguro, et al.
+
+
+    User Access Verification
+
+    Password:
+    olrsd>
+

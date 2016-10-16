@@ -1,915 +1,916 @@
+/* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define if building universal (internal helper macro) */
-#undef AC_APPLE_UNIVERSAL_BUILD
+/* #undef AC_APPLE_UNIVERSAL_BUILD */
 
 /* aodvd vty socket */
-#undef AODV_VTYSH_PATH
+/* #undef AODV_VTYSH_PATH */
 
 /* babeld vty socket */
-#undef BABEL_VTYSH_PATH
+#define BABEL_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/babeld.vty"
 
 /* bgpd vty socket */
-#undef BGP_VTYSH_PATH
+#define BGP_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/bgpd.vty"
 
 /* Mask for config files */
-#undef CONFIGFILE_MASK
+#define CONFIGFILE_MASK 0664
 
 /* Consumed Time Check */
-#undef CONSUMED_TIME_CHECK
+#define CONSUMED_TIME_CHECK 5000000
 
 /* default daemon app root dir */
-#undef DAEMON_CONFIG_DIR
+#define DAEMON_CONFIG_DIR "/home/zhurish/workspace/route-platform/app/rt"
 
 /* default daemon logmsg directory */
-#undef DAEMON_LOG_FILE_DIR
+#define DAEMON_LOG_FILE_DIR "/home/zhurish/workspace/route-platform/app/rt/log"
 
 /* daemon vty directory */
-#undef DAEMON_VTY_DIR
+#define DAEMON_VTY_DIR "/home/zhurish/workspace/route-platform/app/rt/var"
 
 /* Disable BGP installation to zebra */
-#undef DISABLE_BGP_ANNOUNCE
+#define DISABLE_BGP_ANNOUNCE 0
 
 /* frpd vty socket */
-#undef FRP_VTYSH_PATH
+/* #undef FRP_VTYSH_PATH */
 
 /* include git version info */
-#undef GIT_VERSION
+/* #undef GIT_VERSION */
 
 /* GNU Linux */
-#undef GNU_LINUX
+#define GNU_LINUX /**/
 
 /* Define to 1 if you have the `alarm' function. */
-#undef HAVE_ALARM
+#define HAVE_ALARM 1
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
-#undef HAVE_ARPA_INET_H
+#define HAVE_ARPA_INET_H 1
 
 /* Define to 1 if you have the <asm/types.h> header file. */
-#undef HAVE_ASM_TYPES_H
+#define HAVE_ASM_TYPES_H 1
 
 /* Broken CMSG_FIRSTHDR */
-#undef HAVE_BROKEN_CMSG_FIRSTHDR
+/* #undef HAVE_BROKEN_CMSG_FIRSTHDR */
 
 /* BSD ifi_link_state available */
-#undef HAVE_BSD_IFI_LINK_STATE
+/* #undef HAVE_BSD_IFI_LINK_STATE */
 
 /* BSD link-detect */
-#undef HAVE_BSD_LINK_DETECT
+/* #undef HAVE_BSD_LINK_DETECT */
 
 /* Can pass ifindex in struct ip_mreq */
-#undef HAVE_BSD_STRUCT_IP_MREQ_HACK
+/* #undef HAVE_BSD_STRUCT_IP_MREQ_HACK */
 
 /* capabilities */
-#undef HAVE_CAPABILITIES
+#define HAVE_CAPABILITIES 1
 
 /* Define to 1 if your system has a working `chown' function. */
-#undef HAVE_CHOWN
+#define HAVE_CHOWN 1
 
 /* Have monotonic clock */
-#undef HAVE_CLOCK_MONOTONIC
+#define HAVE_CLOCK_MONOTONIC /**/
 
 /* Define to 1 if you have the `daemon' function. */
-#undef HAVE_DAEMON
+#define HAVE_DAEMON 1
 
 /* Define to 1 if you have the declaration of `TCP_MD5SIG', and to 0 if you
    don't. */
-#undef HAVE_DECL_TCP_MD5SIG
+#define HAVE_DECL_TCP_MD5SIG 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#undef HAVE_DLFCN_H
+#define HAVE_DLFCN_H 1
 
 /* Define to 1 if you don't have `vprintf' but do have `_doprnt.' */
-#undef HAVE_DOPRNT
+/* #undef HAVE_DOPRNT */
 
 /* Define to 1 if you have the `dup2' function. */
-#undef HAVE_DUP2
+#define HAVE_DUP2 1
 
 /* Expand routing protocol Platform :enable other route protocol */
-#undef HAVE_EXPAND_ROUTE_PLATFORM
+#define HAVE_EXPAND_ROUTE_PLATFORM 1
 
 /* Define to 1 if you have the `fcntl' function. */
-#undef HAVE_FCNTL
+#define HAVE_FCNTL 1
 
 /* Define to 1 if you have the <fcntl.h> header file. */
-#undef HAVE_FCNTL_H
+#define HAVE_FCNTL_H 1
 
 /* Define to 1 if your system has a working POSIX `fnmatch' function. */
-#undef HAVE_FNMATCH
+#define HAVE_FNMATCH 1
 
 /* Define to 1 if you have the `fork' function. */
-#undef HAVE_FORK
+#define HAVE_FORK 1
 
 /* Forwarding Plane Manager support */
-#undef HAVE_FPM
+#define HAVE_FPM /**/
 
 /* Define to 1 if you have the `ftruncate' function. */
-#undef HAVE_FTRUNCATE
+#define HAVE_FTRUNCATE 1
 
 /* Define to 1 if you have the `getaddrinfo' function. */
-#undef HAVE_GETADDRINFO
+#define HAVE_GETADDRINFO 1
 
 /* Define to 1 if you have the `getcwd' function. */
-#undef HAVE_GETCWD
+#define HAVE_GETCWD 1
 
 /* Define to 1 if you have the `gethostbyname' function. */
-#undef HAVE_GETHOSTBYNAME
+#define HAVE_GETHOSTBYNAME 1
 
 /* Define to 1 if you have the `getifaddrs' function. */
-#undef HAVE_GETIFADDRS
+#define HAVE_GETIFADDRS 1
 
 /* Define to 1 if you have the `getpagesize' function. */
-#undef HAVE_GETPAGESIZE
+#define HAVE_GETPAGESIZE 1
 
 /* Define to 1 if you have the `gettimeofday' function. */
-#undef HAVE_GETTIMEOFDAY
+#define HAVE_GETTIMEOFDAY 1
 
 /* Glibc backtrace */
-#undef HAVE_GLIBC_BACKTRACE
+#define HAVE_GLIBC_BACKTRACE /**/
 
 /* GNU regexp library */
-#undef HAVE_GNU_REGEX
+#define HAVE_GNU_REGEX /**/
 
 /* Define to 1 if you have the `if_indextoname' function. */
-#undef HAVE_IF_INDEXTONAME
+#define HAVE_IF_INDEXTONAME 1
 
 /* Define to 1 if you have the `if_nametoindex' function. */
-#undef HAVE_IF_NAMETOINDEX
+#define HAVE_IF_NAMETOINDEX 1
 
 /* Define to 1 if you have the `inet_aton' function. */
-#undef HAVE_INET_ATON
+#define HAVE_INET_ATON 1
 
 /* Define to 1 if you have the <inet/nd.h> header file. */
-#undef HAVE_INET_ND_H
+/* #undef HAVE_INET_ND_H */
 
 /* Define to 1 if you have the `inet_ntoa' function. */
-#undef HAVE_INET_NTOA
+#define HAVE_INET_NTOA 1
 
 /* inet_ntop */
-#undef HAVE_INET_NTOP
+#define HAVE_INET_NTOP /**/
 
 /* inet_pton */
-#undef HAVE_INET_PTON
+#define HAVE_INET_PTON /**/
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-#undef HAVE_INTTYPES_H
+#define HAVE_INTTYPES_H 1
 
 /* IPv6 */
-#undef HAVE_IPV6
+#define HAVE_IPV6 1
 
 /* Have IP_PKTINFO */
-#undef HAVE_IP_PKTINFO
+#define HAVE_IP_PKTINFO 1
 
 /* Have IP_RECVDSTADDR */
-#undef HAVE_IP_RECVDSTADDR
+/* #undef HAVE_IP_RECVDSTADDR */
 
 /* Have IP_RECVIF */
-#undef HAVE_IP_RECVIF
+/* #undef HAVE_IP_RECVIF */
 
 /* IRDP */
-#undef HAVE_IRDP
+/* #undef HAVE_IRDP */
 
 /* Define to 1 if you have the <kvm.h> header file. */
-#undef HAVE_KVM_H
+/* #undef HAVE_KVM_H */
 
 /* Capabilities */
-#undef HAVE_LCAPS
+#define HAVE_LCAPS 1
 
 /* Define to 1 if you have the `crypt' library (-lcrypt). */
-#undef HAVE_LIBCRYPT
+#define HAVE_LIBCRYPT 1
 
 /* Have libm */
-#undef HAVE_LIBM
+#define HAVE_LIBM /**/
 
 /* Define to 1 if you have the `nsl' library (-lnsl). */
-#undef HAVE_LIBNSL
+/* #undef HAVE_LIBNSL */
 
 /* Define to 1 if you have the `pcreposix' library (-lpcreposix). */
-#undef HAVE_LIBPCREPOSIX
+/* #undef HAVE_LIBPCREPOSIX */
 
 /* Define to 1 if you have the `resolv' library (-lresolv). */
-#undef HAVE_LIBRESOLV
+/* #undef HAVE_LIBRESOLV */
 
 /* Define to 1 if you have the `socket' library (-lsocket). */
-#undef HAVE_LIBSOCKET
+/* #undef HAVE_LIBSOCKET */
 
 /* Define to 1 if you have the `umem' library (-lumem). */
-#undef HAVE_LIBUMEM
+/* #undef HAVE_LIBUMEM */
 
 /* Define to 1 if you have the `xnet' library (-lxnet). */
-#undef HAVE_LIBXNET
+/* #undef HAVE_LIBXNET */
 
 /* Define to 1 if you have the <limits.h> header file. */
-#undef HAVE_LIMITS_H
+#define HAVE_LIMITS_H 1
 
 /* enable linux system shell */
-#undef HAVE_LINUX_SHELL
+#define HAVE_LINUX_SHELL 1
 
 /* Define to 1 if you have the <linux/version.h> header file. */
-#undef HAVE_LINUX_VERSION_H
+#define HAVE_LINUX_VERSION_H 1
 
 /* mallinfo */
-#undef HAVE_MALLINFO
+#define HAVE_MALLINFO /**/
 
 /* Define to 1 if you have the `memchr' function. */
-#undef HAVE_MEMCHR
+#define HAVE_MEMCHR 1
 
 /* Define to 1 if you have the `memmove' function. */
-#undef HAVE_MEMMOVE
+#define HAVE_MEMMOVE 1
 
 /* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
+#define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the `memset' function. */
-#undef HAVE_MEMSET
+#define HAVE_MEMSET 1
 
 /* Define to 1 if you have the <netdb.h> header file. */
-#undef HAVE_NETDB_H
+#define HAVE_NETDB_H 1
 
 /* Define to 1 if you have the <netinet6/in6.h> header file. */
-#undef HAVE_NETINET6_IN6_H
+/* #undef HAVE_NETINET6_IN6_H */
 
 /* Define to 1 if you have the <netinet6/in6_var.h> header file. */
-#undef HAVE_NETINET6_IN6_VAR_H
+/* #undef HAVE_NETINET6_IN6_VAR_H */
 
 /* Define to 1 if you have the <netinet6/nd6.h> header file. */
-#undef HAVE_NETINET6_ND6_H
+/* #undef HAVE_NETINET6_ND6_H */
 
 /* Define to 1 if you have the <netinet/icmp6.h> header file. */
-#undef HAVE_NETINET_ICMP6_H
+#define HAVE_NETINET_ICMP6_H 1
 
 /* Define to 1 if you have the <netinet/in6_var.h> header file. */
-#undef HAVE_NETINET_IN6_VAR_H
+/* #undef HAVE_NETINET_IN6_VAR_H */
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
-#undef HAVE_NETINET_IN_H
+#define HAVE_NETINET_IN_H 1
 
 /* Define to 1 if you have the <netinet/in_systm.h> header file. */
-#undef HAVE_NETINET_IN_SYSTM_H
+#define HAVE_NETINET_IN_SYSTM_H 1
 
 /* Define to 1 if you have the <netinet/in_var.h> header file. */
-#undef HAVE_NETINET_IN_VAR_H
+/* #undef HAVE_NETINET_IN_VAR_H */
 
 /* Define to 1 if you have the <netinet/ip_icmp.h> header file. */
-#undef HAVE_NETINET_IP_ICMP_H
+#define HAVE_NETINET_IP_ICMP_H 1
 
 /* netlink */
-#undef HAVE_NETLINK
+#define HAVE_NETLINK /**/
 
 /* Define to 1 if you have the <net/if_dl.h> header file. */
-#undef HAVE_NET_IF_DL_H
+/* #undef HAVE_NET_IF_DL_H */
 
 /* Define to 1 if you have the <net/if.h> header file. */
-#undef HAVE_NET_IF_H
+#define HAVE_NET_IF_H 1
 
 /* Define to 1 if you have the <net/if_var.h> header file. */
-#undef HAVE_NET_IF_VAR_H
+/* #undef HAVE_NET_IF_VAR_H */
 
 /* Define to 1 if you have the <net/netopt.h> header file. */
-#undef HAVE_NET_NETOPT_H
+/* #undef HAVE_NET_NETOPT_H */
 
 /* Define to 1 if you have the <net/route.h> header file. */
-#undef HAVE_NET_ROUTE_H
+#define HAVE_NET_ROUTE_H 1
 
 /* NET_RT_IFLIST */
-#undef HAVE_NET_RT_IFLIST
+/* #undef HAVE_NET_RT_IFLIST */
 
 /* OSPF Opaque LSA */
-#undef HAVE_OPAQUE_LSA
+#define HAVE_OPAQUE_LSA /**/
 
 /* Have openpam.h */
-#undef HAVE_OPENPAM_H
+/* #undef HAVE_OPENPAM_H */
 
 /* enable ospf explain lsa */
-#undef HAVE_OSPFD_DCN
+#define HAVE_OSPFD_DCN 1
 
 /* OSPF TE */
-#undef HAVE_OSPF_TE
+#define HAVE_OSPF_TE /**/
 
 /* Have pam_misc.h */
-#undef HAVE_PAM_MISC_H
+/* #undef HAVE_PAM_MISC_H */
 
 /* Define to 1 if you have the `pow' function. */
-#undef HAVE_POW
+#define HAVE_POW 1
 
 /* Solaris printstack */
-#undef HAVE_PRINTSTACK
+/* #undef HAVE_PRINTSTACK */
 
 /* Define to 1 if you have the <priv.h> header file. */
-#undef HAVE_PRIV_H
+/* #undef HAVE_PRIV_H */
 
 /* prctl */
-#undef HAVE_PR_SET_KEEPCAPS
+#define HAVE_PR_SET_KEEPCAPS /**/
 
 /* Have RFC3678 protocol-independed API */
-#undef HAVE_RFC3678
+#define HAVE_RFC3678 1
 
 /* Enable IPv6 Routing Advertisement support */
-#undef HAVE_RTADV
+/* #undef HAVE_RTADV */
 
 /* rusage */
-#undef HAVE_RUSAGE
+#define HAVE_RUSAGE /**/
 
 /* Define to 1 if you have the `select' function. */
-#undef HAVE_SELECT
+#define HAVE_SELECT 1
 
 /* Have setproctitle */
-#undef HAVE_SETPROCTITLE
+/* #undef HAVE_SETPROCTITLE */
 
 /* Define to 1 if you have the <signal.h> header file. */
-#undef HAVE_SIGNAL_H
+#define HAVE_SIGNAL_H 1
 
 /* SNMP */
-#undef HAVE_SNMP
+/* #undef HAVE_SNMP */
 
 /* Define to 1 if you have the `snprintf' function. */
-#undef HAVE_SNPRINTF
+#define HAVE_SNPRINTF 1
 
 /* Define to 1 if you have the `socket' function. */
-#undef HAVE_SOCKET
+#define HAVE_SOCKET 1
 
 /* Define to 1 if the system has the type `socklen_t'. */
-#undef HAVE_SOCKLEN_T
+#define HAVE_SOCKLEN_T 1
 
 /* getpflags */
-#undef HAVE_SOLARIS_CAPABILITIES
+/* #undef HAVE_SOLARIS_CAPABILITIES */
 
 /* Stack symbol decoding */
-#undef HAVE_STACK_TRACE
+#define HAVE_STACK_TRACE /**/
 
 /* Define to 1 if `stat' has the bug that it succeeds when given the
    zero-length file name argument. */
-#undef HAVE_STAT_EMPTY_STRING_BUG
+/* #undef HAVE_STAT_EMPTY_STRING_BUG */
 
 /* Define to 1 if you have the <stddef.h> header file. */
-#undef HAVE_STDDEF_H
+#define HAVE_STDDEF_H 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
-#undef HAVE_STDINT_H
+#define HAVE_STDINT_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
-#undef HAVE_STDLIB_H
+#define HAVE_STDLIB_H 1
 
 /* Define to 1 if you have the `strcasecmp' function. */
-#undef HAVE_STRCASECMP
+#define HAVE_STRCASECMP 1
 
 /* Define to 1 if you have the `strchr' function. */
-#undef HAVE_STRCHR
+#define HAVE_STRCHR 1
 
 /* Define to 1 if you have the `strcspn' function. */
-#undef HAVE_STRCSPN
+#define HAVE_STRCSPN 1
 
 /* Define to 1 if you have the `strdup' function. */
-#undef HAVE_STRDUP
+#define HAVE_STRDUP 1
 
 /* Define to 1 if you have the `strerror' function. */
-#undef HAVE_STRERROR
+#define HAVE_STRERROR 1
 
 /* Define to 1 if you have the `strftime' function. */
-#undef HAVE_STRFTIME
+#define HAVE_STRFTIME 1
 
 /* Define to 1 if you have the <strings.h> header file. */
-#undef HAVE_STRINGS_H
+#define HAVE_STRINGS_H 1
 
 /* Define to 1 if you have the <string.h> header file. */
-#undef HAVE_STRING_H
+#define HAVE_STRING_H 1
 
 /* Define to 1 if you have the `strlcat' function. */
-#undef HAVE_STRLCAT
+/* #undef HAVE_STRLCAT */
 
 /* Define to 1 if you have the `strlcpy' function. */
-#undef HAVE_STRLCPY
+/* #undef HAVE_STRLCPY */
 
 /* Define to 1 if you have the `strncasecmp' function. */
-#undef HAVE_STRNCASECMP
+#define HAVE_STRNCASECMP 1
 
 /* Define to 1 if you have the `strndup' function. */
-#undef HAVE_STRNDUP
+#define HAVE_STRNDUP 1
 
 /* Define to 1 if you have the `strnlen' function. */
-#undef HAVE_STRNLEN
+#define HAVE_STRNLEN 1
 
 /* Define to 1 if you have the <stropts.h> header file. */
-#undef HAVE_STROPTS_H
+/* #undef HAVE_STROPTS_H */
 
 /* Define to 1 if you have the `strrchr' function. */
-#undef HAVE_STRRCHR
+#define HAVE_STRRCHR 1
 
 /* Define to 1 if you have the `strspn' function. */
-#undef HAVE_STRSPN
+#define HAVE_STRSPN 1
 
 /* Define to 1 if you have the `strstr' function. */
-#undef HAVE_STRSTR
+#define HAVE_STRSTR 1
 
 /* Define to 1 if you have the `strtol' function. */
-#undef HAVE_STRTOL
+#define HAVE_STRTOL 1
 
 /* Define to 1 if you have the `strtoul' function. */
-#undef HAVE_STRTOUL
+#define HAVE_STRTOUL 1
 
 /* Define to 1 if the system has the type `struct icmphdr'. */
-#undef HAVE_STRUCT_ICMPHDR
+#define HAVE_STRUCT_ICMPHDR 1
 
 /* Define to 1 if the system has the type `struct if6_aliasreq'. */
-#undef HAVE_STRUCT_IF6_ALIASREQ
+/* #undef HAVE_STRUCT_IF6_ALIASREQ */
 
 /* Define to 1 if `ifra_lifetime' is a member of `struct if6_aliasreq'. */
-#undef HAVE_STRUCT_IF6_ALIASREQ_IFRA_LIFETIME
+/* #undef HAVE_STRUCT_IF6_ALIASREQ_IFRA_LIFETIME */
 
 /* Define to 1 if the system has the type `struct ifaliasreq'. */
-#undef HAVE_STRUCT_IFALIASREQ
+/* #undef HAVE_STRUCT_IFALIASREQ */
 
 /* Define to 1 if `ifm_status' is a member of `struct ifmediareq'. */
-#undef HAVE_STRUCT_IFMEDIAREQ_IFM_STATUS
+/* #undef HAVE_STRUCT_IFMEDIAREQ_IFM_STATUS */
 
 /* Define to 1 if `ifi_link_state' is a member of `struct if_data'. */
-#undef HAVE_STRUCT_IF_DATA_IFI_LINK_STATE
+/* #undef HAVE_STRUCT_IF_DATA_IFI_LINK_STATE */
 
 /* Define to 1 if the system has the type `struct igmpmsg'. */
-#undef HAVE_STRUCT_IGMPMSG
+/* #undef HAVE_STRUCT_IGMPMSG */
 
 /* Define to 1 if the system has the type `struct in6_aliasreq'. */
-#undef HAVE_STRUCT_IN6_ALIASREQ
+/* #undef HAVE_STRUCT_IN6_ALIASREQ */
 
 /* Define to 1 if the system has the type `struct in_pktinfo'. */
-#undef HAVE_STRUCT_IN_PKTINFO
+#define HAVE_STRUCT_IN_PKTINFO 1
 
 /* Define to 1 if `imr_ifindex' is a member of `struct ip_mreqn'. */
-#undef HAVE_STRUCT_IP_MREQN_IMR_IFINDEX
+#define HAVE_STRUCT_IP_MREQN_IMR_IFINDEX 1
 
 /* Define to 1 if the system has the type `struct mfcctl'. */
-#undef HAVE_STRUCT_MFCCTL
+/* #undef HAVE_STRUCT_MFCCTL */
 
 /* Define to 1 if the system has the type `struct nd_opt_adv_interval'. */
-#undef HAVE_STRUCT_ND_OPT_ADV_INTERVAL
+#define HAVE_STRUCT_ND_OPT_ADV_INTERVAL 1
 
 /* Define to 1 if `nd_opt_ai_type' is a member of `struct
    nd_opt_adv_interval'. */
-#undef HAVE_STRUCT_ND_OPT_ADV_INTERVAL_ND_OPT_AI_TYPE
+/* #undef HAVE_STRUCT_ND_OPT_ADV_INTERVAL_ND_OPT_AI_TYPE */
 
 /* Define to 1 if the system has the type `struct nd_opt_homeagent_info'. */
-#undef HAVE_STRUCT_ND_OPT_HOMEAGENT_INFO
+/* #undef HAVE_STRUCT_ND_OPT_HOMEAGENT_INFO */
 
 /* Define to 1 if the system has the type `struct rt_addrinfo'. */
-#undef HAVE_STRUCT_RT_ADDRINFO
+/* #undef HAVE_STRUCT_RT_ADDRINFO */
 
 /* Define to 1 if the system has the type `struct sioc_sg_req'. */
-#undef HAVE_STRUCT_SIOC_SG_REQ
+/* #undef HAVE_STRUCT_SIOC_SG_REQ */
 
 /* Define to 1 if the system has the type `struct sioc_vif_req'. */
-#undef HAVE_STRUCT_SIOC_VIF_REQ
+/* #undef HAVE_STRUCT_SIOC_VIF_REQ */
 
 /* Define to 1 if the system has the type `struct sockaddr'. */
-#undef HAVE_STRUCT_SOCKADDR
+#define HAVE_STRUCT_SOCKADDR 1
 
 /* Define to 1 if the system has the type `struct sockaddr_dl'. */
-#undef HAVE_STRUCT_SOCKADDR_DL
+/* #undef HAVE_STRUCT_SOCKADDR_DL */
 
 /* Define to 1 if `sdl_len' is a member of `struct sockaddr_dl'. */
-#undef HAVE_STRUCT_SOCKADDR_DL_SDL_LEN
+/* #undef HAVE_STRUCT_SOCKADDR_DL_SDL_LEN */
 
 /* Define to 1 if the system has the type `struct sockaddr_in'. */
-#undef HAVE_STRUCT_SOCKADDR_IN
+#define HAVE_STRUCT_SOCKADDR_IN 1
 
 /* Define to 1 if the system has the type `struct sockaddr_in6'. */
-#undef HAVE_STRUCT_SOCKADDR_IN6
+#define HAVE_STRUCT_SOCKADDR_IN6 1
 
 /* Define to 1 if `sin6_scope_id' is a member of `struct sockaddr_in6'. */
-#undef HAVE_STRUCT_SOCKADDR_IN6_SIN6_SCOPE_ID
+#define HAVE_STRUCT_SOCKADDR_IN6_SIN6_SCOPE_ID 1
 
 /* Define to 1 if `sin_len' is a member of `struct sockaddr_in'. */
-#undef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+/* #undef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN */
 
 /* Define to 1 if `sa_len' is a member of `struct sockaddr'. */
-#undef HAVE_STRUCT_SOCKADDR_SA_LEN
+/* #undef HAVE_STRUCT_SOCKADDR_SA_LEN */
 
 /* Define to 1 if the system has the type `struct sockaddr_un'. */
-#undef HAVE_STRUCT_SOCKADDR_UN
+#define HAVE_STRUCT_SOCKADDR_UN 1
 
 /* Define to 1 if `sun_len' is a member of `struct sockaddr_un'. */
-#undef HAVE_STRUCT_SOCKADDR_UN_SUN_LEN
+/* #undef HAVE_STRUCT_SOCKADDR_UN_SUN_LEN */
 
 /* Define to 1 if the system has the type `struct vifctl'. */
-#undef HAVE_STRUCT_VIFCTL
+/* #undef HAVE_STRUCT_VIFCTL */
 
 /* Define to 1 if you have the <syslog.h> header file. */
-#undef HAVE_SYSLOG_H
+#define HAVE_SYSLOG_H 1
 
 /* Enable System Utils Support */
-#undef HAVE_SYSTEM_UTILS
+#define HAVE_SYSTEM_UTILS 1
 
 /* Define to 1 if you have the <sys/capability.h> header file. */
-#undef HAVE_SYS_CAPABILITY_H
+#define HAVE_SYS_CAPABILITY_H 1
 
 /* Define to 1 if you have the <sys/cdefs.h> header file. */
-#undef HAVE_SYS_CDEFS_H
+#define HAVE_SYS_CDEFS_H 1
 
 /* Define to 1 if you have the <sys/conf.h> header file. */
-#undef HAVE_SYS_CONF_H
+/* #undef HAVE_SYS_CONF_H */
 
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
-#undef HAVE_SYS_IOCTL_H
+#define HAVE_SYS_IOCTL_H 1
 
 /* Define to 1 if you have the <sys/ksym.h> header file. */
-#undef HAVE_SYS_KSYM_H
+/* #undef HAVE_SYS_KSYM_H */
 
 /* Define to 1 if you have the <sys/param.h> header file. */
-#undef HAVE_SYS_PARAM_H
+#define HAVE_SYS_PARAM_H 1
 
 /* Define to 1 if you have the <sys/select.h> header file. */
-#undef HAVE_SYS_SELECT_H
+#define HAVE_SYS_SELECT_H 1
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
-#undef HAVE_SYS_SOCKET_H
+#define HAVE_SYS_SOCKET_H 1
 
 /* Define to 1 if you have the <sys/sockio.h> header file. */
-#undef HAVE_SYS_SOCKIO_H
+/* #undef HAVE_SYS_SOCKIO_H */
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#undef HAVE_SYS_STAT_H
+#define HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/sysctl.h> header file. */
-#undef HAVE_SYS_SYSCTL_H
+#define HAVE_SYS_SYSCTL_H 1
 
 /* Define to 1 if you have the <sys/times.h> header file. */
-#undef HAVE_SYS_TIMES_H
+#define HAVE_SYS_TIMES_H 1
 
 /* Define to 1 if you have the <sys/time.h> header file. */
-#undef HAVE_SYS_TIME_H
+#define HAVE_SYS_TIME_H 1
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#undef HAVE_SYS_TYPES_H
+#define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <sys/un.h> header file. */
-#undef HAVE_SYS_UN_H
+#define HAVE_SYS_UN_H 1
 
 /* Define to 1 if you have <sys/wait.h> that is POSIX.1 compatible. */
-#undef HAVE_SYS_WAIT_H
+#define HAVE_SYS_WAIT_H 1
 
 /* Define this if your system can create weak aliases */
-#undef HAVE_SYS_WEAK_ALIAS
+#define HAVE_SYS_WEAK_ALIAS 1
 
 /* Define this if weak aliases may be created with __attribute__ */
-#undef HAVE_SYS_WEAK_ALIAS_ATTRIBUTE
+#define HAVE_SYS_WEAK_ALIAS_ATTRIBUTE 1
 
 /* Define this if weak aliases may be created with #pragma _CRI duplicate */
-#undef HAVE_SYS_WEAK_ALIAS_CRIDUPLICATE
+/* #undef HAVE_SYS_WEAK_ALIAS_CRIDUPLICATE */
 
 /* Define this if weak aliases in other files are honored */
-#undef HAVE_SYS_WEAK_ALIAS_CROSSFILE
+#define HAVE_SYS_WEAK_ALIAS_CROSSFILE 1
 
 /* Define this if weak aliases may be created with #pragma _HP_SECONDARY_DEF
    */
-#undef HAVE_SYS_WEAK_ALIAS_HPSECONDARY
+/* #undef HAVE_SYS_WEAK_ALIAS_HPSECONDARY */
 
 /* Define this if weak aliases may be created with #pragma weak */
-#undef HAVE_SYS_WEAK_ALIAS_PRAGMA
+#define HAVE_SYS_WEAK_ALIAS_PRAGMA 1
 
 /* Old Linux 2.4 TCP MD5 Signature Patch */
-#undef HAVE_TCP_MD5_LINUX24
+/* #undef HAVE_TCP_MD5_LINUX24 */
 
 /* Use TCP for zebra communication */
-#undef HAVE_TCP_ZEBRA
+#define HAVE_TCP_ZEBRA /**/
 
 /* Define to 1 if you have the <time.h> header file. */
-#undef HAVE_TIME_H
+#define HAVE_TIME_H 1
 
 /* Define to 1 if you have the <ucontext.h> header file. */
-#undef HAVE_UCONTEXT_H
+#define HAVE_UCONTEXT_H 1
 
 /* Define to 1 if `uc_mcontext.gregs' is a member of `ucontext_t'. */
-#undef HAVE_UCONTEXT_T_UC_MCONTEXT_GREGS
+#define HAVE_UCONTEXT_T_UC_MCONTEXT_GREGS 1
 
 /* Define to 1 if `uc_mcontext.regs' is a member of `ucontext_t'. */
-#undef HAVE_UCONTEXT_T_UC_MCONTEXT_REGS
+/* #undef HAVE_UCONTEXT_T_UC_MCONTEXT_REGS */
 
 /* Define to 1 if `uc_mcontext.regs.nip' is a member of `ucontext_t'. */
-#undef HAVE_UCONTEXT_T_UC_MCONTEXT_REGS_NIP
+/* #undef HAVE_UCONTEXT_T_UC_MCONTEXT_REGS_NIP */
 
 /* Define to 1 if `uc_mcontext.uc_regs' is a member of `ucontext_t'. */
-#undef HAVE_UCONTEXT_T_UC_MCONTEXT_UC_REGS
+/* #undef HAVE_UCONTEXT_T_UC_MCONTEXT_UC_REGS */
 
 /* Define to 1 if you have the `uname' function. */
-#undef HAVE_UNAME
+#define HAVE_UNAME 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#undef HAVE_UNISTD_H
+#define HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the `vfork' function. */
-#undef HAVE_VFORK
+#define HAVE_VFORK 1
 
 /* Define to 1 if you have the <vfork.h> header file. */
-#undef HAVE_VFORK_H
+/* #undef HAVE_VFORK_H */
 
 /* Define to 1 if the system has the type `vifi_t'. */
-#undef HAVE_VIFI_T
+/* #undef HAVE_VIFI_T */
 
 /* Define to 1 if you have the `vprintf' function. */
-#undef HAVE_VPRINTF
+#define HAVE_VPRINTF 1
 
 /* Define to 1 if you have the `vsnprintf' function. */
-#undef HAVE_VSNPRINTF
+#define HAVE_VSNPRINTF 1
 
 /* Define to 1 if you have the <wchar.h> header file. */
-#undef HAVE_WCHAR_H
+#define HAVE_WCHAR_H 1
 
 /* Define to 1 if you have the <wctype.h> header file. */
-#undef HAVE_WCTYPE_H
+#define HAVE_WCTYPE_H 1
 
 /* Define to 1 if `fork' works. */
-#undef HAVE_WORKING_FORK
+#define HAVE_WORKING_FORK 1
 
 /* Define to 1 if `vfork' works. */
-#undef HAVE_WORKING_VFORK
+#define HAVE_WORKING_VFORK 1
 
 /* default oem file */
-#undef HOST_DEFAULT_OEM_FILE
+#define HOST_DEFAULT_OEM_FILE "/home/zhurish/workspace/route-platform/app/rt/etc/oem.bin"
 
 /* icrpd vty socket */
-#undef ICRP_VTYSH_PATH
+/* #undef ICRP_VTYSH_PATH */
 
 /* Enable IMI module shell to Routting Protocol */
-#undef IMISH_IMI_MODULE
+#define IMISH_IMI_MODULE 65530
 
 /* IMI Mdoule socket */
-#undef IMISH_UNIX_PATH
+#define IMISH_UNIX_PATH "/home/zhurish/workspace/route-platform/app/rt/var/imi-cli.vty"
 
 /* selected method for isis, == one of the constants */
-#undef ISIS_METHOD
+#define ISIS_METHOD ISIS_METHOD_PFPACKET
 
 /* constant value for isis method bpf */
-#undef ISIS_METHOD_BPF
+#define ISIS_METHOD_BPF 3
 
 /* constant value for isis method dlpi */
-#undef ISIS_METHOD_DLPI
+#define ISIS_METHOD_DLPI 2
 
 /* constant value for isis method pfpacket */
-#undef ISIS_METHOD_PFPACKET
+#define ISIS_METHOD_PFPACKET 1
 
 /* isisd vty socket */
-#undef ISIS_VTYSH_PATH
+#define ISIS_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/isisd.vty"
 
 /* KAME IPv6 */
-#undef KAME
+/* #undef KAME */
 
 /* ldpd vty socket */
-#undef LDP_VTYSH_PATH
+#define LDP_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/ldpd.vty"
 
 /* Linux IPv6 stack */
-#undef LINUX_IPV6
+#define LINUX_IPV6 1
 
 /* lldpd vty socket */
-#undef LLDP_VTYSH_PATH
+/* #undef LLDP_VTYSH_PATH */
 
 /* Mask for log files */
-#undef LOGFILE_MASK
+#define LOGFILE_MASK 0664
 
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */
-#undef LSTAT_FOLLOWS_SLASHED_SYMLINK
+#define LSTAT_FOLLOWS_SLASHED_SYMLINK 1
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
-#undef LT_OBJDIR
+#define LT_OBJDIR ".libs/"
 
 /* mplsd vty socket */
-#undef MPLS_VTYSH_PATH
+/* #undef MPLS_VTYSH_PATH */
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
-#undef NO_MINUS_C_MINUS_O
+/* #undef NO_MINUS_C_MINUS_O */
 
 /* this OEM auther name */
-#undef OEM_PACKAGE_AUTHER
+#define OEM_PACKAGE_AUTHER "zhurish"
 
 /* this OEM base of Quagga version */
-#undef OEM_PACKAGE_BASE
+#define OEM_PACKAGE_BASE PACKAGE_STRING
 
 /* Define to the address where bug reports for this OEM package should be
    sent. */
-#undef OEM_PACKAGE_BUGREPORT
+#define OEM_PACKAGE_BUGREPORT "zhurish@163.com"
 
 /* this copyright for OEM version */
-#undef OEM_PACKAGE_COPYRIGHT
+#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/10/16 zhurish(zhurish@163.com) et al."
 
 /* Name of OEM package */
-#undef OEM_PACKAGE_NAME
+#define OEM_PACKAGE_NAME "routing-plaform"
 
 /* this OEM base on Quagga version number(xx.xx.00) */
-#undef OEM_PACKAGE_VERSION
+#define OEM_PACKAGE_VERSION (0x00006300)
 
 /* Define to the version of this OEM package. */
-#undef OEM_VERSION
+#define OEM_VERSION "V0.0.0.9"
 
 /* olsrd vty socket */
-#undef OLSR_VTYSH_PATH
+#define OLSR_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/olsrd.vty"
 
 /* OpenBSD */
-#undef OPEN_BSD
+/* #undef OPEN_BSD */
 
 /* ospf6d vty socket */
-#undef OSPF6_VTYSH_PATH
+#define OSPF6_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/ospf6d.vty"
 
 /* ospfd vty socket */
-#undef OSPF_VTYSH_PATH
+#define OSPF_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/ospfd.vty"
 
 /* Name of package */
-#undef PACKAGE
+#define PACKAGE "quagga"
 
 /* Define to the address where bug reports for this package should be sent. */
-#undef PACKAGE_BUGREPORT
+#define PACKAGE_BUGREPORT "https://bugzilla.quagga.net"
 
 /* Define to the full name of this package. */
-#undef PACKAGE_NAME
+#define PACKAGE_NAME "Quagga"
 
 /* Define to the full name and version of this package. */
-#undef PACKAGE_STRING
+#define PACKAGE_STRING "Quagga 0.99.24"
 
 /* Define to the one symbol short name of this package. */
-#undef PACKAGE_TARNAME
+#define PACKAGE_TARNAME "quagga"
 
 /* Define to the home page for this package. */
-#undef PACKAGE_URL
+#define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#undef PACKAGE_VERSION
+#define PACKAGE_VERSION "0.99.24"
 
 /* Have openpam_ttyconv */
-#undef PAM_CONV_FUNC
+/* #undef PAM_CONV_FUNC */
 
 /* aodvd PID */
-#undef PATH_AODVD_PID
+/* #undef PATH_AODVD_PID */
 
 /* babeld PID */
-#undef PATH_BABELD_PID
+#define PATH_BABELD_PID "/home/zhurish/workspace/route-platform/app/rt/var/babeld.pid"
 
 /* bgpd PID */
-#undef PATH_BGPD_PID
+#define PATH_BGPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/bgpd.pid"
 
 /* frpd PID */
-#undef PATH_FRPD_PID
+/* #undef PATH_FRPD_PID */
 
 /* icrpd PID */
-#undef PATH_ICRPD_PID
+/* #undef PATH_ICRPD_PID */
 
 /* IMI Mdoule PID */
-#undef PATH_IMISH_PID
+#define PATH_IMISH_PID "/home/zhurish/workspace/route-platform/app/rt/var/imi-cli.pid"
 
 /* isisd PID */
-#undef PATH_ISISD_PID
+#define PATH_ISISD_PID "/home/zhurish/workspace/route-platform/app/rt/var/isisd.pid"
 
 /* ldpd PID */
-#undef PATH_LDPD_PID
+#define PATH_LDPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/ldpd.pid"
 
 /* lldpd PID */
-#undef PATH_LLDPD_PID
+/* #undef PATH_LLDPD_PID */
 
 /* mplsd PID */
-#undef PATH_MPLSD_PID
+/* #undef PATH_MPLSD_PID */
 
 /* olsrd PID */
-#undef PATH_OLSRD_PID
+#define PATH_OLSRD_PID "/home/zhurish/workspace/route-platform/app/rt/var/olsrd.pid"
 
 /* ospf6d PID */
-#undef PATH_OSPF6D_PID
+#define PATH_OSPF6D_PID "/home/zhurish/workspace/route-platform/app/rt/var/ospf6d.pid"
 
 /* ospfd PID */
-#undef PATH_OSPFD_PID
+#define PATH_OSPFD_PID "/home/zhurish/workspace/route-platform/app/rt/var/ospfd.pid"
 
 /* pimd PID */
-#undef PATH_PIMD_PID
+#define PATH_PIMD_PID "/home/zhurish/workspace/route-platform/app/rt/var/pimd.pid"
 
 /* ripd PID */
-#undef PATH_RIPD_PID
+#define PATH_RIPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/ripd.pid"
 
 /* ripngd PID */
-#undef PATH_RIPNGD_PID
+#define PATH_RIPNGD_PID "/home/zhurish/workspace/route-platform/app/rt/var/ripngd.pid"
 
 /* rsvpd PID */
-#undef PATH_RSVPD_PID
+#define PATH_RSVPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/rsvpd.pid"
 
 /* utils PID */
-#undef PATH_UTILS_PID
+#define PATH_UTILS_PID "/home/zhurish/workspace/route-platform/app/rt/var/utils.pid"
 
 /* vpnd PID */
-#undef PATH_VPND_PID
+#define PATH_VPND_PID "/home/zhurish/workspace/route-platform/app/rt/var/vpnd.pid"
 
 /* vrrpd PID */
-#undef PATH_VRRPD_PID
+/* #undef PATH_VRRPD_PID */
 
 /* watchquagga PID */
-#undef PATH_WATCHQUAGGA_PID
+#define PATH_WATCHQUAGGA_PID "/home/zhurish/workspace/route-platform/app/rt/var/watchquagga.pid"
 
 /* zebra PID */
-#undef PATH_ZEBRA_PID
+#define PATH_ZEBRA_PID "/home/zhurish/workspace/route-platform/app/rt/var/zebra.pid"
 
 /* pimd vty socket */
-#undef PIM_VTYSH_PATH
+#define PIM_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/pimd.vty"
 
 /* Quagga Group */
-#undef QUAGGA_GROUP
+#define QUAGGA_GROUP "zhurish"
 
 /* Hide deprecated interfaces */
-#undef QUAGGA_NO_DEPRECATED_INTERFACES
+#define QUAGGA_NO_DEPRECATED_INTERFACES 1
 
 /* Quagga User */
-#undef QUAGGA_USER
+#define QUAGGA_USER "zhurish"
 
 /* Define as the return type of signal handlers (`int' or `void'). */
-#undef RETSIGTYPE
+#define RETSIGTYPE void
 
 /* ripng vty socket */
-#undef RIPNG_VTYSH_PATH
+#define RIPNG_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/ripngd.vty"
 
 /* rip vty socket */
-#undef RIP_VTYSH_PATH
+#define RIP_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/ripd.vty"
 
 /* rsvpd vty socket */
-#undef RSVP_VTYSH_PATH
+#define RSVP_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/rsvpd.vty"
 
 /* Define to the type of arg 1 for `select'. */
-#undef SELECT_TYPE_ARG1
+#define SELECT_TYPE_ARG1 int
 
 /* Define to the type of args 2, 3 and 4 for `select'. */
-#undef SELECT_TYPE_ARG234
+#define SELECT_TYPE_ARG234 (fd_set *)
 
 /* Define to the type of arg 5 for `select'. */
-#undef SELECT_TYPE_ARG5
+#define SELECT_TYPE_ARG5 (struct timeval *)
 
 /* Use SNMP AgentX to interface with snmpd */
-#undef SNMP_AGENTX
+/* #undef SNMP_AGENTX */
 
 /* Use SNMP SMUX to interface with snmpd */
-#undef SNMP_SMUX
+/* #undef SNMP_SMUX */
 
 /* Solaris IPv6 */
-#undef SOLARIS_IPV6
+/* #undef SOLARIS_IPV6 */
 
 /* Define to 1 if you have the ANSI C header files. */
-#undef STDC_HEADERS
+#define STDC_HEADERS 1
 
 /* SunOS 5 */
-#undef SUNOS_5
+/* #undef SUNOS_5 */
 
 /* SunOS 5.6 to 5.7 */
-#undef SUNOS_56
+/* #undef SUNOS_56 */
 
 /* SunOS 5.8 up */
-#undef SUNOS_59
+/* #undef SUNOS_59 */
 
 /* OSPFAPI */
-#undef SUPPORT_OSPF_API
+#define SUPPORT_OSPF_API /**/
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#undef TIME_WITH_SYS_TIME
+#define TIME_WITH_SYS_TIME 1
 
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
-#undef TM_IN_SYS_TIME
+/* #undef TM_IN_SYS_TIME */
 
 /* Enable IS-IS topology generator code */
-#undef TOPOLOGY_GENERATE
+/* #undef TOPOLOGY_GENERATE */
 
 /* Use PAM for authentication */
-#undef USE_PAM
+/* #undef USE_PAM */
 
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE
-# undef _ALL_SOURCE
+# define _ALL_SOURCE 1
 #endif
 /* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE
-# undef _GNU_SOURCE
+# define _GNU_SOURCE 1
 #endif
 /* Enable threading extensions on Solaris.  */
 #ifndef _POSIX_PTHREAD_SEMANTICS
-# undef _POSIX_PTHREAD_SEMANTICS
+# define _POSIX_PTHREAD_SEMANTICS 1
 #endif
 /* Enable extensions on HP NonStop.  */
 #ifndef _TANDEM_SOURCE
-# undef _TANDEM_SOURCE
+# define _TANDEM_SOURCE 1
 #endif
 /* Enable general extensions on Solaris.  */
 #ifndef __EXTENSIONS__
-# undef __EXTENSIONS__
+# define __EXTENSIONS__ 1
 #endif
 
 
 /* utils vty socket */
-#undef UTILS_VTYSH_PATH
+#define UTILS_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/utils.vty"
 
 /* Version number of package */
-#undef VERSION
+#define VERSION "0.99.24"
 
 /* vpnd vty socket */
-#undef VPN_VTYSH_PATH
+#define VPN_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/vpnd.vty"
 
 /* vrrpd vty socket */
-#undef VRRP_VTYSH_PATH
+/* #undef VRRP_VTYSH_PATH */
 
 /* VTY shell */
-#undef VTYSH
+#define VTYSH /**/
 
 /* VTY Sockets Group */
-#undef VTY_GROUP
+/* #undef VTY_GROUP */
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
@@ -919,15 +920,15 @@
 # endif
 #else
 # ifndef WORDS_BIGENDIAN
-#  undef WORDS_BIGENDIAN
+/* #  undef WORDS_BIGENDIAN */
 # endif
 #endif
 
 /* zebra api socket */
-#undef ZEBRA_SERV_PATH
+#define ZEBRA_SERV_PATH "/home/zhurish/workspace/route-platform/app/rt/var/zserv.api"
 
 /* zebra vty socket */
-#undef ZEBRA_VTYSH_PATH
+#define ZEBRA_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/zebra.vty"
 
 /* Enable large inode numbers on Mac OS X 10.5.  */
 #ifndef _DARWIN_USE_64_BIT_INODE
@@ -935,43 +936,43 @@
 #endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
-#undef _FILE_OFFSET_BITS
+/* #undef _FILE_OFFSET_BITS */
 
 /* Define for large files, on AIX-style hosts. */
-#undef _LARGE_FILES
+/* #undef _LARGE_FILES */
 
 /* Define to 1 if on MINIX. */
-#undef _MINIX
+/* #undef _MINIX */
 
 /* Define to 2 if the system does not provide POSIX.1 features except with
    this defined. */
-#undef _POSIX_1_SOURCE
+/* #undef _POSIX_1_SOURCE */
 
 /* Define to 1 if you need to in order for `stat' and other things to work. */
-#undef _POSIX_SOURCE
+/* #undef _POSIX_SOURCE */
 
 /* Define to empty if `const' does not conform to ANSI C. */
-#undef const
+/* #undef const */
 
 /* Define to `int' if <sys/types.h> doesn't define. */
-#undef gid_t
+/* #undef gid_t */
 
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
-#undef inline
+/* #undef inline */
 #endif
 
 /* Define to `int' if <sys/types.h> does not define. */
-#undef mode_t
+/* #undef mode_t */
 
 /* Define to `int' if <sys/types.h> does not define. */
-#undef pid_t
+/* #undef pid_t */
 
 /* Define to the equivalent of the C99 'restrict' keyword, or to
    nothing if this is not supported.  Do not define if restrict is
    supported directly.  */
-#undef restrict
+#define restrict __restrict
 /* Work around a bug in Sun C++: it does not support _Restrict or
    __restrict__, even though the corresponding Sun C compiler ends up with
    "#define restrict _Restrict" or "#define restrict __restrict__" in the
@@ -983,17 +984,17 @@
 #endif
 
 /* Old readline */
-#undef rl_completion_matches
+/* #undef rl_completion_matches */
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
-#undef size_t
+/* #undef size_t */
 
 /* Define to `int' if <sys/types.h> doesn't define. */
-#undef uid_t
+/* #undef uid_t */
 
 /* Define as `fork' if `vfork' does not work. */
-#undef vfork
+/* #undef vfork */
 
 /* Define to empty if the keyword `volatile' does not work. Warning: valid
    code using `volatile' can become incorrect without. Disable with care. */
-#undef volatile
+/* #undef volatile */

@@ -19,8 +19,9 @@
 #include "sigevent.h"
 #include "zclient.h"
 
-extern void vpn_zclient_init ();
-extern int ip_tunnel_if_init (void);
+#include "system-utils/utils.h"
+#include "system-utils/ip_tunnel.h"
+
 
 /* ripd options. */
 static struct option longopts[] =
@@ -50,7 +51,7 @@ zebra_capabilities_t _caps_p [] =
 	ZCAP_NET_RAW,
 };
 
-struct zebra_privs_t vpn_privs =
+struct zebra_privs_t utils_privs =
 {
 #if defined(QUAGGA_USER)
   .user = QUAGGA_USER,//"root",
@@ -66,10 +67,9 @@ struct zebra_privs_t vpn_privs =
   .cap_num_i = 0
 };
 
-#define VPND_DEFAULT_CONFIG    "vpn.conf"
+
 /* Configuration file and directory. */
-char config_default[] = SYSCONFDIR VPND_DEFAULT_CONFIG;
-//char config_default = NULL;
+char config_default[] = SYSCONFDIR UTILS_DEFAULT_CONFIG;
 char *config_file = NULL;
 
 /* ripd program name */
@@ -79,13 +79,13 @@ char *vty_addr = NULL;
 /* RIP VTY connection port. */
 
 /* RIP VTY connection port. */
-int vty_port = 2630;//VPN_VTY_PORT;
+int vty_port = UTILS_VTY_PORT;
 
 /* Master of threads. */
 struct thread_master *master;
 
 /* Process ID saved for use by init system */
-const char *pid_file = PATH_VPND_PID;
+const char *pid_file = PATH_UTILS_PID;
 
 /* Help information display. */
 static void
@@ -103,8 +103,6 @@ Daemon which manages RIP version 1 and 2.\n\n\
 -z, --socket       Set path of zebra socket\n\
 -A, --vty_addr     Set vty's bind address\n\
 -P, --vty_port     Set vty's port number\n\
--C, --dryrun       Check configuration for validity and exit\n\
--r, --retain       When program terminates, retain added route by ripd.\n\
 -u, --user         User to run as\n\
 -g, --group        Group to run as\n\
 -v, --version      Print program version\n\
@@ -129,7 +127,7 @@ sighup (void)
   vty_read_config (config_file, config_default);
 
   /* Create VTY's socket */
-  vty_serv_sock (vty_addr, vty_port, VPN_VTYSH_PATH);
+  vty_serv_sock (vty_addr, vty_port, UTILS_VTYSH_PATH);
 
   /* Try to return to normal operation. */
 }
@@ -153,7 +151,7 @@ sigusr1 (void)
   zlog_rotate (NULL);
 }
 
-static struct quagga_signal_t vpnd_signals[] =
+static struct quagga_signal_t utils_signals[] =
 {
   {
     .signal = SIGHUP,
@@ -179,7 +177,7 @@ main (int argc, char **argv)
 {
   char *p;
   int daemon_mode = 0;
-  int dryrun = 0;
+
   char *progname;
   struct thread thread;
 
@@ -190,7 +188,7 @@ main (int argc, char **argv)
   progname = ((p = strrchr (argv[0], '/')) ? ++p : argv[0]);
 
   /* First of all we need logging init. */
-  zlog_default = openzlog (progname, ZLOG_RIP,
+  zlog_default = openzlog (progname, ZLOG_UTILS,
 			   LOG_CONS|LOG_NDELAY|LOG_PID, LOG_DAEMON);
 
   /* Command line option parse. */
@@ -198,7 +196,7 @@ main (int argc, char **argv)
     {
       int opt;
 
-      opt = getopt_long (argc, argv, "df:i:z:hA:P:u:g:rvC", longopts, 0);
+      opt = getopt_long (argc, argv, "df:i:z:hA:P:u:g:v", longopts, 0);
 
       if (opt == EOF)
 	break;
@@ -232,19 +230,13 @@ main (int argc, char **argv)
             }
           vty_port = atoi (optarg);
           if (vty_port <= 0 || vty_port > 0xffff)
-            vty_port = 2630;
-	  break;
-	case 'r':
-	 // retain_mode = 1;
-	  break;
-	case 'C':
-	  dryrun = 1;
+            vty_port = UTILS_VTY_PORT;
 	  break;
 	case 'u':
-		vpn_privs.user = optarg;
+		utils_privs.user = optarg;
 	  break;
 	case 'g':
-		vpn_privs.group = optarg;
+		utils_privs.group = optarg;
 	  break;
 	case 'v':
 	  print_version (progname);
@@ -263,20 +255,20 @@ main (int argc, char **argv)
   master = thread_master_create ();
 
   /* Library initialization. */
-  //zprivs_init (&vpn_privs);
-  signal_init (master, array_size(vpnd_signals), vpnd_signals);
+  //zprivs_init (&utils_privs);
+  signal_init (master, array_size(utils_signals), utils_signals);
   cmd_init (1);
   vty_init (master);
   memory_init ();
 
-  vpn_zclient_init ();
-  ip_tunnel_if_init ();
+  utils_zclient_init ();
+
+#ifdef HAVE_UTILS_TUNNEL
+  ip_tunnel_cmd_init ();
+#endif
+
   /* Get configuration file. */
   vty_read_config (config_file, config_default);
-
-  /* Start execution only if not in dry-run mode */
-  if(dryrun)
-    return (0);
 
   /* Change to the daemon program. */
   if (daemon_mode && daemon (0, 0) < 0)
@@ -289,7 +281,7 @@ main (int argc, char **argv)
   pid_output (pid_file);
 
   /* Create VTY's socket */
-  vty_serv_sock (vty_addr, vty_port, VPN_VTYSH_PATH);
+  vty_serv_sock (vty_addr, vty_port, UTILS_VTYSH_PATH);
 
   /* Print banner. */
   zlog_notice ("RIPd %s starting: vty@%d", QUAGGA_VERSION, vty_port);

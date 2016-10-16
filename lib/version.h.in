@@ -35,6 +35,8 @@
 #define GIT_INFO ""
 #endif
 
+#define OEM_BASE_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+
 #define QUAGGA_PROGNAME   "@PACKAGE_NAME@"
 
 #define QUAGGA_VERSION     "@PACKAGE_VERSION@" GIT_SUFFIX

@@ -1,0 +1,459 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html	xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-IE">
+<head>
+<title>OLSRd - OLSR daemon for Quagga</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" title="olsrd" href="zebra.css" />
+<meta name="keywords" content="OLSR Quagga GNU Zebra routing unix linux"/>
+<meta name="description" content="Quagga OLSRD Routing homepage.\"/>
+<meta name="author" content="Tudor Golubenco"/>
+<meta name="robots" content="all"/>
+</head>
+
+<body bgcolor="#ffffff">
+
+<div id="top">
+  <h2 align="center">OLSRd - OLSR daemon for Quagga</h2>
+</div>
+
+
+<div id="main">
+  <div class="contents">
+  <ul>
+    <li><a href="#Overview">1. Overview</a></li>
+    <li><a href="#Installation">2. Installation</a></li>
+    <li><a href="#GettingStarted">3. Getting started</a></li>
+    <li><a href="#Commands">4. Commands</a></li>
+    <ul>
+      <li><a href="#OlsrInfo">4.1 Show Olsr Information</a></li>
+      <li><a href="#OlsrRouter">4.2 Olsr Router</a></li>
+      <li><a href="#OlsrInterfaces">4.3 Olsr Interfaces</a></li>
+      <li><a href="#OlsrDebugging">4.3 Olsr Debugging</a></li>
+    </ul>
+    <li><a href="#Sample">5. Sample session</a></li>
+  </ul>
+  </div>
+
+  <a name="Overview"></a>
+  <h3 class="section">1. Overview</h3>
+
+
+  <p>
+    The pro-active routing protocol Optimized Link State Routing
+    (described in RFC 3626)	is an optimization of the classical
+    link state algorithm for wireless Mobile Ad-hoc Networks
+    (MANETs). It provides an efficient mechanism for flooding control
+    traffic by reducing the number of transmissions required. The
+    protocol is particularly suitable for large and dense wireless
+    networks as the OLSR optimization works well in this
+    context. 
+    <a href="http://www.quagga.net">Quagga</a> is a routing software
+    suite in which each routing protocol is a Unix daemon. This
+    project is about making an OLSR implementation for Quagga.
+  </p>
+
+  <a name="Installation"></a>
+  <h3 class="section">2. Installation</h3>
+
+  <p>
+    Before installing OLSRd one needs to download the
+    Quagga sources from <a href="http://www.quagga.net/download.php">
+    http://www.quagga.net/download.php</a>. Current version of OLSRd
+    has been tested with Quagga 0.98.5 which is the current stable
+    Quagga version but it will probably run as well with older or
+    newer versions because the Quagga core code changes relatively rare.
+   </p>
+
+   <p>
+     After downloading uncompress the Quagga sources and copy the OLSR
+     tar ball inside the newly created directory.
+   </p>
+
+   <pre>
+     $ tar xzvf quagga-0.98.5.tar.gz 
+     $ cd quagga-0.98.5 
+     $ cp ../quagga-olsrd-0.1.18.tar.gz . </pre>
+  
+  <p>
+    Now uncompress the quagga-olsrd-0.1.18.tar.gz file here. This will
+    create a new directory named <strong>olsrd</strong>. You will find
+    a <strong>patch</strong> in that directory that you have to apply before doing
+    anything else.
+  </p>
+
+  <pre>
+    $ tar xzvf quagga_olsrd-0.1.18.tar.gz
+    $ cd olsrd/
+    $ patch -p1 -d .. < quagga-0.98.5_olsrd-0.1.18.diff </pre>
+
+  <p>
+    The next step is to run the <strong>./configure</strong> script
+    which will generate Makefiles for both Quagga and OLSRd. Please
+    use  <strong>./configure --help</strong> and read
+    the INSTALL file from the Quagga directory. One of the interesting
+    Quagga features is that it can run as normal Unix user providing
+    good security. Read the documentation about how to enable a
+    normal user to run quagga or -- if you're in a hurry -- use the
+    following:
+  </p>
+
+  <pre>
+    $ ./configure --enable-user=root --enable-group=root
+    $ make
+    $ sudo make install </pre>
+
+  <p>
+    All remains to do now is to compile OLSRd:
+  </p>
+
+  <pre>
+    $ cd olsrd/
+    $ make
+    $ sudo make install </pre>
+
+  <a name="GettingStarted"></a>
+  <h3 class="section">3. Getting started</h3>
+
+
+  <p>
+    To enable the OLSR routing one needs to start two daemons:
+    <strong>zebra</strong> which is the process responsible for communicating
+    with the kernel and <strong>olsrd</strong>. To see available
+    options use <strong>man zebra</strong> and <strong>man
+    olsrd</strong>.  But before starting the daemons, you will need to
+    create configuration files. For general Quagga configuration
+    options see <a
+    href="http://www.quagga.net/docs.php">http://www.quagga.net/docs.php</a>
+    and for configuration options specific to OLSRd read the next
+    section. For the moment, you can just use the samples provided.
+  </p>
+
+  <pre>
+    $ cp /usr/local/etc/zebra.conf.sample /usr/local/etc/zebra.conf
+    $ cp /usr/local/etc/olsrd.conf.sample /usr/local/etc/olsrd.conf
+    $ zebra -d
+    $ olsrd
+    2005/09/25 05:23:41 OLSR: OLSRd 0.1.18 starting: vty@2611</pre>
+
+  <p>
+    Quagga daemons can be configured either using the configurations
+    files from /usr/local/etc/ (or other directory at your option)
+    either using VTY shells in an interactive manner. You can connect
+    to the zebra daemon on port 2601 and to the OLSR daemon on port
+    2611. If you haven't changed the password then it's `zebra'.
+    For basic information about VTYs please read <a
+    href="http://www.quagga.net/docs/docs-multi/Virtual-Terminal-Interfaces.html">
+    http://www.quagga.net/docs/docs-multi/Virtual-Terminal-Interfaces.html</a>
+    
+  </p>
+
+  <pre>
+    $ telnet localhost 2611
+    Trying 127.0.0.1...
+    Connected to localhost.localdomain.
+    Escape character is '^]'.
+
+    Hello, this is Quagga (version 0.98.5).
+    Copyright 1996-2005 Kunihiro Ishiguro, et al.
+
+
+    User Access Verification
+
+    Password:
+    olrsd></pre>
+
+  <a name="Commands"></a>
+  <h3 class="section">4. Commands</h3>
+  
+  The common commands for Quagga daemons work in OLSRd as well. You
+  can use <strong>show running-config</strong> and <strong>write
+  file</strong> to display current configuration and to write the
+  configuration to disk.
+  For more `basic Quagga commands' please visit <a
+  href="http://www.quagga.net/docs/docs-multi/Basic-commands.html"> 
+  http://www.quagga.net/docs/docs-multi/Basic-commands.html</a>. In
+  the next subsections you will find a summary of OLSR specific commads.
+
+  <a name="OlsrInfo"></a>
+  <h3 class="section">4.1. Show OLSR Information</h3>
+
+  <p>
+  Command: <strong>show ip olsr</strong>
+  </p>
+  <p>
+  The command displays current OLSR status. Node willingness, neighbor
+  hold time, the time to remember packets to avoid duplicate
+  forwarding, the time after to `forget' topology control messages if
+  they aren't refreshed and the delaying times for MPR and routing
+  table refreshes.
+  </p>
+  
+  <pre>
+    olrsd# show ip olsr
+    OLSR Routing Process, Main Address: 172.16.56.1
+    Willingness: default
+    Neighbor hold time: 6.000 s
+    Duplicate hold time: 30.000 s
+    Topology hold time: 15.000 s
+    MPR update time: 1.000 s
+    Routing table update time: 2.000 s</pre>
+    
+  <p>
+  Command: <strong>show ip olsr linkset</strong>
+  </p>
+  <p>
+  The command will print the connected links (symetric or asymmetric)
+  of this node.
+  </p>
+
+  <p>
+  Command: <strong>show ip olsr neigh</strong>
+  </p>
+  <p>
+  The command will print the symetric neighbors of this node together
+  with their status (MPR of this router or MPR Selector of this router).
+  </p>
+
+  <pre>
+    olrsd# show ip olsr neighbor
+    MAIN ADDR               STATUS          WILLINGNGESS    MPR     MPRS
+    172.16.56.132           sym             default         Yes     Nope
+    172.16.56.128           not             low             Nope    Nope
+    172.16.56.130           sym             default         Nope    Nope</pre>
+
+  <p>
+  Command: <strong>show ip olsr mid</strong>
+  </p>
+  <p>
+  The command will print the Multiple Information Association
+  database. See RFC3626 for details.
+  </p>
+
+  <p>
+  Command: <strong>show ip olsr topset</strong>
+  </p>
+  <p>
+  The command will print the Topology informations that this router
+  had gathered.
+  </p>
+
+  <p>
+  Command: <strong>show ip olsr routes</strong>
+  </p>
+  <p>
+  The command will print the routes discovered by OLSR.
+  </p>
+
+  <pre>
+    olrsd# show ip olsr routes
+    Dest addr       Next hop        Dist    Iface
+    172.16.56.1     172.16.56.128   3       172.16.56.1
+    172.16.56.128   172.16.56.128   1       172.16.56.1
+    172.16.56.132   172.16.56.132   1       172.16.56.1
+    192.168.0.1     172.16.56.128   1       172.16.56.1
+    192.168.0.2     172.16.56.132   1       172.16.56.1
+    192.168.0.4     172.16.56.128   2       172.16.56.1
+    192.168.0.5     172.16.56.128   2       172.16.56.1</pre>
+
+
+   <a name="OlsrRouter"></a>
+  <h3 class="section">4.2. OLSR router</h3>
+
+  <p>
+  Command: <strong>router olsr</strong>
+  </p>
+  <p>
+  Enable OLSR routing process. The command is available from the
+  `configure' node. In the `router olsr' node, the following commands
+  are available:
+  </p>
+
+  <p>
+  Command: <strong>olsr willingness
+  (never|low|default|high|always)</strong> <br />
+  Command: <strong>olsr willingness <0-7></strong> <br />
+  Command: <strong>no olsr willingness </strong>
+  </p>
+  
+  <p>
+  These commands are used to set the node's willingness which is a
+  number between 0 and 7. A node with willingness `never' will never
+  be selected as MPR. A node with willingness `always' will always be
+  selected as MPR. The `no olsr
+  willingness' command sets the willingness to default.
+  </p>
+
+  <p>
+  Command: <strong>olsr neighb-hold-time <em>msecs</em></strong> <br
+  />
+  Command: <strong>no olsr neighb-hold-time </strong> <br />
+  Command: <strong>olsr dup-hold-time <em>msecs</em></strong> <br
+  />
+  Command: <strong>no olsr dup-hold-time </strong> <br />
+  Command: <strong>olsr top-hold-time <em>msecs</em></strong> <br
+  />
+  Command: <strong>no olsr top-hold-time </strong> <br />
+  </p>
+
+  <p>
+  These commands set the holding times for various tuples (neighbors,
+  packets for identifying duplicates and topology infos) from
+  implementations as suggested in RFC. The commands starting with `no'
+  reset the parameters to their default values.
+  </p>
+
+  <p>
+  Command: <strong>olsr mpr-update-time <em>msecs</em></strong> <br
+  />
+  Command: <strong>no olsr mpr-update-time </strong> <br />
+  Command: <strong>olsr rt-update-time <em>msecs</em></strong> <br
+  />
+  Command: <strong>no olsr rt-update-time </strong> <br />
+  </p>
+  <p>
+    Because MPR and route calculations are rather complex computations
+    and because one topology change is usually followed by others in
+    a short period of time, you have the option to delay the
+    computations with a specified time after the first change was
+    discovered. Setting big values to these fields will reduce
+    computations while setting small values (or zero) will improve
+    reactivity. The routing table delay time should be greater than
+    MPR delay time as routing calculations depend on the MPR set.
+  </p>
+
+   <a name="OlsrInterfaces"></a>
+  <h3 class="section">4.3. OLSR interfaces</h3>
+
+  <p>
+    There are some OLSR interface specific options. To access
+    interface options use <strong>interface <em>label</em></strong> in
+    the `config' mode.
+  </p>
+
+  <p>
+  Command: <strong>ip olsr hello-interval <em>msecs</em></strong> <br
+  />
+  Command: <strong>no ip olsr hello-interval <em>msecs</em></strong> <br
+  />
+
+  Command: <strong>ip olsr mid-interval <em>msecs</em></strong> <br
+  />
+  Command: <strong>no ip olsr mid-interval <em>msecs</em></strong> <br
+  />
+
+  Command: <strong>ip olsr tc-interval <em>msecs</em></strong> <br
+  />
+  Command: <strong>no ip olsr tc-interval <em>msecs</em></strong> <br
+  />
+  </p>
+
+  <p>
+    These commands set the generation times for the three types of
+    messages currently supported: hello messages, topology control
+    messages and multiple interface associations messages. The `no'
+    versions restore the defaults.
+  </p>
+
+   <a name="OlsrDebugging"></a>
+  <h3 class="section">4.3. OLSR Debugging</h3>
+  <p>
+  Command: <strong>debug olsr packet (hello|mid|tc|all)</strong> <br
+  />
+  Command: <strong>no debug olsr packet (hello|mid|tc|all)</strong> <br
+  />
+  </p>
+  
+  <p>
+  Enables/Disables logging for received packets of specified type.
+  </p>
+
+  <p>
+  Command: <strong>debug olsr event zebra</strong> <br
+  />
+  Command: <strong>no debug olsr event zebra</strong> <br
+  />
+  </p>
+  
+  <p>
+  Enables/Disables logging for received messages from the zebra daemon.
+  </p>
+
+  <p>
+  Command: <strong>debug olsr event route-table</strong> <br
+  />
+  Command: <strong>no debug olsr event route-table</strong> <br
+  />
+  </p>
+  
+  <p>
+  Enables/Disables logging for route table changes.
+  </p>
+
+  <p>
+  Command: <strong>debug olsr event neigh</strong> <br
+  />
+  Command: <strong>no debug olsr event neigh</strong> <br
+  />
+  </p>
+  
+  <p>
+  Enables/Disables logging for the 1-hop neighborhood changes.
+  </p>
+
+  <p>
+  Command: <strong>debug olsr event links</strong> <br
+  />
+  Command: <strong>no debug olsr event links</strong> <br
+  />
+  </p>
+  
+  <p>
+  Enables/Disables logging for adjacent links changes.
+  </p>
+
+  <a name="Sample"></a>
+  <h3 class="section">5. Sample session</h3>
+
+  <p>
+    Here is the start of a simple sample session with OLSRd:
+  </p>
+
+  <pre>
+    $ zebra -d
+    $ olsrd -d
+    $ telnet localhost 2611
+    Trying 127.0.0.1...
+    Connected to localhost.localdomain.
+    Escape character is '^]'.
+
+    Hello, this is Quagga (version 0.98.5).
+    Copyright 1996-2005 Kunihiro Ishiguro, et al.
+
+
+    User Access Verification
+
+    Password:
+    olrsd> show ip olsr neighbor
+    MAIN ADDR               STATUS          WILLINGNGESS    MPR     MPRS
+    172.16.56.135           sym             default         Nope    Nope
+
+    olrsd> enable
+    olrsd# configure terminal
+    olrsd(config)# router olsr
+    olrsd(config-router)# network
+      A.B.C.D/M  OLSR network prefix
+    olrsd(config-router)# network 192.168.54.1/24
+    olrsd(config-router)# show ip olsr
+     OLSR Routing Process, Main Address: 172.16.56.1
+     Willingness: default
+     Neighbor hold time: 40.000 s
+     Duplicate hold time: 30.000 s
+     Topology hold time: 15.000 s
+     MPR update time: 1.000 s
+     Routing table update time: 2.000 s
+    olrsd(config-router)# </pre>
+
+</div>
+</body>
+</html>

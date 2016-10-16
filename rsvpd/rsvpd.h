@@ -23,7 +23,7 @@
 //#define zMPLS_RSVPD_VERSION  "0.95 build 01"
 
 /* Default configuration settings for RSVPD. */
-#define RSVPD_VTY_PORT			2621
+#define RSVPD_VTY_PORT			2619
 //#define RSVPD_VTYSH_PATH		"/tmp/.rsvpd"
 #define RSVPD_DEFAULT_CONFIG		"rsvpd.conf"
 

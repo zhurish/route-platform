@@ -11,7 +11,7 @@
 #include "ldp_struct.h"
 
 #define LDP_DEFAULT_CONFIG "ldpd.conf"
-#define LDP_VTY_PORT                2610
+#define LDP_VTY_PORT                2616
 
 typedef enum {
     LDP_EGRESS_ALL,

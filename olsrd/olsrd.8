@@ -1,0 +1,112 @@
+.TH OLSRD 8 "24 September 2005" "Quagga OLSR daemon" "Version 0.0.16"
+.SH NAME
+olsrd \- an OLSR routing engine for use with Quagga routing software.
+.SH SYNOPSIS
+.B olsr
+[
+.B \-dhv
+] [
+.B \-f
+.I config-file
+] [
+.B \-i
+.I pid-file
+] [
+.B \-P
+.I port-number
+] [
+.B \-A
+.I vty-address
+] [
+.B \-u
+.I user
+] [
+.B \-g
+.I group
+]
+.SH DESCRIPTION
+.B olsrd
+is a routing component that works with the
+.B Quagga
+routing engine.
+.SH OPTIONS
+Options available for the
+.B olsrd
+command:
+.TP
+\fB\-d\fR, \fB\-\-daemon\fR
+Runs in daemon mode, forking and exiting from tty.
+.TP
+\fB\-f\fR, \fB\-\-config_file \fR\fIconfig-file\fR 
+Specifies the config file to use for startup. If not specified this
+option will likely default to \fB\fI/usr/local/etc/ospfd.conf\fR.
+.TP
+\fB\-g\fR, \fB\-\-group \fR\fIgroup\fR
+Specify the group to run as. Default is \fIquagga\fR.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+A brief message.
+.TP
+\fB\-i\fR, \fB\-\-pid_file \fR\fIpid-file\fR
+When olsrd starts its process idenifier is written to
+\fB\fIpid-file\fR.  The init system uses the recorded PID to stop or
+restart olsrd.  The likely default is \fB\fI/var/run/olsrd.pid\fR.
+.TP
+\fB\-P\fR, \fB\-\-vty_port \fR\fIport-number\fR 
+Specify the port that the ospfd VTY will listen on. This defaults to
+2604, as specified in \fB\fI/etc/services\fR.
+.TP
+\fB\-A\fR, \fB\-\-vty_addr \fR\fIvty-address\fR
+Specify the address that the olsrd VTY will listen on. Default is all
+intrefaces.
+.TP
+\fB\-u\fR, \fB\-\-user \fR\fIuser\fR
+Specify the user to run as. Default is \fIquagga\fR.
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+Print the version and exit.
+.SH FILES
+.TP
+.BI /usr/local/sbin/olsrd
+The default location of the 
+.B olsrd
+binary.
+.TP
+.BI /usr/local/etc/olsrd.conf
+The default location of the 
+.B olsrd
+config file.
+.TP
+.BI $(PWD)/olsrd.log 
+If the 
+.B olsrd
+process is config'd to output logs to a file, then you will find this
+file in the directory where you started \fBolsrd\fR.
+.SH WARNING
+This man page is intended to be a quick reference for command line
+options. The definitive document is the Info file \fBQuagga\fR.
+.SH DIAGNOSTICS
+The olsrd process may log to standard output, to a VTY, to a log
+file, or through syslog to the system logs. 
+.SH "SEE ALSO"
+.BR bgpd (8),
+.BR ripd (8),
+.BR ripngd (8),
+.BR ospfd (8),
+.BR ospf6d (8),
+.BR isisd (8),
+.BR zebra (8),
+.BR vtysh (1)
+.SH BUGS
+.B olsrd
+eats bugs for breakfast. If you have food for the me please send an
+email to 
+.BI tudor.g@gmail.com
+containing the full bug description.
+.SH AUTHORS
+The olsr daemon is implemented by Tudor Golubenco. 
+For authors of Quagga see
+.BI http://www.zebra.org
+and
+.BI http://www.quagga.org
+

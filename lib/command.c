@@ -2994,7 +2994,7 @@ DEFUN (show_version,
   //ret = vty_oem (vty);
   if(ret == -1)
   {
-	  vty_out (vty, " Hello this is %s (version:%s).%s", OEM_PACKAGE_NAME, OEM_PACKAGE_VERSION, VTY_NEWLINE);
+	  vty_out (vty, " Hello this is %s (version:%s).%s", OEM_PACKAGE_NAME, OEM_VERSION, VTY_NEWLINE);
 	  vty_out (vty, " %s%s%s", OEM_PACKAGE_COPYRIGHT, GIT_INFO, VTY_NEWLINE);
 	  vty_out (vty, " Design it Base on (%s).%s", OEM_PACKAGE_BASE, VTY_NEWLINE);
 	  if( (GIT_SUFFIX)&&(strlen(GIT_SUFFIX) > 2) )

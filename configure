@@ -637,6 +637,7 @@ ac_func_list=
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
+UTILS
 L2TPD
 VPND
 MPLSD
@@ -650,8 +651,8 @@ AODVD
 ICRPD
 FRPD
 OLSRD
-HAVE_VPND_TUNNEL_FALSE
-HAVE_VPND_TUNNEL_TRUE
+UTILS_FALSE
+UTILS_TRUE
 L2TPD_FALSE
 L2TPD_TRUE
 VPND_FALSE
@@ -946,6 +947,7 @@ enable_rsvpd
 enable_lldpd
 enable_mplsd
 enable_vpnd
+enable_utils
 enable_largefile
 enable_pie
 '
@@ -1648,7 +1650,8 @@ Optional Features:
   --disable-rsvpd         do not build rsvpd
   --disable-lldpd         do not build lldpd
   --disable-mplsd         do not build mplsd
-  --disable-vpnd          build vpnd
+  --disable-vpnd          do not vpnd
+  --enable-utils          build system utils
   --disable-largefile     omit support for large files
   --disable-pie           Do not build tools as a Position Independent
                           Executables
@@ -12762,6 +12765,11 @@ if test "${enable_vpnd+set}" = set; then :
   enableval=$enable_vpnd;
 fi
 
+  # Check whether --enable-utils was given.
+if test "${enable_utils+set}" = set; then :
+  enableval=$enable_utils;
+fi
+
 
 if test x"${enable_gcc_ultra_verbose}" = x"yes" ; then
   CFLAGS="${CFLAGS} -W -Wcast-qual -Wstrict-prototypes"
@@ -22502,9 +22510,6 @@ if test "${enable_vpnd}" = "yes"; then
 	VPND="vpnd"
 	L2TPD="vpnd/l2tp"
 
-$as_echo "#define HAVE_VPND_TUNNEL 1" >>confdefs.h
-
-
 cat >>confdefs.h <<_ACEOF
 #define PATH_VPND_PID "$quagga_statedir/vpnd.pid"
 _ACEOF
@@ -22534,12 +22539,31 @@ else
   L2TPD_FALSE=
 fi
 
- if test "x$enable_vpnd" = "xyes"; then
-  HAVE_VPND_TUNNEL_TRUE=
-  HAVE_VPND_TUNNEL_FALSE='#'
+
+if test "${enable_utils}" = "yes"; then
+	UTILS="system-utils"
+
+$as_echo "#define HAVE_SYSTEM_UTILS 1" >>confdefs.h
+
+
+cat >>confdefs.h <<_ACEOF
+#define PATH_UTILS_PID "$quagga_statedir/utils.pid"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define UTILS_VTYSH_PATH "$quagga_statedir/utils.vty"
+_ACEOF
+
 else
-  HAVE_VPND_TUNNEL_TRUE='#'
-  HAVE_VPND_TUNNEL_FALSE=
+	UTILS=""
+fi
+ if test "x$UTILS" = "xsystem-utils"; then
+  UTILS_TRUE=
+  UTILS_FALSE='#'
+else
+  UTILS_TRUE='#'
+  UTILS_FALSE=
 fi
 
 
@@ -22553,6 +22577,7 @@ if test "${enable_olsrd}" = "yes" || test "${enable_frpd}" = "yes" ||
 $as_echo "#define HAVE_EXPAND_ROUTE_PLATFORM 1" >>confdefs.h
 
 fi
+
 
 
 
@@ -22623,7 +22648,7 @@ _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define OEM_PACKAGE_VERSION "V0.0.0.9"
+#define OEM_VERSION "V0.0.0.9"
 _ACEOF
 
 
@@ -22637,10 +22662,10 @@ _ACEOF
 $as_echo "#define OEM_PACKAGE_BASE PACKAGE_STRING" >>confdefs.h
 
 
-	VALUE=`echo ${PACKAGE_VERSION} | awk -F. '{ printf "%x\n",lshift($1,16)+lshift($2,8) }'`
+	VALUE=`echo ${PACKAGE_VERSION} | awk -F. '{ printf "0x%08x\n",lshift($1,16)+lshift($2,8) }'`
 
 cat >>confdefs.h <<_ACEOF
-#define OEM_BASE_VERSION $VALUE
+#define OEM_PACKAGE_VERSION ($VALUE)
 _ACEOF
 
 
@@ -22778,7 +22803,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_htonl_works" >&5
 $as_echo "$ac_cv_htonl_works" >&6; }
 
-ac_config_files="$ac_config_files Makefile lib/Makefile zebra/Makefile ripd/Makefile ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile pimd/Makefile fpm/Makefile ldpd/Makefile rsvpd/Makefile imi-cli/Makefile tests/bgpd.tests/Makefile vpnd/Makefile vpnd/l2tp/Makefile tests/libzebra.tests/Makefile redhat/Makefile pkgsrc/Makefile redhat/quagga.spec lib/version.h doc/defines.texi isisd/topology/Makefile pkgsrc/bgpd.sh pkgsrc/ospf6d.sh pkgsrc/ospfd.sh pkgsrc/ripd.sh pkgsrc/ripngd.sh pkgsrc/zebra.sh"
+ac_config_files="$ac_config_files Makefile lib/Makefile zebra/Makefile ripd/Makefile ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile pimd/Makefile fpm/Makefile olsrd/Makefile ldpd/Makefile rsvpd/Makefile imi-cli/Makefile system-utils/Makefile tests/bgpd.tests/Makefile vpnd/Makefile vpnd/l2tp/Makefile tests/libzebra.tests/Makefile redhat/Makefile pkgsrc/Makefile redhat/quagga.spec lib/version.h doc/defines.texi isisd/topology/Makefile pkgsrc/bgpd.sh pkgsrc/ospf6d.sh pkgsrc/ospfd.sh pkgsrc/ripd.sh pkgsrc/ripngd.sh pkgsrc/zebra.sh"
 
 ac_config_files="$ac_config_files solaris/Makefile"
 
@@ -23039,8 +23064,8 @@ if test -z "${L2TPD_TRUE}" && test -z "${L2TPD_FALSE}"; then
   as_fn_error $? "conditional \"L2TPD\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${HAVE_VPND_TUNNEL_TRUE}" && test -z "${HAVE_VPND_TUNNEL_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_VPND_TUNNEL\" was never defined.
+if test -z "${UTILS_TRUE}" && test -z "${UTILS_FALSE}"; then
+  as_fn_error $? "conditional \"UTILS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
@@ -23933,9 +23958,11 @@ do
     "m4/Makefile") CONFIG_FILES="$CONFIG_FILES m4/Makefile" ;;
     "pimd/Makefile") CONFIG_FILES="$CONFIG_FILES pimd/Makefile" ;;
     "fpm/Makefile") CONFIG_FILES="$CONFIG_FILES fpm/Makefile" ;;
+    "olsrd/Makefile") CONFIG_FILES="$CONFIG_FILES olsrd/Makefile" ;;
     "ldpd/Makefile") CONFIG_FILES="$CONFIG_FILES ldpd/Makefile" ;;
     "rsvpd/Makefile") CONFIG_FILES="$CONFIG_FILES rsvpd/Makefile" ;;
     "imi-cli/Makefile") CONFIG_FILES="$CONFIG_FILES imi-cli/Makefile" ;;
+    "system-utils/Makefile") CONFIG_FILES="$CONFIG_FILES system-utils/Makefile" ;;
     "tests/bgpd.tests/Makefile") CONFIG_FILES="$CONFIG_FILES tests/bgpd.tests/Makefile" ;;
     "vpnd/Makefile") CONFIG_FILES="$CONFIG_FILES vpnd/Makefile" ;;
     "vpnd/l2tp/Makefile") CONFIG_FILES="$CONFIG_FILES vpnd/l2tp/Makefile" ;;

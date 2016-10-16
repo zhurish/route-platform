@@ -301,7 +301,9 @@ AC_ARG_ENABLE(lldpd,
 AC_ARG_ENABLE(mplsd,
   AS_HELP_STRING([--disable-mplsd], [do not build mplsd]))  
 AC_ARG_ENABLE(vpnd,
-  AS_HELP_STRING([--disable-vpnd], [build vpnd]))       
+  AS_HELP_STRING([--disable-vpnd], [do not  vpnd])) 
+  AC_ARG_ENABLE(utils,
+  AS_HELP_STRING([--enable-utils], [build system utils]))      
 dnl ------------------------------ zhurish
 
 if test x"${enable_gcc_ultra_verbose}" = x"yes" ; then
@@ -1674,13 +1676,6 @@ AM_CONDITIONAL(MPLSD, test "x$MPLSD" = "xmplsd")
 if test "${enable_vpnd}" = "yes"; then
 	VPND="vpnd"	
 	L2TPD="vpnd/l2tp"	
-	dnl if grep IPPROTO_IPIP /usr/include/linux/in.h >/dev/null 2>&1; then
-	dnl 	AC_DEFINE(HAVE_VPND_IPIP, 1, interfaces statistics in proc)
-	dnl fi
-	dnl if grep IPPROTO_GRE /usr/include/linux/in.h >/dev/null 2>&1; then
-	dnl 	AC_DEFINE(HAVE_VPND_IP_GRE, 1, interfaces statistics in proc)
-	dnl fi	
-	AC_DEFINE(HAVE_VPND_TUNNEL, 1, Enable Tunnel Support)
   	AC_DEFINE_UNQUOTED(PATH_VPND_PID, "$quagga_statedir/vpnd.pid",vpnd PID)
 	AC_DEFINE_UNQUOTED(VPN_VTYSH_PATH, "$quagga_statedir/vpnd.vty",vpnd vty socket)
 else  
@@ -1689,8 +1684,17 @@ else
 fi
 AM_CONDITIONAL(VPND, test "x$VPND" = "xvpnd")
 AM_CONDITIONAL(L2TPD, test "x$L2TPD" = "xvpnd")
-dnl AM_CONDITIONAL([HAVE_TUNNEL], [test "x$enable_vpnd" = "xyes"])
-AM_CONDITIONAL([HAVE_VPND_TUNNEL], [test "x$enable_vpnd" = "xyes"])
+
+if test "${enable_utils}" = "yes"; then
+	UTILS="system-utils"	
+	dnl AC_DEFINE(HAVE_VPND_TUNNEL, 1, Enable Tunnel Support)
+	AC_DEFINE(HAVE_SYSTEM_UTILS, 1, Enable System Utils Support)
+  	AC_DEFINE_UNQUOTED(PATH_UTILS_PID, "$quagga_statedir/utils.pid",utils PID)
+	AC_DEFINE_UNQUOTED(UTILS_VTYSH_PATH, "$quagga_statedir/utils.vty",utils vty socket)
+else  
+	UTILS=""			
+fi
+AM_CONDITIONAL(UTILS, test "x$UTILS" = "xsystem-utils")
 
 if test "${enable_olsrd}" = "yes" || test "${enable_frpd}" = "yes" || 
 	test "${enable_icrpd}" = "yes" || test "${enable_aodvd}" = "yes" || 
@@ -1714,6 +1718,7 @@ AC_SUBST(LLDPD)
 AC_SUBST(MPLSD) 
 AC_SUBST(VPND)
 AC_SUBST(L2TPD)
+AC_SUBST(UTILS)
 
 if test "${enable_imi}" != ""; then
 	if test -d $quagga_statedir; then
@@ -1736,14 +1741,14 @@ if test "${enable_imi}" != ""; then
 	AC_DEFINE_UNQUOTED(OEM_PACKAGE_BUGREPORT, "zhurish@163.com",   Define to the address where bug reports for this OEM package should be sent.)	
 	AC_DEFINE_UNQUOTED(OEM_PACKAGE_NAME, "routing-plaform",    Name of OEM package)	
 	
-	AC_DEFINE_UNQUOTED(OEM_PACKAGE_VERSION, "V0.0.0.9",    Define to the version of this OEM package.)	
+	AC_DEFINE_UNQUOTED(OEM_VERSION, "V0.0.0.9",    Define to the version of this OEM package.)	
 	
 	makedate=`date +"%Y/%m/%d"`
 	AC_DEFINE_UNQUOTED(OEM_PACKAGE_COPYRIGHT, "Copyright 2016/03/03 - $makedate zhurish(zhurish@163.com) et al.",  this copyright for OEM version)
 	AC_DEFINE(OEM_PACKAGE_BASE, PACKAGE_STRING,  this OEM base of Quagga version)
 
-	VALUE=`echo ${PACKAGE_VERSION} | awk -F. '{ printf "%x\n",lshift($1,16)+lshift($2,8) }'`
-	AC_DEFINE_UNQUOTED(OEM_BASE_VERSION, $VALUE,  this OEM base on Quagga version number(xx.xx.00))
+	VALUE=`echo ${PACKAGE_VERSION} | awk -F. '{ printf "0x%08x\n",lshift($1,16)+lshift($2,8) }'`
+	AC_DEFINE_UNQUOTED(OEM_PACKAGE_VERSION, ($VALUE),  this OEM base on Quagga version number(xx.xx.00))
 		
 	dnl if grep NET_RT_IFLIST /usr/include/sys/socket.h >/dev/null 2>&1; then
 	dnl 	echo ""
@@ -1778,7 +1783,8 @@ AC_CONFIG_FILES([Makefile lib/Makefile zebra/Makefile ripd/Makefile
 	  ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile
 	  ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile
 	  doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile
-	  pimd/Makefile fpm/Makefile ldpd/Makefile rsvpd/Makefile imi-cli/Makefile
+	  pimd/Makefile fpm/Makefile olsrd/Makefile 
+	  ldpd/Makefile rsvpd/Makefile imi-cli/Makefile system-utils/Makefile
 	  tests/bgpd.tests/Makefile vpnd/Makefile vpnd/l2tp/Makefile
 	  tests/libzebra.tests/Makefile
 	  redhat/Makefile

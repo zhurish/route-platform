@@ -116,7 +116,7 @@ void olsr_print_version()
 /* OLSRd privileges */
 zebra_capabilities_t _caps_p [] = 
 {
-/* 2016年7月3日 15:34:05 zhurish: 修改OLSR路由协议使用超级用户权限定义 */
+/* 2016锟斤拷7锟斤拷3锟斤拷 15:34:05 zhurish: 锟睫革拷OLSR路锟斤拷协锟斤拷使锟矫筹拷锟斤拷锟矫伙拷权锟睫讹拷锟斤拷 */
   ZCAP_NET_RAW,
   ZCAP_BIND,
 //  ZCAP_BROADCAST,
@@ -127,7 +127,7 @@ zebra_capabilities_t _caps_p [] =
   ZCAP_BROADCAST,
   ZCAP_ADMIN,
   */
-/* 2016年7月3日 15:34:05  zhurish: 修改OLSR路由协议使用超级用户权限定义 */
+/* 2016锟斤拷7锟斤拷3锟斤拷 15:34:05  zhurish: 锟睫革拷OLSR路锟斤拷协锟斤拷使锟矫筹拷锟斤拷锟矫伙拷权锟睫讹拷锟斤拷 */
 };
 
 struct zebra_privs_t olsrd_privs =
@@ -319,9 +319,11 @@ int main(int argc, char **argv, char **envp)
   cmd_init(1);
   vty_init(master);
   memory_init();
-/* 2016年7月3日 15:34:34 zhurish: 增加接口表初始化相关 */
-	vrf_init();
-/* 2016年7月3日 15:34:34  zhurish: 增加接口表初始化相关 */
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
+  vrf_init();
+#else
+  //if_init ();
+#endif
   access_list_init ();
   prefix_list_init ();
 
@@ -338,9 +340,9 @@ int main(int argc, char **argv, char **envp)
   
   olm->olsr = list_new();
 
-/* 2016年7月3日 15:35:07 zhurish: 屏蔽新版quagga不使用的函数 */
+/* 2016锟斤拷7锟斤拷3锟斤拷 15:35:07 zhurish: 锟斤拷锟斤拷锟铰帮拷quagga锟斤拷使锟矫的猴拷锟斤拷 */
   //sort_node();
-/* 2016年7月3日 15:35:07  zhurish: 屏蔽新版quagga不使用的函数 */
+/* 2016锟斤拷7锟斤拷3锟斤拷 15:35:07  zhurish: 锟斤拷锟斤拷锟铰帮拷quagga锟斤拷使锟矫的猴拷锟斤拷 */
 
   /* Read configuration */
   vty_read_config (config_file, config_default);

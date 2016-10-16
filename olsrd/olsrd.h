@@ -33,19 +33,19 @@
 #define OLSR_PORT_DEFAULT      698
 
 /* VTY port number. */
-/* 2016年7月3日 15:28:20 zhurish: 修改hell监听端口，原来是2611，这个端口和PIM路由协议重复 */
-#define OLSR_VTY_PORT          2615
-/* 2016年7月3日 15:28:20  zhurish: 修改hell监听端口，原来是2611，这个端口和PIM路由协议重复 */
+/* 2016锟斤拷7锟斤拷3锟斤拷 15:28:20 zhurish: 锟睫革拷hell锟斤拷锟斤拷锟剿口ｏ拷原锟斤拷锟斤拷2611锟斤拷锟斤拷锟斤拷丝诤锟絇IM路锟斤拷协锟斤拷锟截革拷 */
+#define OLSR_VTY_PORT          2610
+/* 2016锟斤拷7锟斤拷3锟斤拷 15:28:20  zhurish: 锟睫革拷hell锟斤拷锟斤拷锟剿口ｏ拷原锟斤拷锟斤拷2611锟斤拷锟斤拷锟斤拷丝诤锟絇IM路锟斤拷协锟斤拷锟截革拷 */
 
 /* Default configuration file name. */
 #define OLSR_DEFAULT_CONFIG   "olsrd.conf"
 
 
 /* FIXME: these should be set by configure */
-/* 2016年7月3日 15:29:09 zhurish: 屏蔽这两个宏定义，这两个宏定义在config.h定义，由configure.ac文件自动生成 */
+/* 2016锟斤拷7锟斤拷3锟斤拷 15:29:09 zhurish: 锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟疥定锟藉，锟斤拷锟斤拷锟斤拷锟疥定锟斤拷锟斤拷config.h锟斤拷锟藉，锟斤拷configure.ac锟侥硷拷锟皆讹拷锟斤拷锟斤拷 */
 //#define PATH_OLSRD_PID "/var/run/olsrd.pid"
 //#define OLSR_VTYSH_PATH "/tmp/.olsrd"
-/* 2016年7月3日 15:29:09  zhurish: 屏蔽这两个宏定义，这两个宏定义在config.h定义，由configure.ac文件自动生成 */
+/* 2016锟斤拷7锟斤拷3锟斤拷 15:29:09  zhurish: 锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟疥定锟藉，锟斤拷锟斤拷锟斤拷锟疥定锟斤拷锟斤拷config.h锟斤拷锟藉，锟斤拷configure.ac锟侥硷拷锟皆讹拷锟斤拷锟斤拷 */
 
 /* Default OLSR emission intervals (RFC3626). */
 #define OLSR_HELLO_INTERVAL_DEFAULT        2.0
@@ -84,7 +84,7 @@
 #define FALSE 0
 #endif
 
-/* 2016年7月3日 15:29:35 zhurish: 增加OLSR使用的链表查询等相关宏定义 */
+/* 2016锟斤拷7锟斤拷3锟斤拷 15:29:35 zhurish: 锟斤拷锟斤拷OLSR使锟矫碉拷锟斤拷锟斤拷锟窖拷锟斤拷锟截宏定锟斤拷 */
 #ifndef LIST_LOOP
 #define LIST_LOOP(L,V,N)  for (ALL_LIST_ELEMENTS_RO (L,N,V))
 #define stream_get_putp stream_get_endp 
@@ -92,7 +92,7 @@
 #define nextnode(X) ((X) = (X)->next)
 #define getdata(X) listgetdata(X)
 #endif
-/* 2016年7月3日 15:29:35  zhurish: 增加OLSR使用的链表查询等相关宏定义 */
+/* 2016锟斤拷7锟斤拷3锟斤拷 15:29:35  zhurish: 锟斤拷锟斤拷OLSR使锟矫碉拷锟斤拷锟斤拷锟窖拷锟斤拷锟截宏定锟斤拷 */
 
 /* OLSR master fro system wide configuration and variables */
 struct olsr_master

@@ -20,7 +20,7 @@
  */
 
 #include <zebra.h>
-
+#include "version.h"
 #include "thread.h"
 #include "command.h"
 #include "network.h"
@@ -92,14 +92,20 @@ olsr_zebra_ipv4_delete (struct prefix_ipv4 *p, struct in_addr *nexthop,
 
 
 /* Inteface addition message from zebra. */
-int 
+int
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
 olsr_interface_add (int command, struct zclient *zclient, zebra_size_t length, vrf_id_t vrf_id)
+#else
+olsr_interface_add (int command, struct zclient *zclient, zebra_size_t length)
+#endif
 {
   struct interface *ifp;
   struct olsr *olsr;
-
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
   ifp = zebra_interface_add_read (zclient->ibuf, vrf_id);
-
+#else
+  ifp = zebra_interface_add_read (zclient->ibuf);
+#endif
   if (IS_DEBUG_EVENT (ZEBRA))
     zlog_debug ("Zebra interface add %s index %d flags %ld metric %d mtu %d",
 		ifp->name, ifp->ifindex, ifp->flags, ifp->metric, ifp->mtu);
@@ -113,14 +119,21 @@ olsr_interface_add (int command, struct zclient *zclient, zebra_size_t length, v
 
 
 /* Interface deletion message from zebra */
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
 int olsr_interface_delete (int command, struct zclient *zclient,
 		       zebra_size_t length, vrf_id_t vrf_id)
+#else
+int olsr_interface_delete (int command, struct zclient *zclient,
+		       zebra_size_t length)
+#endif
 {
   struct interface *ifp;
   struct olsr *olsr;
-
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
   ifp = zebra_interface_state_read (zclient->ibuf, vrf_id);
-
+#else
+  ifp = zebra_interface_state_read (zclient->ibuf);
+#endif
   if (ifp == NULL)
     return 0;
 
@@ -141,15 +154,21 @@ int olsr_interface_delete (int command, struct zclient *zclient,
   return 0;
 }
 
-
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
 int olsr_interface_state_up (int command, struct zclient *zclient,
 			     zebra_size_t length, vrf_id_t vrf_id)
+#else
+int olsr_interface_state_up (int command, struct zclient *zclient,
+			     zebra_size_t length)
+#endif
 {
   struct interface *ifp;
   struct olsr *olsr;
-
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
   ifp = zebra_interface_state_read (zclient->ibuf, vrf_id);
-
+#else
+  ifp = zebra_interface_state_read (zclient->ibuf);
+#endif
   if (ifp == NULL)
     return 0;
 
@@ -162,15 +181,21 @@ int olsr_interface_state_up (int command, struct zclient *zclient,
 
   return 0;
 }
-
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
 int olsr_interface_state_down (int command, struct zclient *zclient,
 			       zebra_size_t length, vrf_id_t vrf_id)
+#else
+int olsr_interface_state_down (int command, struct zclient *zclient,
+			       zebra_size_t length)
+#endif
 {
   struct interface *ifp;
   struct olsr *olsr;
-
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
   ifp = zebra_interface_state_read (zclient->ibuf, vrf_id);
-
+#else
+  ifp = zebra_interface_state_read (zclient->ibuf);
+#endif
   if (ifp == NULL)
     return 0;
 
@@ -184,16 +209,22 @@ int olsr_interface_state_down (int command, struct zclient *zclient,
 
   return 0;
 }
-
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
 int olsr_interface_address_add (int command, struct zclient *zclient,
                             zebra_size_t length, vrf_id_t vrf_id)
+#else
+int olsr_interface_address_add (int command, struct zclient *zclient,
+                            zebra_size_t length)
+#endif
 {
   struct connected *ifc;
   struct prefix *p;
   struct olsr *olsr;
-
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
   ifc = zebra_interface_address_read (command, zclient->ibuf, vrf_id);
-  
+#else
+  ifc = zebra_interface_address_read (command, zclient->ibuf);
+#endif
   if (ifc == NULL)
     return 0;
   
@@ -210,16 +241,22 @@ int olsr_interface_address_add (int command, struct zclient *zclient,
     }
   return 0;
 }
-
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
 int olsr_interface_address_delete (int command, struct zclient *zclient,
                             zebra_size_t length, vrf_id_t vrf_id)
+#else
+int olsr_interface_address_delete (int command, struct zclient *zclient,
+                            zebra_size_t length)
+#endif
 {
   struct connected *ifc;
   struct olsr *olsr;
   struct olsr_interface *oi;
-  
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
   ifc = zebra_interface_address_read (command, zclient->ibuf, vrf_id);
-  
+#else
+  ifc = zebra_interface_address_read (command, zclient->ibuf);
+#endif
   if (ifc == NULL)
     return 0;
 
@@ -327,8 +364,11 @@ static int olsr_external_route_del(struct olsr* olsr,struct in_addr *dest, struc
 	olsr_delete_route(olsr->table, dest, nexthop, index);
 	return 0;
 }
-
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
 static int olsr_zebra_read_ipv4 (int command, struct zclient *zclient, zebra_size_t length, vrf_id_t vrf_id)
+#else
+static int olsr_zebra_read_ipv4 (int command, struct zclient *zclient, zebra_size_t length)
+#endif
 {
   struct stream *s;
   struct zapi_ipv4 api;
@@ -392,7 +432,11 @@ int olsr_redistribute_set (struct vty *vty, int type)
 {
   if (olsr_is_type_redistributed (type))
     return CMD_SUCCESS;
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
   zclient_redistribute (ZEBRA_REDISTRIBUTE_ADD, zclient, type, VRF_DEFAULT);
+#else
+  zclient_redistribute (ZEBRA_REDISTRIBUTE_ADD, zclient, type);
+#endif
 	zclient->redist[type] = 1;
   return CMD_SUCCESS;
 }
@@ -405,8 +449,11 @@ olsr_redistribute_unset (struct vty *vty, int type)
 
   if (!olsr_is_type_redistributed (type))
     return CMD_SUCCESS;
-
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
   zclient_redistribute (ZEBRA_REDISTRIBUTE_DELETE, zclient, type, VRF_DEFAULT);
+#else
+  zclient_redistribute (ZEBRA_REDISTRIBUTE_DELETE, zclient, type);
+#endif
 
   zclient->redist[type] = 0;
 
@@ -419,7 +466,11 @@ olsr_redistribute_default_set (struct vty *vty, int originate)
   /* Redistribute defauilt. */
   if(zclient->default_information)
   	return CMD_SUCCESS;
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
   zclient_redistribute_default (ZEBRA_REDISTRIBUTE_DEFAULT_ADD, zclient, VRF_DEFAULT);
+#else
+  zclient_redistribute_default (ZEBRA_REDISTRIBUTE_DEFAULT_ADD, zclient);
+#endif
   zclient->default_information = 1;
   return CMD_SUCCESS;
 }
@@ -429,7 +480,11 @@ olsr_redistribute_default_unset (struct vty *vty)
 {
   if(zclient->default_information == 0)
   	return CMD_SUCCESS;	
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
   zclient_redistribute_default (ZEBRA_REDISTRIBUTE_DEFAULT_DELETE, zclient, VRF_DEFAULT);
+#else
+  zclient_redistribute_default (ZEBRA_REDISTRIBUTE_DEFAULT_DELETE, zclient);
+#endif
   zclient->default_information = 0;
   return CMD_SUCCESS;
 }
@@ -479,9 +534,13 @@ int  olsr_redistribute_write (struct vty *vty)
 
 void olsr_zebra_init()
 {
-	extern struct thread_master *master;
   /* Allocate zebra structure. */
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
+  extern struct thread_master *master;
   zclient = zclient_new(master);
+#else
+  zclient = zclient_new();
+#endif
   zclient_init(zclient, ZEBRA_ROUTE_OLSR);
 
   /* Fill in the callbacks. */

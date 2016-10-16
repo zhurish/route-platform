@@ -71,6 +71,9 @@ typedef enum
 #ifdef IMISH_IMI_MODULE
   ZLOG_IMISH,
 #endif /* IMISH_IMI_MODULE */
+#ifdef HAVE_SYSTEM_UTILS
+  ZLOG_UTILS,
+#endif /*HAVE_SYSTEM_UTILS*/
 /* 2016年6月27日 21:05:43  zhurish: 使能IMI Module模块后定义IMI Module单元的LOG信息节点 */
   ZLOG_MASC
 } zlog_proto_t;

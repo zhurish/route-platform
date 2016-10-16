@@ -219,7 +219,7 @@ CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -Os -fno-omit-frame-pointer -g -std=gnu99 -Wall -Wsign-compare -Wpointer-arith -Wbad-function-cast -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wchar-subscripts -Wcast-qual
 CONFDATE = 20161016
-CONFIG_ARGS = --prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --enable-ldpd --enable-rsvpd --disable-bgpd --disable-isisd --disable-isis-topology --enable-vpnd --enable-fpm --disable-rtadv --disable-irdp --enable-configfile-mask=0664 --enable-logfile-mask=0664 --enable-imi=65530 LIBS=-lpthread
+CONFIG_ARGS = --prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --enable-olsrd --enable-ldpd --enable-rsvpd --disable-bgpd --disable-isisd --disable-isis-topology --enable-utils --enable-vpnd --enable-fpm --disable-rtadv --disable-irdp --enable-configfile-mask=0664 --enable-logfile-mask=0664 --enable-imi=65530 LIBS=-lpthread
 CPP = gcc -E
 CPPFLAGS = 
 CURSES = 
@@ -284,7 +284,7 @@ NM = /usr/bin/nm -B
 NMEDIT = 
 OBJDUMP = objdump
 OBJEXT = o
-OLSRD = 
+OLSRD = olsrd
 OSPF6D = 
 OSPFAPI = 
 OSPFCLIENT = ospfclient
@@ -316,6 +316,7 @@ SET_MAKE =
 SHELL = /bin/sh
 SOLARIS = 
 STRIP = strip
+UTILS = system-utils
 VERSION = 0.99.24
 VPND = vpnd
 VRRPD = 

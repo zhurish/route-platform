@@ -20,7 +20,7 @@
  */
 
 #include <zebra.h>
-
+#include "version.h"
 #include "thread.h"
 #include "linklist.h"
 #include "prefix.h"
@@ -308,10 +308,11 @@ olsr_if_delete_hook (struct interface *ifp)
 void olsr_if_init ()
 {
   /* Initialize Zebra interface data structure. */
-/* 2016年7月3日 15:31:34 zhurish: 修改接口表初始化操作 */
-  //if_init ();
+#if (OEM_PACKAGE_VERSION > OEM_BASE_VERSION(1,0,0))
   if_init (VRF_DEFAULT, &iflist);
-/* 2016年7月3日 15:31:34  zhurish: 修改接口表初始化操作 */
+#else
+  if_init ();
+#endif
   olm->iflist = iflist;
 
   if_add_hook (IF_NEW_HOOK, olsr_if_new_hook);

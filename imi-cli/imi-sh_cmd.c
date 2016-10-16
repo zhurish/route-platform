@@ -179,6 +179,12 @@ DEFSH (IMISH_RIPNGD, no_ripng_default_metric_cmd_imish,
        "Set a metric of redistribute routes\n"
        "Default metric\n")
 
+DEFSH (IMISH_OLSRD, show_ip_olsr_cmd_imish, 
+       "show ip olsr", 
+       "Show running system information\n"
+       "IP information\n"
+       "OLSR information\n")
+
 DEFSH (IMISH_BGPD, show_bgp_view_afi_safi_community3_cmd_imish, 
 
        "show bgp view WORD (ipv4|ipv6) (unicast|multicast) community (AA:NN|local-AS|no-advertise|no-export) (AA:NN|local-AS|no-advertise|no-export) (AA:NN|local-AS|no-advertise|no-export)", 
@@ -1547,6 +1553,13 @@ DEFSH (IMISH_OSPFD, debug_ospf_zebra_sub_cmd_imish,
        "Zebra interface\n"
        "Zebra redistribute\n")
 
+DEFSH (IMISH_OLSRD, no_ip_olsr_tc_interval_cmd_imish, 
+       "no ip olsr tc-interval", 
+       "Negate a command or set its defaults\n"
+       "IP Information\n"
+       "OLSR interface commands\n"
+       "Time between TC packets\n")
+
 DEFSH (IMISH_RIPNGD|IMISH_OSPF6D|IMISH_BGPD|IMISH_ZEBRA, no_ipv6_prefix_list_cmd_imish, 
        "no ipv6 prefix-list WORD", 
        "Negate a command or set its defaults\n"
@@ -2456,6 +2469,17 @@ DEFSH (IMISH_OSPFD, ospf_network_cmd_imish,
        "Specify OSPF point-to-multipoint network\n"
        "Specify OSPF point-to-point network\n")
 
+DEFSH (IMISH_OLSRD, debug_olsr_packet_all_cmd_imish, 
+       "debug olsr packet (hello|mid|tc|hna|all)", 
+       "Debugging functions (see also 'undebug')\n"
+       "Optimized Link State Routing Protocol\n"
+       "OLSR packets\n"
+       "OLSR Hello\n"
+       "OLSR Multiple Interface Descriptions\n"
+       "OSPF Topollogy Control\n"
+       "OSPF Host Network Associations\n"
+       "OSPF all packets\n")
+
 DEFSH (IMISH_BGPD, no_debug_bgp_fsm_cmd_imish, 
        "no debug bgp fsm", 
        "Negate a command or set its defaults\n"
@@ -2601,6 +2625,13 @@ DEFSH (IMISH_RIPD, no_rip_version_val_cmd_imish,
        "Negate a command or set its defaults\n"
        "Set routing protocol version\n"
        "version\n")
+
+DEFSH (IMISH_OLSRD, show_ip_olsr_linkset_cmd_imish, 
+       "show ip olsr linkset", 
+       "Show running system information\n"
+       "IP information\n"
+       "OLSR information\n"
+       "Link Set summary\n")
 
 DEFSH (IMISH_BGPD, show_ip_bgp_ipv4_neighbors_peer_cmd_imish, 
        "show ip bgp ipv4 (unicast|multicast) neighbors (A.B.C.D|X:X::X:X)", 
@@ -2918,6 +2949,11 @@ DEFSH (IMISH_BGPD, no_ip_community_list_expanded_cmd_imish,
        "Specify community to accept\n"
        "An ordered list as a regular-expression\n")
 
+DEFSH (IMISH_OLSRD, olsr_network_cmd_imish, 
+       "network A.B.C.D/M", 
+       "Enable routing on an IP network\n"
+       "OLSR network prefix\n")
+
 DEFSH (IMISH_OSPF6D, ospf6_log_adjacency_changes_cmd_imish, 
        "log-adjacency-changes", 
        "Log changes in adjacency state\n")
@@ -3094,6 +3130,13 @@ DEFSH (IMISH_BGPD|IMISH_OSPFD|IMISH_RIPD|IMISH_ZEBRA, match_ip_address_cmd_imish
        "IP access-list number\n"
        "IP access-list number (expanded range)\n"
        "IP Access-list name\n")
+
+DEFSH (IMISH_OLSRD, ip_olsr_hello_interval_cmd_imish, 
+       "ip olsr hello-interval <1-65535>", 
+       "IP Information\n"
+       "OLSR interface commands\n"
+       "Time between HELLO packets\n"
+       "Milliseconds\n")
 
 DEFSH (IMISH_BGPD, no_aggregate_address_summary_as_set_cmd_imish, 
        "no aggregate-address A.B.C.D/M summary-only as-set", 
@@ -3288,6 +3331,13 @@ DEFSH (IMISH_ISISD, max_lsp_lifetime_l1_cmd_imish,
        "max-lsp-lifetime level-1 <350-65535>", 
        "Maximum LSP lifetime for Level 1 only\n"
        "LSP lifetime for Level 1 only in seconds\n")
+
+DEFSH (IMISH_OLSRD, ip_olsr_mid_interval_cmd_imish, 
+       "ip olsr mid-interval <1-65535>", 
+       "IP Information\n"
+       "OLSR interface commands\n"
+       "Time between MID packets\n"
+       "Milliseconds\n")
 
 DEFSH (IMISH_BGPD, no_debug_bgp_zebra_cmd_imish, 
        "no debug bgp zebra", 
@@ -3896,6 +3946,13 @@ DEFSH (IMISH_BGPD, show_ip_bgp_ipv4_rsclient_summary_cmd_imish,
        "Information about Route Server Clients\n"
        "Summary of all Route Server Clients\n")
 
+DEFSH (IMISH_OLSRD, show_ip_olsr_mid_cmd_imish, 
+       "show ip olsr mid", 
+       "Show running system information\n"
+       "IP information\n"
+       "OLSR information\n"
+       "Multiple Interface Database\n")
+
 DEFSH (IMISH_BGPD, show_ip_bgp_ipv4_community3_cmd_imish, 
        "show ip bgp ipv4 (unicast|multicast) community (AA:NN|local-AS|no-advertise|no-export) (AA:NN|local-AS|no-advertise|no-export) (AA:NN|local-AS|no-advertise|no-export)", 
        "Show running system information\n"
@@ -3949,6 +4006,13 @@ DEFSH (IMISH_BGPD, no_aggregate_address_mask_cmd_imish,
        "Configure BGP aggregate entries\n"
        "Aggregate address\n"
        "Aggregate mask\n")
+
+DEFSH (IMISH_OLSRD, show_ip_olsr_neighbor_cmd_imish, 
+       "show ip olsr neighbor", 
+       "Show running system information\n"
+       "IP information\n"
+       "OLSR information\n"
+       "Neighbor database.\n")
 
 DEFSH (IMISH_OSPFD, no_ip_ospf_cost_inet4_cmd_imish, 
        "no ip ospf cost A.B.C.D", 
@@ -4215,6 +4279,13 @@ DEFSH (IMISH_OSPF6D, debug_ospf6_message_cmd_imish,
        "Debug Link State Acknowledgement message\n"
        "Debug All message\n"
        )
+
+DEFSH (IMISH_OLSRD, show_ip_olsr_routes_cmd_imish, 
+       "show ip olsr routes", 
+       "Show running system information\n"
+       "IP information\n"
+       "OLSR information\n"
+       "Routing table\n")
 
 DEFSH (IMISH_OSPF6D, no_debug_ospf6_lsa_hex_detail_cmd_imish, 
        "no debug ospf6 lsa (router|network|inter-prefix|inter-router|as-ext|grp-mbr|type7|link|intra-prefix) (originate|examine|flooding)", 
@@ -4742,6 +4813,16 @@ DEFSH (IMISH_ISISD, isis_hello_multiplier_cmd_imish,
        "IS-IS commands\n"
        "Set multiplier for Hello holding time\n"
        "Hello multiplier value\n")
+
+DEFSH (IMISH_OLSRD, debug_olsr_event_cmd_imish, 
+       "debug olsr event (zebra|route-table|neigh|links)", 
+       "Debugging functions (see also 'undebug')\n"
+       "Optimized Link State Routing Protocol\n"
+       "OLSR events\n"
+       "Events announced by Zebra.\n"
+       "Routing table changes.\n"
+       "Neighborhood changes.\n"
+       "Link set changes.\n")
 
 DEFSH (IMISH_OSPFD, ospf_area_authentication_message_digest_cmd_imish, 
        "area (A.B.C.D|<0-4294967295>) authentication message-digest", 
@@ -5360,6 +5441,18 @@ DEFSH (IMISH_BGPD, show_bgp_ipv4_safi_summary_cmd_imish,
        "Address Family modifier\n"
        "Summary of BGP neighbor status\n")
 
+DEFSH (IMISH_OLSRD, no_debug_olsr_packet_all_cmd_imish, 
+       "no debug olsr packet (hello|mid|tc|hna|all)", 
+       "Negate a command or set its defaults\n"
+       "Debugging functions (see also 'undebug')\n"
+       "Optimized Link State Routing Protocol\n"
+       "OLSR packets\n"
+       "OLSR Hello\n"
+       "OLSR Multiple Interface Descriptions\n"
+       "OSPF Topollogy Control\n"
+       "OSPF Host Network Associations\n"
+       "OSPF all packets\n")
+
 DEFSH (IMISH_BGPD, show_bgp_community3_cmd_imish, 
        "show bgp community (AA:NN|local-AS|no-advertise|no-export) (AA:NN|local-AS|no-advertise|no-export) (AA:NN|local-AS|no-advertise|no-export)", 
        "Show running system information\n"
@@ -5738,6 +5831,12 @@ DEFSH (IMISH_ISISD, csnp_interval_cmd_imish,
        "IS-IS commands\n"
        "Set CSNP interval in seconds\n"
        "CSNP interval value\n")
+
+DEFSH (IMISH_OLSRD, no_olsr_will_cmd_imish, 
+       "no olsr willingness", 
+       "Negate a command or set its defaults\n"
+       "OLSR specific commands\n"
+       "Willingness of this router.\n")
 
 DEFSH (IMISH_BGPD, clear_bgp_ipv6_instance_all_rsclient_cmd_imish, 
        "clear bgp ipv6 view WORD * rsclient", 
@@ -6534,6 +6633,13 @@ DEFSH (IMISH_ISISD, show_isis_interface_detail_cmd_imish,
        "ISIS interface\n"
        "show detailed information\n")
 
+DEFSH (IMISH_OLSRD, show_ip_olsr_topset_cmd_imish, 
+       "show ip olsr topset", 
+       "Show running system information\n"
+       "IP information\n"
+       "OLSR information\n"
+       "Topology Set database\n")
+
 DEFSH (IMISH_OSPFD, router_ospf_id_cmd_imish, 
        "router-id A.B.C.D", 
        "router-id for the OSPF process\n"
@@ -6651,6 +6757,12 @@ DEFSH (IMISH_BGPD, no_neighbor_update_source_cmd_imish,
        "Specify neighbor router\n"
        "Neighbor address\nNeighbor IPv6 address\nNeighbor tag\n"
        "Source of routing updates\n")
+
+DEFSH (IMISH_OLSRD|IMISH_OLSRD|IMISH_OLSRD, no_olsr_rt_update_time_cmd_imish, 
+       "no olsr top-hold-time", 
+       "Negate a command or set its defaults\n"
+       "OLSR specific commands\n"
+       "Delay time for routing table update.\n")
 
 DEFSH (IMISH_ZEBRA, show_debugging_zebra_cmd_imish, 
        "show debugging zebra", 
@@ -8222,6 +8334,12 @@ DEFSH (IMISH_BGPD|IMISH_RIPNGD, no_set_ipv6_nexthop_local_val_cmd_imish,
        "IPv6 local address\n"
        "IPv6 address of next hop\n")
 
+DEFSH (IMISH_OLSRD, no_olsr_redistribute_cmd_imish, 
+       "no redistribute " "(kernel|connected|static|rip|ospf|isis|bgp|pim|babel|icrp|frp|aodv)", 
+       "Negate a command or set its defaults\n"
+       "Redistribute information from another routing protocol\n"
+       "Kernel routes (not installed via the zebra RIB)\n" "Connected routes (directly attached subnet or host)\n" "Statically configured routes\n" "Routing Information Protocol (RIP)\n" "Open Shortest Path First (OSPFv2)\n" "Intermediate System to Intermediate System (IS-IS)\n" "Border Gateway Protocol (BGP)\n" "Protocol Independent Multicast (PIM)\n" "Babel routing protocol (Babel)\n" "Internet Based On Node Contact Time Routing Protocol  (ICRP)\n" "Fast and Reliable Routing Protocol  (FRP)\n" "AD HOT MANET Routing Protocol  (AODV)\n")
+
 DEFSH (IMISH_BGPD, no_bgp_redistribute_ipv6_cmd_imish, 
        "no redistribute " "(kernel|connected|static|ripng|ospf6|isis|babel)", 
        "Negate a command or set its defaults\n"
@@ -8291,18 +8409,18 @@ DEFSH (IMISH_ZEBRA, show_table_cmd_imish,
        "Show running system information\n"
        "default routing table to use for all clients\n")
 
+DEFSH (IMISH_OLSRD, ip_olsr_tc_interval_cmd_imish, 
+       "ip olsr tc-interval <1-65535>", 
+       "IP Information\n"
+       "OLSR interface commands\n"
+       "Time between TC packets\n"
+       "Milliseconds\n")
+
 DEFSH (IMISH_ZEBRA, show_ip_forwarding_cmd_imish, 
        "show ip forwarding", 
        "Show running system information\n"
        "IP information\n"
        "IP forwarding status\n")
-
-DEFSH (IMISH_ZEBRA, show_ip_route_protocol_cmd_imish, 
-       "show ip route " "(kernel|connected|static|rip|ospf|isis|bgp|pim|olsr|babel|icrp|frp|aodv)", 
-       "Show running system information\n"
-       "IP information\n"
-       "IP routing table\n"
-       "Kernel routes (not installed via the zebra RIB)\n" "Connected routes (directly attached subnet or host)\n" "Statically configured routes\n" "Routing Information Protocol (RIP)\n" "Open Shortest Path First (OSPFv2)\n" "Intermediate System to Intermediate System (IS-IS)\n" "Border Gateway Protocol (BGP)\n" "Protocol Independent Multicast (PIM)\n" "Optimised Link State Routing (OLSR)\n" "Babel routing protocol (Babel)\n" "Internet Based On Node Contact Time Routing Protocol  (ICRP)\n" "Fast and Reliable Routing Protocol  (FRP)\n" "AD HOT MANET Routing Protocol  (AODV)\n")
 
 DEFSH (IMISH_RIPNGD, no_ripng_redistribute_type_metric_routemap_cmd_imish, 
        "no redistribute " "(kernel|connected|static|ospf6|isis|bgp|babel)" " metric <0-16> route-map WORD", 
@@ -8311,6 +8429,13 @@ DEFSH (IMISH_RIPNGD, no_ripng_redistribute_type_metric_routemap_cmd_imish,
        "Kernel routes (not installed via the zebra RIB)\n" "Connected routes (directly attached subnet or host)\n" "Statically configured routes\n" "Open Shortest Path First (IPv6) (OSPFv3)\n" "Intermediate System to Intermediate System (IS-IS)\n" "Border Gateway Protocol (BGP)\n" "Babel routing protocol (Babel)\n"
        "Route map reference\n"
        "Pointer to route-map entries\n")
+
+DEFSH (IMISH_ZEBRA, show_ip_route_protocol_cmd_imish, 
+       "show ip route " "(kernel|connected|static|rip|ospf|isis|bgp|pim|olsr|babel|icrp|frp|aodv)", 
+       "Show running system information\n"
+       "IP information\n"
+       "IP routing table\n"
+       "Kernel routes (not installed via the zebra RIB)\n" "Connected routes (directly attached subnet or host)\n" "Statically configured routes\n" "Routing Information Protocol (RIP)\n" "Open Shortest Path First (OSPFv2)\n" "Intermediate System to Intermediate System (IS-IS)\n" "Border Gateway Protocol (BGP)\n" "Protocol Independent Multicast (PIM)\n" "Optimised Link State Routing (OLSR)\n" "Babel routing protocol (Babel)\n" "Internet Based On Node Contact Time Routing Protocol  (ICRP)\n" "Fast and Reliable Routing Protocol  (FRP)\n" "AD HOT MANET Routing Protocol  (AODV)\n")
 
 DEFSH (IMISH_BGPD, ip_extcommunity_list_name_standard_cmd_imish, 
        "ip extcommunity-list standard WORD (deny|permit) .AA:NN", 
@@ -8729,6 +8854,12 @@ DEFSH (IMISH_OSPF6D, show_ipv6_ospf6_database_type_self_originated_detail_cmd_im
        "Dump LSAs\n"
        "Display LSA's internal information\n"
       )
+
+DEFSH (IMISH_OLSRD, olsr_top_hold_time_cmd_imish, 
+       "olsr top-hold-time <1-65535>", 
+       "OLSR specific commands\n"
+       "Time too remember a topology control message.\n"
+       "Milliseconds\n")
 
 DEFSH (IMISH_OSPFD, ospf_area_range_substitute_cmd_imish, 
        "area (A.B.C.D|<0-4294967295>) range A.B.C.D/M substitute A.B.C.D/M", 
@@ -9169,6 +9300,12 @@ DEFSH (IMISH_BGPD, show_bgp_statistics_view_cmd_imish,
        "Address Family modifier\n"
        "BGP RIB advertisement statistics\n")
 
+DEFSH (IMISH_OLSRD, olsr_mpr_update_time_cmd_imish, 
+       "olsr mpr-update-time <1-65535>", 
+       "OLSR specific commands\n"
+       "Delay time for MPR update.\n"
+       "Milliseconds\n")
+
 DEFSH (IMISH_BGPD, show_ip_bgp_ipv4_neighbor_received_prefix_filter_cmd_imish, 
        "show ip bgp ipv4 (unicast|multicast) neighbors (A.B.C.D|X:X::X:X) received prefix-filter", 
        "Show running system information\n"
@@ -9276,6 +9413,13 @@ DEFSH (IMISH_OSPFD, ospf_opaque_capable_cmd_imish,
        "ospf opaque-lsa", 
        "OSPF specific commands\n"
        "Enable the Opaque-LSA capability (rfc2370)\n")
+
+DEFSH (IMISH_OLSRD, show_ip_olsr_hop2_cmd_imish, 
+       "show ip olsr hop2", 
+       "Show running system information\n"
+       "IP information\n"
+       "OLSR information\n"
+       "2 Hop Neighbor Database\n")
 
 DEFSH (IMISH_BGPD, neighbor_update_source_cmd_imish, 
        "neighbor (A.B.C.D|X:X::X:X|WORD) " "update-source " "(A.B.C.D|X:X::X:X|WORD)", 
@@ -9422,6 +9566,16 @@ DEFSH (IMISH_BGPD, set_community_none_cmd_imish,
        "Set values in destination routing protocol\n"
        "BGP community attribute\n"
        "No community attribute\n")
+
+DEFSH (IMISH_OLSRD, no_debug_olsr_event_cmd_imish, 
+       "no debug olsr event (zebra|route-table|neigh|links)", 
+       "Negate a command or set its defaults\n"
+       "Debugging functions (see also 'undebug')\n"
+       "Optimized Link State Routing Protocol\n"
+       "OLSR events\n"
+       "Events announced by Zebra.\n"
+       "Routing table changes.\n"
+       "Neighborhood changes.\n")
 
 DEFSH (IMISH_BGPD, neighbor_attr_unchanged6_cmd_imish, 
        "neighbor (A.B.C.D|X:X::X:X|WORD) " "attribute-unchanged as-path med next-hop", 
@@ -9711,6 +9865,12 @@ DEFSH (IMISH_RIPD, rip_passive_interface_cmd_imish,
        "Interface name\n"
        "default for all interfaces\n")
 
+DEFSH (IMISH_OLSRD, olsr_dup_hold_time_cmd_imish, 
+       "olsr dup-hold-time <1-65535>", 
+       "OLSR specific commands\n"
+       "Time too remember a duplicate message.\n"
+       "Milliseconds\n")
+
 DEFSH (IMISH_PIMD, ip_multicast_routing_cmd_imish, 
        "ip multicast-routing", 
        "IP information\n"
@@ -9857,6 +10017,12 @@ DEFSH (IMISH_BGPD|IMISH_OSPFD|IMISH_RIPD|IMISH_ZEBRA, no_match_ip_address_cmd_im
        "Match values from routing table\n"
        "IP information\n"
        "Match address of route\n")
+
+DEFSH (IMISH_OLSRD, olsr_rt_update_time_cmd_imish, 
+       "olsr rt-update-time <1-65535>", 
+       "OLSR specific commands\n"
+       "Delay time for routing table update.\n"
+       "Milliseconds\n")
 
 DEFSH (IMISH_OSPFD, no_ip_ospf_dead_interval_cmd_imish, 
        "no ip ospf dead-interval", 
@@ -10146,6 +10312,13 @@ DEFSH (IMISH_BGPD, no_neighbor_attr_unchanged2_cmd_imish,
        "Nexthop attribute\n"
        "Med attribute\n")
 
+DEFSH (IMISH_BGPD|IMISH_RIPD, set_ip_nexthop_cmd_imish, 
+       "set ip next-hop A.B.C.D", 
+       "Set values in destination routing protocol\n"
+       "IP information\n"
+       "Next hop address\n"
+       "IP address of next hop\n")
+
 DEFSH (IMISH_BGPD, bgp_bestpath_med3_cmd_imish, 
        "bgp bestpath med missing-as-worst confed", 
        "BGP specific commands\n"
@@ -10153,13 +10326,6 @@ DEFSH (IMISH_BGPD, bgp_bestpath_med3_cmd_imish,
        "MED attribute\n"
        "Treat missing MED as the least preferred one\n"
        "Compare MED among confederation paths\n")
-
-DEFSH (IMISH_BGPD|IMISH_RIPD, set_ip_nexthop_cmd_imish, 
-       "set ip next-hop A.B.C.D", 
-       "Set values in destination routing protocol\n"
-       "IP information\n"
-       "Next hop address\n"
-       "IP address of next hop\n")
 
 DEFSH (IMISH_ISISD, no_psnp_interval_l1_cmd_imish, 
        "no isis psnp-interval level-1", 
@@ -10184,6 +10350,12 @@ DEFSH (IMISH_BGPD, dump_bgp_updates_interval_cmd_imish,
        "Dump BGP updates only\n"
        "Output filename\n"
        "Interval of output\n")
+
+DEFSH (IMISH_OLSRD, no_olsr_neighb_hold_time_cmd_imish, 
+       "no olsr neighb-hold-time", 
+       "Negate a command or set its defaults\n"
+       "OLSR specific commands\n"
+       "Time too keep a neighbor.\n")
 
 DEFSH (IMISH_BGPD, no_ip_extcommunity_list_expanded_all_cmd_imish, 
        "no ip extcommunity-list <100-500>", 
@@ -10482,6 +10654,11 @@ DEFSH (IMISH_BGPD, neighbor_advertise_interval_cmd_imish,
        "Minimum interval between sending BGP routing updates\n"
        "time in seconds\n")
 
+DEFSH (IMISH_RIPD, rip_distance_cmd_imish, 
+       "distance <1-255>", 
+       "Administrative distance\n"
+       "Distance value\n")
+
 DEFSH (IMISH_RIPNGD|IMISH_OSPF6D|IMISH_BGPD|IMISH_ZEBRA, show_ipv6_prefix_list_detail_cmd_imish, 
        "show ipv6 prefix-list detail", 
        "Show running system information\n"
@@ -10497,11 +10674,6 @@ DEFSH (IMISH_BGPD, clear_ip_bgp_all_in_prefix_filter_cmd_imish,
        "Clear all peers\n"
        "Soft reconfig inbound update\n"
        "Push out prefix-list ORF and do inbound soft reconfig\n")
-
-DEFSH (IMISH_RIPD, rip_distance_cmd_imish, 
-       "distance <1-255>", 
-       "Administrative distance\n"
-       "Distance value\n")
 
 DEFSH (IMISH_BGPD, show_bgp_view_ipv6_safi_rsclient_prefix_cmd_imish, 
        "show bgp view WORD ipv6 (unicast|multicast) rsclient (A.B.C.D|X:X::X:X) X:X::X:X/M", 
@@ -10527,6 +10699,12 @@ DEFSH (IMISH_ISISD, lsp_refresh_interval_l1_cmd_imish,
        "lsp-refresh-interval level-1 <1-65235>", 
        "LSP refresh interval for Level 1 only\n"
        "LSP refresh interval for Level 1 only in seconds\n")
+
+DEFSH (IMISH_OLSRD, olsr_neighb_hold_time_cmd_imish, 
+       "olsr neighb-hold-time <1-65535>", 
+       "OLSR specific commands\n"
+       "Time too keep a neighbor.\n"
+       "Milliseconds\n")
 
 DEFSH (IMISH_OSPFD, no_ospf_default_information_originate_cmd_imish, 
        "no default-information originate", 
@@ -11379,6 +11557,13 @@ DEFSH (IMISH_BGPD, no_debug_bgp_all_cmd_imish,
        "Enable all debugging\n"
        "BGP information\n")
 
+DEFSH (IMISH_OLSRD, no_ip_olsr_mid_interval_cmd_imish, 
+       "no ip olsr mid-interval", 
+       "Negate a command or set its defaults\n"
+       "IP Information\n"
+       "OLSR interface commands\n"
+       "Time between MID packets\n")
+
 DEFSH (IMISH_ZEBRA, router_id_cmd_imish, 
        "router-id A.B.C.D", 
        "Manually set the router-id\n"
@@ -11537,13 +11722,6 @@ DEFSH (IMISH_BGPD, clear_bgp_external_in_cmd_imish,
        "Clear all external peers\n"
        "Soft reconfig inbound update\n")
 
-DEFSH (IMISH_OSPF6D, no_ospf6_timers_throttle_spf_cmd_imish, 
-       "no timers throttle spf", 
-       "Negate a command or set its defaults\n"
-       "Adjust routing timers\n"
-       "Throttling adaptive timer\n"
-       "OSPF6 SPF timers\n")
-
 DEFSH (IMISH_PIMD, show_ip_igmp_sources_retransmissions_cmd_imish, 
        "show ip igmp sources retransmissions", 
        "Show running system information\n"
@@ -11551,6 +11729,13 @@ DEFSH (IMISH_PIMD, show_ip_igmp_sources_retransmissions_cmd_imish,
        "IGMP information\n"
        "IGMP sources information\n"
        "IGMP source retransmissions\n")
+
+DEFSH (IMISH_OSPF6D, no_ospf6_timers_throttle_spf_cmd_imish, 
+       "no timers throttle spf", 
+       "Negate a command or set its defaults\n"
+       "Adjust routing timers\n"
+       "Throttling adaptive timer\n"
+       "OSPF6 SPF timers\n")
 
 DEFSH (IMISH_ALL, no_access_list_cmd_imish, 
        "no access-list WORD (deny|permit) A.B.C.D/M", 
@@ -12393,6 +12578,11 @@ DEFSH (IMISH_OSPF6D, ospf6_redistribute_routemap_cmd_imish,
        "Route map name\n"
       )
 
+DEFSH (IMISH_RIPD|IMISH_RIPNGD|IMISH_OSPFD|IMISH_OSPF6D|IMISH_BGPD|IMISH_ZEBRA, no_rmap_description_cmd_imish, 
+       "no description", 
+       "Negate a command or set its defaults\n"
+       "Route-map comment\n")
+
 DEFSH (IMISH_ALL, show_ipv6_access_list_name_cmd_imish, 
        "show ipv6 access-list WORD", 
        "Show running system information\n"
@@ -12406,11 +12596,6 @@ DEFSH (IMISH_BGPD, set_ecommunity_rt_cmd_imish,
        "BGP extended community attribute\n"
        "Route Target extended community\n"
        "VPN extended community\n")
-
-DEFSH (IMISH_RIPD|IMISH_RIPNGD|IMISH_OSPFD|IMISH_OSPF6D|IMISH_BGPD|IMISH_ZEBRA, no_rmap_description_cmd_imish, 
-       "no description", 
-       "Negate a command or set its defaults\n"
-       "Route-map comment\n")
 
 DEFSH (IMISH_OSPF6D, no_area_import_list_cmd_imish, 
        "no area A.B.C.D import-list NAME", 
@@ -13911,14 +14096,6 @@ DEFSH (IMISH_ISISD, no_isis_priority_l1_cmd_imish,
        "Set priority for Designated Router election\n"
        "Specify priority for level-1 routing\n")
 
-DEFSH (IMISH_OSPFD, no_ospf_neighbor_priority_cmd_imish, 
-       "no neighbor A.B.C.D priority <0-255>", 
-       "Negate a command or set its defaults\n"
-       "Specify neighbor router\n"
-       "Neighbor IP address\n"
-       "Neighbor Priority\n"
-       "Priority\n")
-
 DEFSH (IMISH_BGPD, clear_bgp_peer_group_soft_out_cmd_imish, 
        "clear bgp peer-group WORD soft out", 
        "Reset functions\n"
@@ -13927,6 +14104,14 @@ DEFSH (IMISH_BGPD, clear_bgp_peer_group_soft_out_cmd_imish,
        "BGP peer-group name\n"
        "Soft reconfig\n"
        "Soft reconfig outbound update\n")
+
+DEFSH (IMISH_OSPFD, no_ospf_neighbor_priority_cmd_imish, 
+       "no neighbor A.B.C.D priority <0-255>", 
+       "Negate a command or set its defaults\n"
+       "Specify neighbor router\n"
+       "Neighbor IP address\n"
+       "Neighbor Priority\n"
+       "Priority\n")
 
 DEFSH (IMISH_BGPD, no_neighbor_ebgp_multihop_cmd_imish, 
        "no neighbor (A.B.C.D|X:X::X:X|WORD) " "ebgp-multihop", 
@@ -13947,6 +14132,13 @@ DEFSH (IMISH_RIPD, show_debugging_rip_cmd_imish,
        "Debugging functions (see also 'undebug')\n"
        "RIP information\n")
 
+DEFSH (IMISH_OSPFD, no_ospf_area_vlink_authtype_cmd_imish, 
+       "no area (A.B.C.D|<0-4294967295>) virtual-link A.B.C.D "
+       "(authentication|)", 
+       "Negate a command or set its defaults\n"
+       "OSPF area parameters\n" "OSPF area ID in IP address format\n" "OSPF area ID as a decimal value\n" "Configure a virtual link\n" "Router ID of the remote ABR\n"
+       "Enable authentication on this virtual link\n" "dummy string \n")
+
 DEFSH (IMISH_RIPD|IMISH_RIPNGD|IMISH_OSPFD|IMISH_OSPF6D|IMISH_BGPD|IMISH_ZEBRA, rmap_onmatch_next_cmd_imish, 
        "on-match next", 
        "Exit policy on matches\n"
@@ -13960,13 +14152,6 @@ DEFSH (IMISH_BGPD, clear_ip_bgp_as_soft_out_cmd_imish,
        "Clear peers with the AS number\n"
        "Soft reconfig\n"
        "Soft reconfig outbound update\n")
-
-DEFSH (IMISH_OSPFD, no_ospf_area_vlink_authtype_cmd_imish, 
-       "no area (A.B.C.D|<0-4294967295>) virtual-link A.B.C.D "
-       "(authentication|)", 
-       "Negate a command or set its defaults\n"
-       "OSPF area parameters\n" "OSPF area ID in IP address format\n" "OSPF area ID as a decimal value\n" "Configure a virtual link\n" "Router ID of the remote ABR\n"
-       "Enable authentication on this virtual link\n" "dummy string \n")
 
 DEFSH (IMISH_RIPD, no_ip_rip_receive_version_num_cmd_imish, 
        "no ip rip receive version (1|2)", 
@@ -14858,6 +15043,12 @@ DEFSH (IMISH_OSPF6D, no_ipv6_ospf6_advertise_prefix_list_cmd_imish,
        "Filter prefix using prefix-list\n"
        )
 
+DEFSH (IMISH_OLSRD, no_olsr_dup_hold_time_cmd_imish, 
+       "no olsr dup-hold-time", 
+       "Negate a command or set its defaults\n"
+       "OLSR specific commands\n"
+       "Time too keep a duplicate message.\n")
+
 DEFSH (IMISH_OSPF6D, show_ipv6_ospf6_route_longer_cmd_imish, 
        "show ipv6 ospf6 route X:X::X:X/M longer", 
        "Show running system information\n"
@@ -14920,6 +15111,17 @@ DEFSH (IMISH_BGPD, clear_ip_bgp_peer_vpnv4_soft_out_cmd_imish,
        "Address Family Modifier\n"
        "Soft reconfig\n"
        "Soft reconfig outbound update\n")
+
+DEFSH (IMISH_OLSRD, olsr_will_cmd_imish, 
+       "olsr willingness (never|low|default|high|always|<0-7>)", 
+       "OLSR specific commands\n"
+       "Willingness for this router\n"
+       "Never select me as MPR.\n"
+       "Select me only if necesar.\n"
+       "Default willingness.\n"
+       "In case of tide select me.\n"
+       "Always select me as MPR.\n"
+       "A number between 0 and 7.\n")
 
 DEFSH (IMISH_BGPD, no_neighbor_attr_unchanged6_cmd_imish, 
        "no neighbor (A.B.C.D|X:X::X:X|WORD) " "attribute-unchanged as-path med next-hop", 
@@ -16155,6 +16357,11 @@ DEFSH (IMISH_BGPD, show_bgp_community_list_cmd_imish,
        "community-list number\n"
        "community-list name\n")
 
+DEFSH (IMISH_OLSRD, olsr_redistribute_cmd_imish, 
+       "redistribute " "(kernel|connected|static|rip|ospf|isis|bgp|pim|babel|icrp|frp|aodv)", 
+       "Redistribute information from another routing protocol\n"
+       "Kernel routes (not installed via the zebra RIB)\n" "Connected routes (directly attached subnet or host)\n" "Statically configured routes\n" "Routing Information Protocol (RIP)\n" "Open Shortest Path First (OSPFv2)\n" "Intermediate System to Intermediate System (IS-IS)\n" "Border Gateway Protocol (BGP)\n" "Protocol Independent Multicast (PIM)\n" "Babel routing protocol (Babel)\n" "Internet Based On Node Contact Time Routing Protocol  (ICRP)\n" "Fast and Reliable Routing Protocol  (FRP)\n" "AD HOT MANET Routing Protocol  (AODV)\n")
+
 DEFSH (IMISH_BGPD, clear_bgp_ipv6_as_soft_cmd_imish, 
        "clear bgp ipv6 " "<1-4294967295>" " soft", 
        "Reset functions\n"
@@ -16163,13 +16370,6 @@ DEFSH (IMISH_BGPD, clear_bgp_ipv6_as_soft_cmd_imish,
        "Clear peers with the AS number\n"
        "Soft reconfig\n")
 
-DEFSH (IMISH_BGPD|IMISH_RIPD, no_set_ip_nexthop_cmd_imish, 
-       "no set ip next-hop", 
-       "Negate a command or set its defaults\n"
-       "Set values in destination routing protocol\n"
-       "IP information\n"
-       "Next hop address\n")
-
 DEFSH (IMISH_OSPFD, ospf_area_vlink_param2_cmd_imish, 
        "area (A.B.C.D|<0-4294967295>) virtual-link A.B.C.D "
        "(hello-interval|retransmit-interval|transmit-delay|dead-interval) <1-65535> "
@@ -16177,6 +16377,13 @@ DEFSH (IMISH_OSPFD, ospf_area_vlink_param2_cmd_imish,
        "OSPF area parameters\n" "OSPF area ID in IP address format\n" "OSPF area ID as a decimal value\n" "Configure a virtual link\n" "Router ID of the remote ABR\n"
        "Time between HELLO packets\n" "Time between retransmitting lost link state advertisements\n" "Link state transmit delay\n" "Interval after which a neighbor is declared dead\n" "Seconds\n"
        "Time between HELLO packets\n" "Time between retransmitting lost link state advertisements\n" "Link state transmit delay\n" "Interval after which a neighbor is declared dead\n" "Seconds\n")
+
+DEFSH (IMISH_BGPD|IMISH_RIPD, no_set_ip_nexthop_cmd_imish, 
+       "no set ip next-hop", 
+       "Negate a command or set its defaults\n"
+       "Set values in destination routing protocol\n"
+       "IP information\n"
+       "Next hop address\n")
 
 DEFSH (IMISH_RIPD, rip_distance_source_cmd_imish, 
        "distance <1-255> A.B.C.D/M", 
@@ -16300,14 +16507,6 @@ DEFSH (IMISH_OSPFD, mpls_te_link_metric_cmd_imish,
        "Link metric for MPLS-TE purpose\n"
        "Metric\n")
 
-DEFSH (IMISH_BGPD, clear_bgp_external_soft_in_cmd_imish, 
-       "clear bgp external soft in", 
-       "Reset functions\n"
-       "BGP information\n"
-       "Clear all external peers\n"
-       "Soft reconfig\n"
-       "Soft reconfig inbound update\n")
-
 DEFSH (IMISH_OSPF6D, area_range_cmd_imish, 
        "area A.B.C.D range X:X::X:X/M", 
        "OSPF area parameters\n"
@@ -16315,6 +16514,14 @@ DEFSH (IMISH_OSPF6D, area_range_cmd_imish,
        "Configured address range\n"
        "Specify IPv6 prefix\n"
        )
+
+DEFSH (IMISH_BGPD, clear_bgp_external_soft_in_cmd_imish, 
+       "clear bgp external soft in", 
+       "Reset functions\n"
+       "BGP information\n"
+       "Clear all external peers\n"
+       "Soft reconfig\n"
+       "Soft reconfig inbound update\n")
 
 DEFSH (IMISH_ZEBRA, show_zebra_fpm_stats_cmd_imish, 
        "show zebra fpm stats", 
@@ -16465,6 +16672,13 @@ DEFSH (IMISH_BGPD, show_bgp_rsclient_route_cmd_imish,
        "Neighbor address\nIPv6 address\n"
        "Network in the BGP routing table to display\n")
 
+DEFSH (IMISH_ZEBRA, no_ip_multicast_mode_noarg_cmd_imish, 
+       "no ip multicast rpf-lookup-mode", 
+       "Negate a command or set its defaults\n"
+       "IP information\n"
+       "Multicast options\n"
+       "RPF lookup behavior\n")
+
 DEFSH (IMISH_BGPD, show_bgp_ipv4_safi_cmd_imish, 
        "show bgp ipv4 (unicast|multicast)", 
        "Show running system information\n"
@@ -16472,13 +16686,6 @@ DEFSH (IMISH_BGPD, show_bgp_ipv4_safi_cmd_imish,
        "Address family\n"
        "Address Family modifier\n"
        "Address Family modifier\n")
-
-DEFSH (IMISH_ZEBRA, no_ip_multicast_mode_noarg_cmd_imish, 
-       "no ip multicast rpf-lookup-mode", 
-       "Negate a command or set its defaults\n"
-       "IP information\n"
-       "Multicast options\n"
-       "RPF lookup behavior\n")
 
 DEFSH (IMISH_OSPFD, ip_ospf_authentication_addr_cmd_imish, 
        "ip ospf authentication A.B.C.D", 
@@ -17340,6 +17547,13 @@ DEFSH (IMISH_OSPF6D, show_ipv6_ospf6_linkstate_router_cmd_imish,
        "Specify Router ID as IPv4 address notation\n"
       )
 
+DEFSH (IMISH_OLSRD, no_ip_olsr_hello_interval_cmd_imish, 
+       "no ip olsr hello-interval", 
+       "Negate a command or set its defaults\n"
+       "IP Information\n"
+       "OLSR interface commands\n"
+       "Time between HELLO packets\n")
+
 DEFSH (IMISH_ISISD, no_isis_hello_multiplier_arg_cmd_imish, 
        "no isis hello-multiplier <2-100>", 
        "Negate a command or set its defaults\n"
@@ -17496,6 +17710,7 @@ imish_module_init_cmd ()
   install_element (ENABLE_NODE, &show_ipv6_bgp_route_cmd_imish);
   install_element (RESTRICTED_NODE, &show_ip_bgp_instance_ipv4_summary_cmd_imish);
   install_element (BGP_NODE, &no_neighbor_interface_cmd_imish);
+  install_element (OLSR_NODE, &olsr_mpr_update_time_cmd_imish);
   install_element (OSPF6_NODE, &ospf6_timers_throttle_spf_cmd_imish);
   install_element (BGP_NODE, &bgp_cluster_id32_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_igmp_join_cmd_imish);
@@ -17507,6 +17722,7 @@ imish_module_init_cmd ()
   install_element (INTERFACE_NODE, &ip_ospf_priority_addr_cmd_imish);
   install_element (CONFIG_NODE, &no_ip_route_flags_cmd_imish);
   install_element (BGP_IPV4_NODE, &bgp_network_mask_natural_route_map_cmd_imish);
+  install_element (VIEW_NODE, &show_ip_olsr_neighbor_cmd_imish);
   install_element (ENABLE_NODE, &test_pim_receive_assert_cmd_imish);
   install_element (VIEW_NODE, &show_bgp_neighbor_received_prefix_filter_cmd_imish);
   install_element (CONFIG_NODE, &debug_isis_csum_cmd_imish);
@@ -17579,6 +17795,7 @@ imish_module_init_cmd ()
   install_element (OSPF_NODE, &no_router_ospf_id_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_route_summary_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_community_list_arg_cmd_imish);
+  install_element (INTERFACE_NODE, &no_ip_olsr_tc_interval_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_bgp_view_cmd_imish);
   install_element (CONFIG_NODE, &access_list_extended_host_mask_cmd_imish);
   install_element (CONFIG_NODE, &no_debug_zebra_packet_cmd_imish);
@@ -17593,6 +17810,7 @@ imish_module_init_cmd ()
   install_element (BGP_NODE, &bgp_deterministic_med_cmd_imish);
   install_element (VIEW_NODE, &show_ip_bgp_route_map_cmd_imish);
   install_element (ENABLE_NODE, &show_ipv6_ospf6_database_id_detail_cmd_imish);
+  install_element (CONFIG_NODE, &no_debug_olsr_event_cmd_imish);
   install_element (VIEW_NODE, &show_bgp_instance_ipv6_summary_cmd_imish);
   install_element (ENABLE_NODE, &show_database_arg_cmd_imish);
   install_element (VIEW_NODE, &show_ip_ssmpingd_cmd_imish);
@@ -17788,6 +18006,7 @@ imish_module_init_cmd ()
   install_element (ENABLE_NODE, &clear_ip_bgp_as_soft_out_cmd_imish);
   install_element (BGP_IPV4M_NODE, &no_neighbor_remove_private_as_cmd_imish);
   install_element (ENABLE_NODE, &debug_ssmpingd_cmd_imish);
+  install_element (INTERFACE_NODE, &no_ip_olsr_mid_interval_cmd_imish);
   install_element (INTERFACE_NODE, &no_ipv6_ripng_split_horizon_poisoned_reverse_cmd_imish);
   install_element (ENABLE_NODE, &no_debug_ospf_zebra_sub_cmd_imish);
   install_element (INTERFACE_NODE, &csnp_interval_l1_cmd_imish);
@@ -17898,6 +18117,7 @@ imish_module_init_cmd ()
   install_element (VIEW_NODE, &show_bgp_view_ipv6_neighbor_received_routes_cmd_imish);
   install_element (CONFIG_NODE, &no_debug_ospf6_spf_process_cmd_imish);
   install_element (ISIS_NODE, &lsp_refresh_interval_cmd_imish);
+  install_element (OLSR_NODE, &olsr_neighb_hold_time_cmd_imish);
   install_element (ENABLE_NODE, &ipv6_bgp_neighbor_routes_cmd_imish);
   install_element (INTERFACE_NODE, &no_ospf_cost_u32_cmd_imish);
   install_element (INTERFACE_NODE, &mpls_te_link_metric_cmd_imish);
@@ -17963,6 +18183,7 @@ imish_module_init_cmd ()
   install_element (OSPF_NODE, &ospf_area_vlink_authtype_args_authkey_cmd_imish);
   install_element (RMAP_NODE, &no_match_peer_val_cmd_imish);
   install_element (ISIS_NODE, &no_metric_style_cmd_imish);
+  install_element (ENABLE_NODE, &show_ip_olsr_mid_cmd_imish);
   install_element (ENABLE_NODE, &show_babel_database_cmd_imish);
   install_element (INTERFACE_NODE, &interface_ip_igmp_query_max_response_time_dsec_cmd_imish);
   install_element (INTERFACE_NODE, &no_csnp_interval_l1_arg_cmd_imish);
@@ -18020,6 +18241,7 @@ imish_module_init_cmd ()
   install_element (OSPF_NODE, &no_ospf_area_range_cost_cmd_imish);
   install_element (BGP_NODE, &no_bgp_redistribute_ipv4_rmap_cmd_imish);
   install_element (ENABLE_NODE, &show_bgp_community4_cmd_imish);
+  install_element (VIEW_NODE, &show_ip_olsr_mid_cmd_imish);
   install_element (CONFIG_NODE, &undebug_igmp_trace_cmd_imish);
   install_element (KEYCHAIN_KEY_NODE, &send_lifetime_month_day_day_month_cmd_imish);
   install_element (ENABLE_NODE, &debug_ospf6_brouter_cmd_imish);
@@ -18055,6 +18277,7 @@ imish_module_init_cmd ()
   install_element (BGP_IPV6M_NODE, &neighbor_default_originate_cmd_imish);
   install_element (ENABLE_NODE, &show_bgp_view_ipv6_safi_rsclient_route_cmd_imish);
   install_element (ENABLE_NODE, &no_debug_mroute_cmd_imish);
+  install_element (CONFIG_NODE, &no_debug_olsr_packet_all_cmd_imish);
   install_element (ENABLE_NODE, &show_bgp_view_afi_safi_community4_cmd_imish);
   install_element (ENABLE_NODE, &debug_ospf_zebra_sub_cmd_imish);
   install_element (RMAP_NODE, &no_match_ip_address_val_cmd_imish);
@@ -18086,6 +18309,7 @@ imish_module_init_cmd ()
   install_element (VIEW_NODE, &show_ip_route_summary_prefix_cmd_imish);
   install_element (BGP_VPNV4_NODE, &neighbor_attr_unchanged6_cmd_imish);
   install_element (ENABLE_NODE, &debug_isis_spfevents_cmd_imish);
+  install_element (ENABLE_NODE, &no_debug_olsr_event_cmd_imish);
   install_element (INTERFACE_NODE, &isis_priority_l1_cmd_imish);
   install_element (BGP_NODE, &no_bgp_network_mask_backdoor_cmd_imish);
   install_element (CONFIG_NODE, &debug_zebra_rib_q_cmd_imish);
@@ -18252,6 +18476,7 @@ imish_module_init_cmd ()
   install_element (OSPF_NODE, &ospf_area_nssa_no_summary_cmd_imish);
   install_element (BGP_IPV6_NODE, &no_neighbor_maximum_prefix_warning_cmd_imish);
   install_element (CONFIG_NODE, &ip_route_flags2_cmd_imish);
+  install_element (OLSR_NODE, &no_olsr_dup_hold_time_cmd_imish);
   install_element (CONFIG_NODE, &ipv6_prefix_list_seq_le_cmd_imish);
   install_element (INTERFACE_NODE, &ip_ospf_message_digest_key_cmd_imish);
   install_element (ENABLE_NODE, &clear_ipv6_prefix_list_cmd_imish);
@@ -18286,7 +18511,9 @@ imish_module_init_cmd ()
   install_element (BGP_VPNV4_NODE, &no_neighbor_attr_unchanged4_cmd_imish);
   install_element (BGP_IPV6M_NODE, &neighbor_activate_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_pim_assert_metric_cmd_imish);
+  install_element (OLSR_NODE, &olsr_top_hold_time_cmd_imish);
   install_element (VIEW_NODE, &show_ipv6_ospf6_database_type_adv_router_detail_cmd_imish);
+  install_element (INTERFACE_NODE, &ip_olsr_hello_interval_cmd_imish);
   install_element (OSPF_NODE, &ospf_area_nssa_translate_cmd_imish);
   install_element (ENABLE_NODE, &show_ipv6_bgp_community_all_cmd_imish);
   install_element (ENABLE_NODE, &no_debug_igmp_cmd_imish);
@@ -18300,6 +18527,7 @@ imish_module_init_cmd ()
   install_element (BGP_IPV4M_NODE, &aggregate_address_mask_as_set_summary_cmd_imish);
   install_element (BGP_NODE, &no_neighbor_passive_cmd_imish);
   install_element (VIEW_NODE, &show_ip_bgp_vpnv4_all_tags_cmd_imish);
+  install_element (OLSR_NODE, &olsr_dup_hold_time_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_multicast_cmd_imish);
   install_element (OSPF_NODE, &ospf_area_range_advertise_cmd_imish);
   install_element (INTERFACE_NODE, &isis_passive_cmd_imish);
@@ -18361,6 +18589,7 @@ imish_module_init_cmd ()
   install_element (RIP_NODE, &rip_network_cmd_imish);
   install_element (VIEW_NODE, &show_bgp_ipv6_prefix_cmd_imish);
   install_element (VIEW_NODE, &show_ip_bgp_ipv4_community2_exact_cmd_imish);
+  install_element (ENABLE_NODE, &show_ip_olsr_neighbor_cmd_imish);
   install_element (BGP_IPV6_NODE, &neighbor_allowas_in_arg_cmd_imish);
   install_element (ISIS_NODE, &max_lsp_lifetime_l2_cmd_imish);
   install_element (VIEW_NODE, &show_ip_bgp_filter_list_cmd_imish);
@@ -18572,6 +18801,7 @@ imish_module_init_cmd ()
   install_element (CONFIG_NODE, &no_debug_bgp_filter_cmd_imish);
   install_element (ENABLE_NODE, &clear_ip_bgp_all_vpnv4_out_cmd_imish);
   install_element (CONFIG_NODE, &debug_ospf_ism_sub_cmd_imish);
+  install_element (VIEW_NODE, &show_ip_olsr_hop2_cmd_imish);
   install_element (INTERFACE_NODE, &no_ip_ospf_transmit_delay_addr_cmd_imish);
   install_element (CONFIG_NODE, &no_ipv6_route_ifname_pref_cmd_imish);
   install_element (ENABLE_NODE, &debug_isis_spftrigg_cmd_imish);
@@ -18589,6 +18819,7 @@ imish_module_init_cmd ()
   install_element (BGP_NODE, &neighbor_allowas_in_arg_cmd_imish);
   install_element (ENABLE_NODE, &no_debug_zebra_kernel_cmd_imish);
   install_element (INTERFACE_NODE, &babel_set_wired_cmd_imish);
+  install_element (OLSR_NODE, &no_olsr_neighb_hold_time_cmd_imish);
   install_element (VIEW_NODE, &clear_isis_neighbor_arg_cmd_imish);
   install_element (BGP_NODE, &bgp_network_mask_cmd_imish);
   install_element (ENABLE_NODE, &clear_ip_bgp_peer_out_cmd_imish);
@@ -18670,6 +18901,7 @@ imish_module_init_cmd ()
   install_element (OSPF_NODE, &ospf_area_vlink_param3_cmd_imish);
   install_element (OSPF_NODE, &no_ospf_neighbor_priority_cmd_imish);
   install_element (BGP_IPV4_NODE, &no_aggregate_address_summary_only_cmd_imish);
+  install_element (VIEW_NODE, &show_ip_olsr_topset_cmd_imish);
   install_element (ENABLE_NODE, &clear_bgp_ipv6_peer_group_soft_in_cmd_imish);
   install_element (INTERFACE_NODE, &ospf_hello_interval_cmd_imish);
   install_element (CONFIG_NODE, &no_debug_ospf6_message_cmd_imish);
@@ -18678,8 +18910,10 @@ imish_module_init_cmd ()
   install_element (ENABLE_NODE, &show_ip_bgp_community2_exact_cmd_imish);
   install_element (VIEW_NODE, &show_bgp_view_ipv4_safi_rsclient_route_cmd_imish);
   install_element (BGP_IPV4_NODE, &bgp_maxpaths_ibgp_cmd_imish);
+  install_element (ENABLE_NODE, &show_ip_olsr_routes_cmd_imish);
   install_element (INTERFACE_NODE, &no_ip_rip_send_version_cmd_imish);
   install_element (ENABLE_NODE, &show_bgp_filter_list_cmd_imish);
+  install_element (INTERFACE_NODE, &no_ip_olsr_hello_interval_cmd_imish);
   install_element (CONFIG_NODE, &no_router_rip_cmd_imish);
   install_element (OSPF_NODE, &ospf_max_metric_router_lsa_shutdown_cmd_imish);
   install_element (BGP_NODE, &no_bgp_graceful_restart_cmd_imish);
@@ -18991,6 +19225,7 @@ imish_module_init_cmd ()
   install_element (BGP_NODE, &no_neighbor_local_as_val2_cmd_imish);
   install_element (ENABLE_NODE, &show_bgp_neighbors_cmd_imish);
   install_element (RIP_NODE, &rip_passive_interface_cmd_imish);
+  install_element (VIEW_NODE, &show_ip_olsr_linkset_cmd_imish);
   install_element (RIP_NODE, &rip_offset_list_cmd_imish);
   install_element (ENABLE_NODE, &no_debug_rip_events_cmd_imish);
   install_element (ENABLE_NODE, &show_bgp_ipv6_community3_cmd_imish);
@@ -19088,6 +19323,7 @@ imish_module_init_cmd ()
   install_element (CONFIG_NODE, &ip_route_mask_cmd_imish);
   install_element (CONFIG_NODE, &debug_rip_packet_cmd_imish);
   install_element (CONFIG_NODE, &debug_ospf6_spf_time_cmd_imish);
+  install_element (OLSR_NODE, &no_olsr_rt_update_time_cmd_imish);
   install_element (BGP_IPV4M_NODE, &bgp_network_mask_cmd_imish);
   install_element (BGP_IPV4_NODE, &no_neighbor_maximum_prefix_threshold_restart_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_bgp_view_prefix_cmd_imish);
@@ -19365,6 +19601,7 @@ imish_module_init_cmd ()
   install_element (RESTRICTED_NODE, &show_bgp_instance_ipv6_summary_cmd_imish);
   install_element (ENABLE_NODE, &debug_bgp_keepalive_cmd_imish);
   install_element (VIEW_NODE, &show_ipv6_mbgp_route_cmd_imish);
+  install_element (ENABLE_NODE, &debug_olsr_event_cmd_imish);
   install_element (ENABLE_NODE, &show_ipv6_ospf6_interface_ifname_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_bgp_community_cmd_imish);
   install_element (BGP_IPV6M_NODE, &no_neighbor_activate_cmd_imish);
@@ -19393,6 +19630,7 @@ imish_module_init_cmd ()
   install_element (ISIS_NODE, &metric_style_cmd_imish);
   install_element (OSPF_NODE, &ospf_log_adjacency_changes_cmd_imish);
   install_element (ENABLE_NODE, &show_ipv6_ospf6_database_type_adv_router_cmd_imish);
+  install_element (OLSR_NODE, &olsr_redistribute_cmd_imish);
   install_element (BGP_NODE, &neighbor_attr_unchanged1_cmd_imish);
   install_element (ENABLE_NODE, &clear_bgp_instance_all_soft_in_cmd_imish);
   install_element (VIEW_NODE, &show_ip_extcommunity_list_cmd_imish);
@@ -19539,6 +19777,7 @@ imish_module_init_cmd ()
   install_element (ENABLE_NODE, &no_debug_isis_spfstats_cmd_imish);
   install_element (OSPF6_NODE, &area_export_list_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_bgp_ipv4_cidr_only_cmd_imish);
+  install_element (INTERFACE_NODE, &ip_olsr_mid_interval_cmd_imish);
   install_element (RIP_NODE, &rip_distance_source_cmd_imish);
   install_element (ENABLE_NODE, &clear_bgp_external_out_cmd_imish);
   install_element (VIEW_NODE, &show_interface_cmd_imish);
@@ -19609,6 +19848,7 @@ imish_module_init_cmd ()
   install_element (BGP_IPV6M_NODE, &no_neighbor_maximum_prefix_cmd_imish);
   install_element (BGP_NODE, &no_bgp_redistribute_ipv4_metric_rmap_cmd_imish);
   install_element (ENABLE_NODE, &show_bgp_view_rsclient_route_cmd_imish);
+  install_element (OLSR_NODE, &olsr_network_cmd_imish);
   install_element (BGP_IPV6M_NODE, &no_neighbor_allowas_in_cmd_imish);
   install_element (ENABLE_NODE, &test_pim_receive_hello_cmd_imish);
   install_element (VIEW_NODE, &show_bgp_community2_exact_cmd_imish);
@@ -19683,6 +19923,8 @@ imish_module_init_cmd ()
   install_element (ENABLE_NODE, &show_ip_ospf_neighbor_all_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_bgp_summary_cmd_imish);
   install_element (VIEW_NODE, &show_ipv6_prefix_list_prefix_cmd_imish);
+  install_element (VIEW_NODE, &show_ip_olsr_routes_cmd_imish);
+  install_element (OLSR_NODE, &olsr_rt_update_time_cmd_imish);
   install_element (VIEW_NODE, &show_ip_bgp_view_rsclient_route_cmd_imish);
   install_element (CONFIG_NODE, &no_debug_bgp_fsm_cmd_imish);
   install_element (CONFIG_NODE, &bgp_multiple_instance_cmd_imish);
@@ -19710,6 +19952,7 @@ imish_module_init_cmd ()
   install_element (VIEW_NODE, &show_ipv6_ospf6_cmd_imish);
   install_element (VIEW_NODE, &show_ipv6_ospf6_database_type_cmd_imish);
   install_element (VIEW_NODE, &show_ipv6_ospf6_database_type_id_self_originated_cmd_imish);
+  install_element (OLSR_NODE, &show_ip_olsr_cmd_imish);
   install_element (VIEW_NODE, &show_ip_bgp_flap_prefix_longer_cmd_imish);
   install_element (VIEW_NODE, &show_ip_bgp_ipv4_neighbor_received_prefix_filter_cmd_imish);
   install_element (INTERFACE_NODE, &ip_ospf_authentication_addr_cmd_imish);
@@ -19863,6 +20106,7 @@ imish_module_init_cmd ()
   install_element (BGP_VPNV4_NODE, &neighbor_maximum_prefix_threshold_restart_cmd_imish);
   install_element (CONFIG_NODE, &no_debug_rip_zebra_cmd_imish);
   install_element (BGP_VPNV4_NODE, &neighbor_attr_unchanged8_cmd_imish);
+  install_element (OLSR_NODE, &no_olsr_will_cmd_imish);
   install_element (ENABLE_NODE, &show_bgp_community3_exact_cmd_imish);
   install_element (INTERFACE_NODE, &no_isis_metric_l1_cmd_imish);
   install_element (INTERFACE_NODE, &isis_priority_cmd_imish);
@@ -19937,6 +20181,7 @@ imish_module_init_cmd ()
   install_element (ENABLE_NODE, &show_ip_bgp_community_info_cmd_imish);
   install_element (BGP_NODE, &no_neighbor_attr_unchanged10_cmd_imish);
   install_element (ENABLE_NODE, &no_debug_ospf_event_cmd_imish);
+  install_element (OLSR_NODE, &olsr_will_cmd_imish);
   install_element (RESTRICTED_NODE, &show_ip_bgp_community2_cmd_imish);
   install_element (ENABLE_NODE, &no_debug_isis_snp_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_bgp_community_all_cmd_imish);
@@ -19949,6 +20194,7 @@ imish_module_init_cmd ()
   install_element (RIPNG_NODE, &no_ripng_network_cmd_imish);
   install_element (CONFIG_NODE, &ip_prefix_list_seq_le_cmd_imish);
   install_element (BGP_NODE, &bgp_confederation_peers_cmd_imish);
+  install_element (INTERFACE_NODE, &ip_olsr_tc_interval_cmd_imish);
   install_element (VIEW_NODE, &show_bgp_ipv6_community3_cmd_imish);
   install_element (ENABLE_NODE, &clear_bgp_ipv6_all_rsclient_cmd_imish);
   install_element (ENABLE_NODE, &show_bgp_ipv4_safi_summary_cmd_imish);
@@ -20001,6 +20247,7 @@ imish_module_init_cmd ()
   install_element (ENABLE_NODE, &show_ip_bgp_vpnv4_all_neighbor_advertised_routes_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_ospf_database_type_id_cmd_imish);
   install_element (BGP_NODE, &bgp_bestpath_aspath_multipath_relax_cmd_imish);
+  install_element (CONFIG_NODE, &debug_olsr_event_cmd_imish);
   install_element (CONFIG_NODE, &ospf_dcn_device_cmd_imish);
   install_element (BGP_NODE, &no_bgp_network_mask_natural_backdoor_cmd_imish);
   install_element (CONFIG_NODE, &ip_prefix_list_seq_ge_le_cmd_imish);
@@ -20029,6 +20276,7 @@ imish_module_init_cmd ()
   install_element (ENABLE_NODE, &undebug_igmp_packets_cmd_imish);
   install_element (RIP_NODE, &no_rip_passive_interface_cmd_imish);
   install_element (VIEW_NODE, &show_ipv6_ospf6_database_type_adv_router_linkstate_id_cmd_imish);
+  install_element (ENABLE_NODE, &debug_olsr_packet_all_cmd_imish);
   install_element (CONFIG_NODE, &access_list_standard_nomask_cmd_imish);
   install_element (RIPNG_NODE, &ripng_passive_interface_cmd_imish);
   install_element (ENABLE_NODE, &ipv6_bgp_neighbor_advertised_route_cmd_imish);
@@ -20054,6 +20302,7 @@ imish_module_init_cmd ()
   install_element (OSPF6_NODE, &no_ospf6_redistribute_cmd_imish);
   install_element (BGP_IPV4_NODE, &aggregate_address_mask_as_set_cmd_imish);
   install_element (CONFIG_NODE, &no_router_bgp_view_cmd_imish);
+  install_element (ENABLE_NODE, &no_debug_olsr_packet_all_cmd_imish);
   install_element (BGP_NODE, &no_bgp_default_ipv4_unicast_cmd_imish);
   install_element (VIEW_NODE, &show_bgp_ipv4_safi_summary_cmd_imish);
   install_element (ENABLE_NODE, &debug_rip_events_cmd_imish);
@@ -20078,6 +20327,7 @@ imish_module_init_cmd ()
   install_element (ENABLE_NODE, &clear_ip_bgp_instance_all_ipv4_soft_out_cmd_imish);
   install_element (ENABLE_NODE, &debug_ospf6_zebra_sendrecv_cmd_imish);
   install_element (VIEW_NODE, &show_ipv6_mbgp_summary_cmd_imish);
+  install_element (CONFIG_NODE, &debug_olsr_packet_all_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_bgp_flap_prefix_longer_cmd_imish);
   install_element (BGP_IPV6_NODE, &no_neighbor_maximum_prefix_cmd_imish);
   install_element (RMAP_NODE, &set_origin_cmd_imish);
@@ -20105,6 +20355,7 @@ imish_module_init_cmd ()
   install_element (BGP_IPV6_NODE, &no_neighbor_send_community_cmd_imish);
   install_element (ENABLE_NODE, &show_ipv6_ospf6_database_type_cmd_imish);
   install_element (BGP_NODE, &no_neighbor_peer_group_cmd_imish);
+  install_element (VIEW_NODE, &show_ip_olsr_cmd_imish);
   install_element (VIEW_NODE, &show_bgp_view_ipv6_neighbor_damp_cmd_imish);
   install_element (VIEW_NODE, &show_ip_pim_upstream_rpf_cmd_imish);
   install_element (OSPF_NODE, &ospf_log_adjacency_changes_detail_cmd_imish);
@@ -20355,6 +20606,7 @@ imish_module_init_cmd ()
   install_element (BGP_IPV6_NODE, &no_ipv6_aggregate_address_summary_only_cmd_imish);
   install_element (ENABLE_NODE, &clear_ip_bgp_peer_group_in_prefix_filter_cmd_imish);
   install_element (CONFIG_NODE, &ipv6_access_list_any_cmd_imish);
+  install_element (ENABLE_NODE, &show_ip_olsr_cmd_imish);
   install_element (RESTRICTED_NODE, &show_bgp_neighbors_peer_cmd_imish);
   install_element (BGP_VPNV4_NODE, &vpnv4_network_cmd_imish);
   install_element (VIEW_NODE, &show_bgp_ipv6_safi_prefix_cmd_imish);
@@ -20417,6 +20669,7 @@ imish_module_init_cmd ()
   install_element (ENABLE_NODE, &no_debug_isis_err_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_route_cmd_imish);
   install_element (INTERFACE_NODE, &interface_ip_igmp_query_max_response_time_cmd_imish);
+  install_element (ENABLE_NODE, &show_ip_olsr_topset_cmd_imish);
   install_element (ENABLE_NODE, &no_debug_ospf_packet_send_recv_cmd_imish);
   install_element (RIP_NODE, &no_rip_distance_source_access_list_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_mroute_cmd_imish);
@@ -20539,9 +20792,11 @@ imish_module_init_cmd ()
   install_element (BGP_NODE, &no_aggregate_address_as_set_cmd_imish);
   install_element (CONFIG_NODE, &no_ipv6_access_list_exact_cmd_imish);
   install_element (BGP_IPV4_NODE, &no_neighbor_send_community_cmd_imish);
+  install_element (ENABLE_NODE, &show_ip_olsr_linkset_cmd_imish);
   install_element (ENABLE_NODE, &show_ipv6_bgp_prefix_longer_cmd_imish);
   install_element (ENABLE_NODE, &clear_ip_bgp_external_ipv4_in_cmd_imish);
   install_element (OSPF_NODE, &ospf_network_area_cmd_imish);
+  install_element (ENABLE_NODE, &show_ip_olsr_hop2_cmd_imish);
   install_element (ENABLE_NODE, &ipv6_mbgp_neighbor_received_routes_cmd_imish);
   install_element (ENABLE_NODE, &debug_pim_packetdump_recv_cmd_imish);
   install_element (KEYCHAIN_KEY_NODE, &no_key_chain_cmd_imish);
@@ -20609,6 +20864,7 @@ imish_module_init_cmd ()
   install_element (ENABLE_NODE, &clear_ip_bgp_all_ipv4_soft_in_cmd_imish);
   install_element (INTERFACE_NODE, &ipv6_ospf6_advertise_prefix_list_cmd_imish);
   install_element (RMAP_NODE, &no_match_metric_cmd_imish);
+  install_element (OLSR_NODE, &no_olsr_redistribute_cmd_imish);
   install_element (CONFIG_NODE, &no_key_chain_cmd_imish);
   install_element (ENABLE_NODE, &show_ip_bgp_flap_route_map_cmd_imish);
   install_element (BGP_NODE, &neighbor_remote_as_cmd_imish);

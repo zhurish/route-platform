@@ -21,29 +21,16 @@
 #include "privs.h"
 #include "sigevent.h"
 
-#include "zebra/ioctl.h"
-#include "zebra/connected.h"
-#include "zebra/interface.h"
 
-#ifdef HAVE_VPND_TUNNEL
+#include "system-utils/utils.h"
 
-#define VPND_DEBUG
-#ifdef VPND_DEBUG
-#define VPND_DEBUG_PRINTF(format, args...)	\
-	fprintf(stderr, "%s:",__func__); \
-	fprintf(stderr, format, ##args); \
-	fprintf(stderr, "\n");
-#else
-#define VPND_DEBUG_PRINTF(format, args...)
-#endif
+#ifdef HAVE_UTILS_TUNNEL
+
+
 
 /**************************************************************/
-extern struct thread_master *master;
-//extern struct zebra_privs_t vpn_privs;
-//extern struct zebra_privs_t zserv_privs;
-//extern int if_ioctl (u_long request, caddr_t buffer);
 /**************************************************************/
-#define TUNNEL_TABLE_MAX	32
+
 /* mode */
 #define TUNNEL_GRE	1
 #define TUNNEL_IPIP	2
@@ -53,8 +40,6 @@ extern struct thread_master *master;
 #define TUNNEL_SETUP	1
 #define TUNNEL_ACTIVE	2
 
-#define TUNNEL_MTU_DEFAULT	1476
-#define TUNNEL_TTL_DEFAULT	255
 /**************************************************************/
 /**************************************************************/
 struct ip_tunnel_table
@@ -69,9 +54,9 @@ struct ip_tunnel_table
     int active;
 };
 
-struct ip_tunnel_table ip_tun_table[TUNNEL_TABLE_MAX];
+static struct ip_tunnel_table ip_tun_table[TUNNEL_TABLE_MAX];
 /**************************************************************/
-const char * ip_tun_mode_str[] =
+static const char * ip_tun_mode_str[] =
 {
 		"mode unknow",
 		"mode gre",
@@ -82,8 +67,7 @@ const char * ip_tun_mode_str[] =
 };
 /**************************************************************/
 /* call ioctl system call */
-int
-if_ioctl (u_long request, caddr_t buffer)
+static int if_ioctl (u_long request, caddr_t buffer)
 {
   int sock;
   int ret;
@@ -128,20 +112,6 @@ static int if_get_ifindex (struct interface *ifp)
   return CMD_SUCCESS;
 }
 /**************************************************************/
-static int super_system(const char *cmd)
-{
-	int ret = 0;
-	errno = 0;
-	//if ( vpn_privs.change (ZPRIVS_RAISE) )
-	//	zlog_err ("%s: could not raise privs, %s",__func__,safe_strerror (errno) );
-
-	ret = system(cmd);
-
-	//if ( vpn_privs.change (ZPRIVS_LOWER) )
-	//	zlog_err ("%s: could not lower privs, %s",__func__,safe_strerror (errno) );
-	VPND_DEBUG_PRINTF ("%s %s",cmd, safe_strerror (errno) );
-	return ret;
-}
 /**************************************************************/
 static int ip_tunnel_setting(struct interface *ifp, int type, struct ip_tunnel_table *table)
 {
@@ -158,7 +128,7 @@ static int ip_tunnel_setting(struct interface *ifp, int type, struct ip_tunnel_t
 		if(type)
 		{
 			//ip tunnel add tunnel2 mode gre remote 192.168.1.130 local 192.168.1.19 ttl 250
-			VPND_DEBUG_PRINTF ("add tunnel%d",table->index);
+			UTILS_DEBUG_LOG ("add tunnel%d",table->index);
 			memset(src, 0, sizeof(src));
 			memset(dest, 0, sizeof(dest));
 			memset(cmd, 0, sizeof(cmd));
@@ -187,7 +157,7 @@ static int ip_tunnel_setting(struct interface *ifp, int type, struct ip_tunnel_t
 				table->active = 0;
 				return CMD_SUCCESS;
 			}
-			VPND_DEBUG_PRINTF ("del tunnel%d",table->index);
+			UTILS_DEBUG_LOG ("del tunnel%d",table->index);
 			memset(cmd, 0, sizeof(cmd));
 			sprintf(cmd, "ip link set dev tunnel%d down",table->index);
 			super_system(cmd);
@@ -304,7 +274,7 @@ static int ip_tunnel_address(int index, char *src, char *dest)
 	{
 		if(ip_tun_table[i].active = TUNNEL_SETUP && ip_tun_table[i].index == index)
 		{
-			VPND_DEBUG_PRINTF ("setting tunnel%d address",ip_tun_table[i].index);
+			UTILS_DEBUG_LOG ("setting tunnel%d address",ip_tun_table[i].index);
 			if(src)
 			{
 				if(ip_tun_table[i].active == TUNNEL_ACTIVE)
@@ -340,7 +310,7 @@ static int ip_tunnel_mtu_ttl(int index, int mtu, int ttl)
 		{
 			if(mtu)
 			{
-				VPND_DEBUG_PRINTF ("setting tunnel%d mtu",ip_tun_table[i].index);
+				UTILS_DEBUG_LOG ("setting tunnel%d mtu",ip_tun_table[i].index);
 				if( ip_tun_table[i].active == TUNNEL_ACTIVE &&
 					ip_tun_table[i].mtu != 0 &&
 					ip_tun_table[i].mtu != mtu)
@@ -359,7 +329,7 @@ static int ip_tunnel_mtu_ttl(int index, int mtu, int ttl)
 			}
 			if(ttl)
 			{
-				VPND_DEBUG_PRINTF ("setting tunnel%d ttl",ip_tun_table[i].index);
+				UTILS_DEBUG_LOG ("setting tunnel%d ttl",ip_tun_table[i].index);
 				if( ip_tun_table[i].active == TUNNEL_ACTIVE &&
 					ip_tun_table[i].ttl != 0 &&
 					ip_tun_table[i].ttl != ttl)
@@ -388,7 +358,7 @@ static int ip_tunnel_update(struct interface *ifp, int index)
 	{
 		if( ip_tun_table[i].index == index )
 		{
-			VPND_DEBUG_PRINTF ("update tunnel%d",ip_tun_table[i].index);
+			UTILS_DEBUG_LOG ("update tunnel%d",ip_tun_table[i].index);
 			if(ip_tun_table[i].active == TUNNEL_ACTIVE)
 				ip_tunnel_setting(NULL, 0, &ip_tun_table[i]);
 			if(ip_tun_table[i].active == TUNNEL_SETUP)
@@ -435,7 +405,7 @@ static int ip_tunnel_active_setting(struct interface *ifp, int index)
 			ip_tun_table[i].local.s_addr &&
 			ip_tun_table[i].remote.s_addr)
 		{
-			VPND_DEBUG_PRINTF ("active setting tunnel%d mtu",ip_tun_table[i].index);
+			UTILS_DEBUG_LOG ("active setting tunnel%d mtu",ip_tun_table[i].index);
 			//if(ip_tun_table[i].active != TUNNEL_ACTIVE)
 			if(ip_tun_table[i].active == TUNNEL_SETUP)
 				return ip_tunnel_setting(ifp, 1, &ip_tun_table[i]);
@@ -787,6 +757,7 @@ static int tunnel_interface_config_write (struct vty *vty)
     }
   return 0;
 }
+#ifdef TUNNEL_DEBUG
 DEFUN (show_interface_tunnel,
 		show_interface_tunnel_cmd,
 	    "show interface tunnel",
@@ -842,20 +813,21 @@ DEFUN (test_interface_tunnel,
 	  ip_tunnel_active_setting(ifp,  index);
 	  return CMD_SUCCESS;
 }
-
-struct cmd_node interface_node =
+#endif
+static struct cmd_node interface_node =
 {
   INTERFACE_NODE,
   "%s(config-if)# ",
   1,
 };
 
-int ip_tunnel_if_init (void)
+int ip_tunnel_cmd_init (void)
 {
 	int i =0;
 	if_init();
 	//if_add_hook (IF_NEW_HOOK, rip_interface_new_hook);
 	//if_add_hook (IF_DELETE_HOOK, rip_interface_delete_hook);
+
 	memset(ip_tun_table, 0, sizeof(ip_tun_table));
 	for(i = 0; i < TUNNEL_TABLE_MAX; i++)
 	{
@@ -865,10 +837,12 @@ int ip_tunnel_if_init (void)
 	install_node (&interface_node, tunnel_interface_config_write);
 	install_default (INTERFACE_NODE);
 
+#ifdef TUNNEL_DEBUG
 	install_element (ENABLE_NODE, &show_interface_tunnel_cmd);
+	install_element (INTERFACE_NODE, &test_interface_tunnel_cmd);
+#endif
 	install_element (CONFIG_NODE, &interface_cmd);
 	install_element (CONFIG_NODE, &no_interface_cmd);
-	install_default (INTERFACE_NODE);
 	install_element (INTERFACE_NODE, &interface_desc_cmd);
 	install_element (INTERFACE_NODE, &no_interface_desc_cmd);
 
@@ -881,7 +855,5 @@ int ip_tunnel_if_init (void)
 	install_element (INTERFACE_NODE, &no_ip_tunnel_ttl_cmd);
 	install_element (INTERFACE_NODE, &ip_tunnel_mtu_cmd);
 	install_element (INTERFACE_NODE, &no_ip_tunnel_mtu_cmd);
-
-	install_element (INTERFACE_NODE, &test_interface_tunnel_cmd);
 }
-#endif /* HAVE_VPND_TUNNEL */
+#endif /* HAVE_UTILS_TUNNEL */
