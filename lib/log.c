@@ -58,6 +58,10 @@ const char *zlog_proto_names[] =
   "HSLS",
   "ICRP",
   "FRP",
+  "LDP",
+  "RSVP",
+  "LLDP",
+  "MPLS",
 #endif /* HAVE_EXPAND_ROUTE_PLATFORM */
 /* 2016年6月27日 21:05:11  zhurish: 扩展路由协议后定义LOG信息节点 */
 /* 2016年6月27日 21:05:43 zhurish: 使能IMI Module模块后定义IMI Module单元的LOG信息节点 */

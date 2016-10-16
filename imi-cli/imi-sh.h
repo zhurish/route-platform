@@ -38,6 +38,7 @@
 #define IMISH_OLSRD   0x200
 #define IMISH_HSLSD   0x400
 #define IMISH_FRPD   0x800
+#define IMISH_VPND   0x1000
 #define IMISH_NSMD  IMISH_ZEBRA
 
 
@@ -57,7 +58,7 @@ extern void imish_module_init (void);
 extern void imish_module_exit (void);
 extern int imish_module_connect_all (const char *optional_daemon_name);
 extern int imish_module_client_put (struct vty *vty, const char *buf, int out);
-//Ö´ÐÐÄ³¸ö¿Í»§¶ËÂ·ÓÉµÄÃüÁî
+//Ö´ï¿½ï¿½Ä³ï¿½ï¿½ï¿½Í»ï¿½ï¿½ï¿½Â·ï¿½Éµï¿½ï¿½ï¿½ï¿½ï¿½
 extern int imish_module_execute (struct vty *vty, const char *line, int out);
 extern int imish_module_client_execute(int client, const char *cmd, struct vty *vty, int out);
 //imi-sh_config.c
@@ -66,7 +67,7 @@ extern void imish_module_config_exit (void);
 extern void imish_module_config_parse (char *);
 extern void imish_module_config_format (const char *format, ...);
 extern void imish_module_config_show (struct vty *vty);
-extern int imish_read_config (char *config_default);//¶ÁÈ¡ÅäÖÃÎÄ¼þ²¢Ö´ÐÐÃüÁî
+extern int imish_read_config (char *config_default);//ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //imi-sh_cmd.c
 extern void imish_module_init_cmd (void);
 

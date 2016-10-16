@@ -62,8 +62,10 @@ struct imish_client
   { .fd = -1, .name = "pimd", 	.flag = IMISH_PIMD, .path = PIM_VTYSH_PATH, .pid_path = PATH_PIMD_PID, .pid = 0},
 /* 2016年7月2日 22:04:29  zhurish: 扩展路由协议后增加链接到路由协议客户端的定义  */
 #ifdef HAVE_EXPAND_ROUTE_PLATFORM    
+#ifdef OLSR_VTYSH_PATH
   { .fd = -1, .name = "olsrd", .flag = IMISH_OLSRD, .path = OLSR_VTYSH_PATH, .pid_path = PATH_OLSRD_PID, .pid = 0},  
-#endif /* HAVE_EXPAND_ROUTE_PLATFORM */   
+#endif
+  #endif /* HAVE_EXPAND_ROUTE_PLATFORM */
 /* 2016年7月2日 22:04:29  zhurish: 扩展路由协议后增加链接到路由协议客户端的定义  */
 };
 
@@ -998,6 +1000,14 @@ static int imish_exit (struct vty *vty)
     case OLSR_NODE:			/* OLSR protocol node. */
     case ICRP_NODE:		/* ICRP protocol node. */
     case FRP_NODE:                /* FRP protocol node */
+
+    case LDP_NODE:
+    case LDP_IF_NODE:
+    case RSVP_NODE:
+    case LLDP_NODE:
+    case MPLS_NODE:
+    //case IP_EXPLICIT_PATH_NODE:
+    //case INTERFACE_TUNNEL_NODE:
 #endif /* HAVE_EXPAND_ROUTE_PLATFORM */
       //imish_execute(vty,"end");
       //imish_execute(vty,"configure terminal");

@@ -4611,6 +4611,13 @@ DEFSH (0|0|0|0, ip_prefix_list_description_cmd_vtysh,
        "Prefix-list specific description\n"
        "Up to 80 characters describing this prefix-list\n")
 
+DEFSH (0, show_ip_ospf_dcn_mac_table_cmd_vtysh, 
+       "show ip ospf dcn-mac-table", 
+       "Show running system information\n"
+       "IP information\n"
+       "OSPF interface commands\n"
+       "DNC mac table\n")
+
 DEFSH (0, show_ipv6_bgp_cmd_vtysh, 
        "show ipv6 bgp", 
        "Show running system information\n"
@@ -20119,6 +20126,7 @@ test_init_cmd ()
   install_element (BGP_IPV4M_NODE, &bgp_network_mask_route_map_cmd_vtysh);
   install_element (VIEW_NODE, &show_ipv6_ospf6_interface_ifname_cmd_vtysh);
   install_element (ENABLE_NODE, &show_ip_bgp_attr_info_cmd_vtysh);
+  install_element (ENABLE_NODE, &show_ip_ospf_dcn_mac_table_cmd_vtysh);
   install_element (BGP_IPV4M_NODE, &neighbor_maximum_prefix_threshold_warning_cmd_vtysh);
   install_element (VIEW_NODE, &show_ip_bgp_ipv4_neighbors_cmd_vtysh);
   install_element (ENABLE_NODE, &show_ip_bgp_neighbor_routes_cmd_vtysh);
@@ -20669,6 +20677,7 @@ test_init_cmd ()
   install_element (OSPF_NODE, &no_ospf_distribute_list_out_cmd_vtysh);
   install_element (RMAP_NODE, &rmap_continue_cmd_vtysh);
   install_element (BGP_NODE, &no_bgp_maxpaths_ibgp_arg_cmd_vtysh);
+  install_element (VIEW_NODE, &show_ip_ospf_dcn_mac_table_cmd_vtysh);
   install_element (CONFIG_NODE, &ip_ssmpingd_cmd_vtysh);
   install_element (VIEW_NODE, &show_bgp_view_ipv6_route_cmd_vtysh);
   install_element (ENABLE_NODE, &show_ip_pim_upstream_cmd_vtysh);

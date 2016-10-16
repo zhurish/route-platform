@@ -292,6 +292,16 @@ AC_ARG_ENABLE(icrpd,
   AS_HELP_STRING([--disable-icrpd], [do not build icrpd]))
 AC_ARG_ENABLE(aodvd,
   AS_HELP_STRING([--disable-aodvd], [do not build aodvd])) 
+AC_ARG_ENABLE(ldpd,
+  AS_HELP_STRING([--disable-ldpd], [do not build ldpd]))   
+AC_ARG_ENABLE(rsvpd,
+  AS_HELP_STRING([--disable-rsvpd], [do not build rsvpd]))  
+AC_ARG_ENABLE(lldpd,
+  AS_HELP_STRING([--disable-lldpd], [do not build lldpd])) 
+AC_ARG_ENABLE(mplsd,
+  AS_HELP_STRING([--disable-mplsd], [do not build mplsd]))  
+AC_ARG_ENABLE(vpnd,
+  AS_HELP_STRING([--disable-vpnd], [build vpnd]))       
 dnl ------------------------------ zhurish
 
 if test x"${enable_gcc_ultra_verbose}" = x"yes" ; then
@@ -1575,7 +1585,7 @@ AM_CONDITIONAL(IMISHD, test "x$IMISHD" = "ximi-cli")
 if test "${enable_olsrd}" = "yes";then
   OLSRD="olsrd"
   AC_DEFINE_UNQUOTED(PATH_OLSRD_PID, "$quagga_statedir/olsrd.pid",olsrd PID)
-	AC_DEFINE_UNQUOTED(OLSR_VTYSH_PATH, "$quagga_statedir/olsrd.vty",olsrd vty socket)  
+  AC_DEFINE_UNQUOTED(OLSR_VTYSH_PATH, "$quagga_statedir/olsrd.vty",olsrd vty socket)  
 else
   OLSRD=""
 fi
@@ -1625,9 +1635,68 @@ else
 fi
 AM_CONDITIONAL(FPMD, test "x$FPMD" = "xfpm")
 
+if test "${enable_ldpd}" = "yes"; then
+  LDPD="ldpd"
+  	AC_DEFINE_UNQUOTED(PATH_LDPD_PID, "$quagga_statedir/ldpd.pid",ldpd PID)
+	AC_DEFINE_UNQUOTED(LDP_VTYSH_PATH, "$quagga_statedir/ldpd.vty",ldpd vty socket) 
+else
+  LDPD=""
+fi
+AM_CONDITIONAL(LDPD, test "x$LDPD" = "xldpd")
+
+if test "${enable_rsvpd}" = "yes"; then
+  RSVPD="rsvpd"
+  	AC_DEFINE_UNQUOTED(PATH_RSVPD_PID, "$quagga_statedir/rsvpd.pid",rsvpd PID)
+	AC_DEFINE_UNQUOTED(RSVP_VTYSH_PATH, "$quagga_statedir/rsvpd.vty",rsvpd vty socket) 
+else
+  RSVPD=""
+fi
+AM_CONDITIONAL(RSVPD, test "x$RSVPD" = "xrsvpd")
+
+if test "${enable_lldpd}" = "yes"; then
+  LLDPD="lldpd"
+  	AC_DEFINE_UNQUOTED(PATH_LLDPD_PID, "$quagga_statedir/lldpd.pid",lldpd PID)
+	AC_DEFINE_UNQUOTED(LLDP_VTYSH_PATH, "$quagga_statedir/lldpd.vty",lldpd vty socket) 
+else
+  LLDPD=""
+fi
+AM_CONDITIONAL(LLDPD, test "x$LLDPD" = "xlldpd")
+
+if test "${enable_mplsd}" = "yes"; then
+  MPLSD="mplsd"
+  	AC_DEFINE_UNQUOTED(PATH_MPLSD_PID, "$quagga_statedir/mplsd.pid",mplsd PID)
+	AC_DEFINE_UNQUOTED(MPLS_VTYSH_PATH, "$quagga_statedir/mplsd.vty",mplsd vty socket) 
+else
+  MPLSD=""
+fi
+AM_CONDITIONAL(MPLSD, test "x$MPLSD" = "xmplsd")
+
+if test "${enable_vpnd}" = "yes"; then
+	VPND="vpnd"	
+	L2TPD="vpnd/l2tp"	
+	dnl if grep IPPROTO_IPIP /usr/include/linux/in.h >/dev/null 2>&1; then
+	dnl 	AC_DEFINE(HAVE_VPND_IPIP, 1, interfaces statistics in proc)
+	dnl fi
+	dnl if grep IPPROTO_GRE /usr/include/linux/in.h >/dev/null 2>&1; then
+	dnl 	AC_DEFINE(HAVE_VPND_IP_GRE, 1, interfaces statistics in proc)
+	dnl fi	
+	AC_DEFINE(HAVE_VPND_TUNNEL, 1, Enable Tunnel Support)
+  	AC_DEFINE_UNQUOTED(PATH_VPND_PID, "$quagga_statedir/vpnd.pid",vpnd PID)
+	AC_DEFINE_UNQUOTED(VPN_VTYSH_PATH, "$quagga_statedir/vpnd.vty",vpnd vty socket)
+else  
+	VPND=""	
+	L2TPD=""		
+fi
+AM_CONDITIONAL(VPND, test "x$VPND" = "xvpnd")
+AM_CONDITIONAL(L2TPD, test "x$L2TPD" = "xvpnd")
+dnl AM_CONDITIONAL([HAVE_TUNNEL], [test "x$enable_vpnd" = "xyes"])
+AM_CONDITIONAL([HAVE_VPND_TUNNEL], [test "x$enable_vpnd" = "xyes"])
+
 if test "${enable_olsrd}" = "yes" || test "${enable_frpd}" = "yes" || 
 	test "${enable_icrpd}" = "yes" || test "${enable_aodvd}" = "yes" || 
-	test "${enable_vrrpd}" = "yes"; then
+	test "${enable_vrrpd}" = "yes" || test "${enable_ldpd}" = "yes" ||
+	test "${enable_rsvpd}" = "yes" || test "${enable_lldpd}" = "yes" ||
+	test "${enable_mplsd}" = "yes" ; then
 	
   AC_DEFINE(HAVE_EXPAND_ROUTE_PLATFORM,1,Expand routing protocol Platform :enable other route protocol)
 fi
@@ -1635,10 +1704,16 @@ fi
 AC_SUBST(OLSRD)
 AC_SUBST(FRPD)
 AC_SUBST(ICRPD)
-AC_SUBST(AODVD)
+AC_SUBST(AODVD) 
 AC_SUBST(VRRPD)
 AC_SUBST(IMISHD)
 AC_SUBST(FPMD)
+AC_SUBST(LDPD) 
+AC_SUBST(RSVPD) 
+AC_SUBST(LLDPD) 
+AC_SUBST(MPLSD) 
+AC_SUBST(VPND)
+AC_SUBST(L2TPD)
 
 if test "${enable_imi}" != ""; then
 	if test -d $quagga_statedir; then
@@ -1658,7 +1733,7 @@ if test "${enable_imi}" != ""; then
 	AC_DEFINE_UNQUOTED(HOST_DEFAULT_OEM_FILE, "${prefix}/etc/oem.bin",  default oem file)
 	
 	AC_DEFINE_UNQUOTED(OEM_PACKAGE_AUTHER, "zhurish",  this OEM auther name)
-	AC_DEFINE_UNQUOTED(OEM_PACKAGE_BUGREPORT, "zhurish163@com",   Define to the address where bug reports for this OEM package should be sent.)	
+	AC_DEFINE_UNQUOTED(OEM_PACKAGE_BUGREPORT, "zhurish@163.com",   Define to the address where bug reports for this OEM package should be sent.)	
 	AC_DEFINE_UNQUOTED(OEM_PACKAGE_NAME, "routing-plaform",    Name of OEM package)	
 	
 	AC_DEFINE_UNQUOTED(OEM_PACKAGE_VERSION, "V0.0.0.9",    Define to the version of this OEM package.)	
@@ -1703,8 +1778,8 @@ AC_CONFIG_FILES([Makefile lib/Makefile zebra/Makefile ripd/Makefile
 	  ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile
 	  ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile
 	  doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile
-	  pimd/Makefile fpm/Makefile imi-cli/Makefile
-	  tests/bgpd.tests/Makefile
+	  pimd/Makefile fpm/Makefile ldpd/Makefile rsvpd/Makefile imi-cli/Makefile
+	  tests/bgpd.tests/Makefile vpnd/Makefile vpnd/l2tp/Makefile
 	  tests/libzebra.tests/Makefile
 	  redhat/Makefile
 	  pkgsrc/Makefile

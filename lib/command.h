@@ -32,7 +32,6 @@ struct host
 {
   /* Host name of this router. */
   char *name;
-
   /* Password for vty interface. */
   char *password;
   char *password_encrypt;
@@ -62,6 +61,11 @@ struct host
 /* There are some command levels which called from command node. */
 enum node_type 
 {
+	/* 2016年6月27日 21:01:23 zhurish: 使能IMI Module统一CLI管理界面的时候增加执行linux内核单元的命令节点 */
+#ifdef IMISH_IMI_MODULE
+  USER_NODE,			/* Authentication mode of vty interface. */
+#endif//IMISH_IMI_MODULE
+	/* 2016年6月27日 21:01:23  zhurish: 使能IMI Module统一CLI管理界面的时候增加执行linux内核单元的命令节点 */
   AUTH_NODE,			/* Authentication mode of vty interface. */
   RESTRICTED_NODE,		/* Restricted view mode */ 
   VIEW_NODE,			/* View node. Default mode of vty interface. */
@@ -100,6 +104,15 @@ enum node_type
   OLSR_NODE,			/* OLSR protocol node. */
   ICRP_NODE,		/* ICRP protocol node. */
   FRP_NODE,                /* FRP protocol node */
+
+  LDP_NODE,
+  LDP_IF_NODE,
+
+  RSVP_NODE,
+  LLDP_NODE,
+  MPLS_NODE,
+
+  //IP_EXPLICIT_PATH_NODE,
 #endif//#ifdef HAVE_EXPAND_ROUTE_PLATFORM
 /* 2016年6月27日 21:02:05  zhurish: 扩展路由协议增加命令节点 */
   MASC_NODE,			/* MASC for multicast.  */

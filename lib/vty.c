@@ -352,6 +352,13 @@ vty_auth (struct vty *vty, char *buf)
 
   switch (vty->node)
     {
+#ifdef IMISH_IMI_MODULE
+  case USER_NODE:
+	  //vty_out (vty, ":%s%s", buf,VTY_NEWLINE);
+      //if (host.username)
+	  vty->node = AUTH_NODE;
+      return;
+#endif//IMISH_IMI_MODULE
     case AUTH_NODE:
       if (host.encrypt)
 	passwd = host.password_encrypt;
@@ -527,7 +534,6 @@ vty_self_insert_overwrite (struct vty *vty, char c)
 
   if ((vty->node == AUTH_NODE) || (vty->node == AUTH_ENABLE_NODE))
     return;
-
   vty_write (vty, &c, 1);
 }
 
@@ -735,6 +741,14 @@ vty_end_config (struct vty *vty)
     case OLSR_NODE:			/* OLSR protocol node. */
     case ICRP_NODE:		/* ICRP protocol node. */
     case FRP_NODE:                /* FRP protocol node */
+
+    case LDP_NODE:
+    case LDP_IF_NODE:
+    case RSVP_NODE:
+    case LLDP_NODE:
+    case MPLS_NODE:
+    //case IP_EXPLICIT_PATH_NODE:
+    //case INTERFACE_TUNNEL_NODE:
 #endif /* HAVE_EXPAND_ROUTE_PLATFORM */     	
 /* 2016年7月2日 21:59:15  zhurish: 扩展路由协议后增加命令节点操作 */
       vty_config_unlock (vty);
@@ -885,7 +899,10 @@ vty_complete_command (struct vty *vty)
 
   if (vty->node == AUTH_NODE || vty->node == AUTH_ENABLE_NODE)
     return;
-
+#ifdef IMISH_IMI_MODULE
+  if (vty->node == USER_NODE )
+    return;
+#endif//IMISH_IMI_MODULE
   vline = cmd_make_strvec (vty->buf);
   if (vline == NULL)
     return;
@@ -1148,6 +1165,14 @@ vty_stop_input (struct vty *vty)
     case OLSR_NODE:			/* OLSR protocol node. */
     case ICRP_NODE:		/* ICRP protocol node. */
     case FRP_NODE:                /* FRP protocol node */
+
+    case LDP_NODE:
+    case LDP_IF_NODE:
+    case RSVP_NODE:
+    case LLDP_NODE:
+    case MPLS_NODE:
+    //case IP_EXPLICIT_PATH_NODE:
+    //case INTERFACE_TUNNEL_NODE:
 #endif /* HAVE_EXPAND_ROUTE_PLATFORM */     	
 /* 2016年7月2日 21:59:32  zhurish: 扩展路由协议后增加命令节点操作 */
       vty_config_unlock (vty);
@@ -1311,6 +1336,9 @@ vty_execute (struct vty *vty)
 
   switch (vty->node)
     {
+#ifdef IMISH_IMI_MODULE
+  case USER_NODE:
+#endif//IMISH_IMI_MODULE
     case AUTH_NODE:
     case AUTH_ENABLE_NODE:
       vty_auth (vty, vty->buf);
@@ -1679,6 +1707,9 @@ vty_create (int vty_sock, union sockunion *su)
     }
   else
     vty->node = AUTH_NODE;
+#ifdef IMISH_IMI_MODULE
+  vty->node = USER_NODE;
+#endif//IMISH_IMI_MODULE
   vty->fail = 0;
   vty->cp = 0;
   vty_clear_buf (vty);

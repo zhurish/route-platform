@@ -301,6 +301,65 @@ struct memory_list memory_list_olsr[] =
 }; 
 #endif
 /* 2016年6月27日 21:07:44  zhurish: 扩展路由协议增加的内存信息 */
+#ifdef ZEBRA_ROUTE_RSVP
+struct memory_list memory_list_rsvp[] =
+{
+  /* RSVP-TE Related Memory Types */
+  { MTYPE_RSVP_TOP,		"RSVP top"		},
+  { MTYPE_RSVP_IP_HOP,		"RSVP ip top"		},
+  { MTYPE_RSVP_IP_PATH,		"RSVP ip path"		},
+  { MTYPE_RSVP_IF,		"RSVP if"		},
+  { MTYPE_RSVP_TUNNEL_IF,	"RSVP tunnel if"	},
+  { MTYPE_RSVP_TUNNEL_IF_PATH_OPTION,	"RSVP tunnel if path option"},
+  { MTYPE_RSVP_LSP,		"RSVP lsp"		},
+  { MTYPE_RSVP_PACKET,		"RSVP packet"		},
+  { MTYPE_RSVP_PACKET_FIFO,		"RSVP packet info"},
+  { MTYPE_RSVP_ROUTE_INFO,		"RSVP route info"},
+  { MTYPE_RSVP_SENDER_HASH_ENTRY,"RSVP psb ipv4 sender hash entry"},
+  { MTYPE_RSVP_PSB_IPV4_SENDER_HASH_ENTRY,"RSVP psb ipv4 sender hash entry"},
+#ifdef HAVE_IPV6
+  { MTYPE_RSVP_PSB_IPV6_SENDER_HASH_ENTRY,"RSVP psb ipv6 sender hash entry"},
+#endif /* HAVE_IPV6 */
+  { MTYPE_RSVP_PSB_SESSION_AVL_ENTRY,	"RSVP psb session avl entry"},
+  { MTYPE_RSVP_PSB,		"RSVP psb",	},
+  { MTYPE_RSVP_RSB,		"RSVP rsb",	},
+  { MTYPE_RSVP_DETOUR_ELEMENT_INFO_IPV4,"RSVP detour element info ipv4"},
+#ifdef HAVE_IPV6
+  { MTYPE_RSVP_DETOUR_ELEMENT_INFO_IPV6,"RSVP detour element info ipv6"},
+#endif /* HAVE_IPV6 */
+  { MTYPE_LABEL_MAP,		"RSVP label map"},
+  { MTYPE_MPLS_XC,		"RSVP mpls xc"},
+  { MTYPE_MPLS_XC_ILM,		"RSVP mpls xc ilm"},
+  { MTYPE_MPLS_XC_NHLFE,	"RSVP mpls xc nhlfe"},
+  { MTYPE_MPLS_XC_REQ,		"RSVP mpls xc req"},
+  { MTYPE_DESC,		"Desc"},
+  { -1, NULL },
+};
+#endif
+#ifdef ZEBRA_ROUTE_LDP
+struct memory_list memory_list_ldp[] =
+{
+  /* LDP Related Memory Types */
+  { MTYPE_LDP,			"LDP"				},
+  { MTYPE_LDP_TOP,		"LDP top"			},
+  { MTYPE_LDP_IF_INFO,		"LDP interface information"	},
+  { MTYPE_LDP_ROUTE_INFO,	"LDP route information"		},
+  { MTYPE_LDP_HELLOADJ,		"LDP hello adj information"	},
+  { MTYPE_LDP_HELLOMGR,		"LDP hello mgr information"	},
+  { MTYPE_LDP_PEER,		"LDP perr information"		},
+  { MTYPE_LDP_PEER_HASH_IFINDEX_ENTRY,	"LDP peer hash ifindex entry"},
+  { MTYPE_LDP_FECUNION,			"LDP fecunion"	},
+  { MTYPE_LDP_LIB,			"LDP lib"	},
+  { MTYPE_LDP_LABEL,			"LDP label"	},
+  { MTYPE_LDP_LABEL_MAP_ENTRY,		"LDP label map entry"	},
+  { MTYPE_LDP_PACKET,			"LDP packet"		},
+  { MTYPE_LDP_PACKET_FIFO,		"LDP packet info"	},
+  { MTYPE_LDP_ADDR,			"LDP addr"		},
+  { MTYPE_LDP_FEC_RT,			"LDP fec rt"		},
+  { MTYPE_LDP_PEER_LABEL_DB,		"LDP peer label db"	},
+  { -1, NULL },
+};
+#endif
 struct mlist mlists[] __attribute__ ((unused)) = {
   { memory_list_lib,	"LIB"	},
   { memory_list_zebra,	"ZEBRA"	},
@@ -316,5 +375,12 @@ struct mlist mlists[] __attribute__ ((unused)) = {
   { memory_list_olsr,	"OLSR"	},
 #endif  
 /* 2016年6月27日 21:07:44 zhurish: 扩展路由协议增加的内存信息 */
+
+#ifdef ZEBRA_ROUTE_LDP 
+  { memory_list_ldp,	"LDP"	},
+#endif 
+#ifdef ZEBRA_ROUTE_RSVP
+  { memory_list_rsvp,	"RSVP"	},
+#endif
   { NULL, NULL},
 };

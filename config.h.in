@@ -601,6 +601,9 @@
 /* Define to 1 if the system has the type `vifi_t'. */
 #undef HAVE_VIFI_T
 
+/* Enable Tunnel Support */
+#undef HAVE_VPND_TUNNEL
+
 /* Define to 1 if you have the `vprintf' function. */
 #undef HAVE_VPRINTF
 
@@ -649,8 +652,14 @@
 /* KAME IPv6 */
 #undef KAME
 
+/* ldpd vty socket */
+#undef LDP_VTYSH_PATH
+
 /* Linux IPv6 stack */
 #undef LINUX_IPV6
+
+/* lldpd vty socket */
+#undef LLDP_VTYSH_PATH
 
 /* Mask for log files */
 #undef LOGFILE_MASK
@@ -662,6 +671,9 @@
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #undef LT_OBJDIR
+
+/* mplsd vty socket */
+#undef MPLS_VTYSH_PATH
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 #undef NO_MINUS_C_MINUS_O
@@ -745,6 +757,15 @@
 /* isisd PID */
 #undef PATH_ISISD_PID
 
+/* ldpd PID */
+#undef PATH_LDPD_PID
+
+/* lldpd PID */
+#undef PATH_LLDPD_PID
+
+/* mplsd PID */
+#undef PATH_MPLSD_PID
+
 /* olsrd PID */
 #undef PATH_OLSRD_PID
 
@@ -762,6 +783,12 @@
 
 /* ripngd PID */
 #undef PATH_RIPNGD_PID
+
+/* rsvpd PID */
+#undef PATH_RSVPD_PID
+
+/* vpnd PID */
+#undef PATH_VPND_PID
 
 /* vrrpd PID */
 #undef PATH_VRRPD_PID
@@ -792,6 +819,9 @@
 
 /* rip vty socket */
 #undef RIP_VTYSH_PATH
+
+/* rsvpd vty socket */
+#undef RSVP_VTYSH_PATH
 
 /* Define to the type of arg 1 for `select'. */
 #undef SELECT_TYPE_ARG1
@@ -862,6 +892,9 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* vpnd vty socket */
+#undef VPN_VTYSH_PATH
 
 /* vrrpd vty socket */
 #undef VRRP_VTYSH_PATH

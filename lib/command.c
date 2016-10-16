@@ -67,6 +67,13 @@ enum matcher_rv
 struct host host;
 
 /* Standard command node structures. */
+#ifdef IMISH_IMI_MODULE
+static struct cmd_node user_node =
+{
+  USER_NODE,
+  "Username: ",
+};
+#endif//IMISH_IMI_MODULE
 static struct cmd_node auth_node =
 {
   AUTH_NODE,
@@ -2881,6 +2888,14 @@ DEFUN (config_exit,
     case OLSR_NODE:			/* OLSR protocol node. */
     case ICRP_NODE:		/* ICRP protocol node. */
     case FRP_NODE:                /* FRP protocol node */
+
+    case LDP_NODE:
+    case LDP_IF_NODE:
+    case RSVP_NODE:
+    case LLDP_NODE:
+    case MPLS_NODE:
+    //case IP_EXPLICIT_PATH_NODE:
+    //case INTERFACE_TUNNEL_NODE:
 #endif /* HAVE_EXPAND_ROUTE_PLATFORM */    	
 /* 2016??7??2?? 21:55:37  zhurish: ??չ·??Э?????????????ڵ????? */
       vty->node = CONFIG_NODE;
@@ -2947,6 +2962,14 @@ DEFUN (config_end,
     case OLSR_NODE:			/* OLSR protocol node. */
     case ICRP_NODE:		/* ICRP protocol node. */
     case FRP_NODE:                /* FRP protocol node */
+
+    case LDP_NODE:
+    case LDP_IF_NODE:
+    case RSVP_NODE:
+    case LLDP_NODE:
+    case MPLS_NODE:
+    //case IP_EXPLICIT_PATH_NODE:
+    //case INTERFACE_TUNNEL_NODE:
 #endif /* HAVE_EXPAND_ROUTE_PLATFORM */     	
 /* 2016??7??2?? 21:55:46  zhurish: ??չ·??Э?????????????ڵ????? */
       vty_config_unlock (vty);
@@ -4055,6 +4078,9 @@ cmd_init (int terminal)
   host.motdfile = NULL;
 
   /* Install top nodes. */
+#ifdef IMISH_IMI_MODULE
+  install_node (&user_node, NULL);
+#endif//IMISH_IMI_MODULE
   install_node (&view_node, NULL);
   install_node (&enable_node, NULL);
   install_node (&auth_node, NULL);

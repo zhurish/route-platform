@@ -1,0 +1,13 @@
+! -*- olsr -*-
+!
+! OLSRd sample configuration file
+!
+!
+hostname olsrd
+password zebra
+!enable password please-set-at-here
+!
+!router olsrd
+!  network 192.168.1.0/24 area 0
+!
+log stdout

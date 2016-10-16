@@ -26,3 +26,6 @@ echo "LIBTOOLIZE:"
 libtoolize -c
 echo "AUTOMAKE"
 automake --gnu --add-missing --copy
+
+echo "autoreconf -ivf"
+autoreconf -ivf

@@ -637,6 +637,12 @@ ac_func_list=
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
+L2TPD
+VPND
+MPLSD
+LLDPD
+RSVPD
+LDPD
 FPMD
 IMISHD
 VRRPD
@@ -644,6 +650,20 @@ AODVD
 ICRPD
 FRPD
 OLSRD
+HAVE_VPND_TUNNEL_FALSE
+HAVE_VPND_TUNNEL_TRUE
+L2TPD_FALSE
+L2TPD_TRUE
+VPND_FALSE
+VPND_TRUE
+MPLSD_FALSE
+MPLSD_TRUE
+LLDPD_FALSE
+LLDPD_TRUE
+RSVPD_FALSE
+RSVPD_TRUE
+LDPD_FALSE
+LDPD_TRUE
 FPMD_FALSE
 FPMD_TRUE
 VRRPD_FALSE
@@ -921,6 +941,11 @@ enable_frpd
 enable_vrrpd
 enable_icrpd
 enable_aodvd
+enable_ldpd
+enable_rsvpd
+enable_lldpd
+enable_mplsd
+enable_vpnd
 enable_largefile
 enable_pie
 '
@@ -1619,6 +1644,11 @@ Optional Features:
   --disable-vrrpd         do not build vrrpd
   --disable-icrpd         do not build icrpd
   --disable-aodvd         do not build aodvd
+  --disable-ldpd          do not build ldpd
+  --disable-rsvpd         do not build rsvpd
+  --disable-lldpd         do not build lldpd
+  --disable-mplsd         do not build mplsd
+  --disable-vpnd          build vpnd
   --disable-largefile     omit support for large files
   --disable-pie           Do not build tools as a Position Independent
                           Executables
@@ -12707,6 +12737,31 @@ if test "${enable_aodvd+set}" = set; then :
   enableval=$enable_aodvd;
 fi
 
+# Check whether --enable-ldpd was given.
+if test "${enable_ldpd+set}" = set; then :
+  enableval=$enable_ldpd;
+fi
+
+# Check whether --enable-rsvpd was given.
+if test "${enable_rsvpd+set}" = set; then :
+  enableval=$enable_rsvpd;
+fi
+
+# Check whether --enable-lldpd was given.
+if test "${enable_lldpd+set}" = set; then :
+  enableval=$enable_lldpd;
+fi
+
+# Check whether --enable-mplsd was given.
+if test "${enable_mplsd+set}" = set; then :
+  enableval=$enable_mplsd;
+fi
+
+# Check whether --enable-vpnd was given.
+if test "${enable_vpnd+set}" = set; then :
+  enableval=$enable_vpnd;
+fi
+
 
 if test x"${enable_gcc_ultra_verbose}" = x"yes" ; then
   CFLAGS="${CFLAGS} -W -Wcast-qual -Wstrict-prototypes"
@@ -22347,14 +22402,163 @@ else
 fi
 
 
+if test "${enable_ldpd}" = "yes"; then
+  LDPD="ldpd"
+
+cat >>confdefs.h <<_ACEOF
+#define PATH_LDPD_PID "$quagga_statedir/ldpd.pid"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define LDP_VTYSH_PATH "$quagga_statedir/ldpd.vty"
+_ACEOF
+
+else
+  LDPD=""
+fi
+ if test "x$LDPD" = "xldpd"; then
+  LDPD_TRUE=
+  LDPD_FALSE='#'
+else
+  LDPD_TRUE='#'
+  LDPD_FALSE=
+fi
+
+
+if test "${enable_rsvpd}" = "yes"; then
+  RSVPD="rsvpd"
+
+cat >>confdefs.h <<_ACEOF
+#define PATH_RSVPD_PID "$quagga_statedir/rsvpd.pid"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define RSVP_VTYSH_PATH "$quagga_statedir/rsvpd.vty"
+_ACEOF
+
+else
+  RSVPD=""
+fi
+ if test "x$RSVPD" = "xrsvpd"; then
+  RSVPD_TRUE=
+  RSVPD_FALSE='#'
+else
+  RSVPD_TRUE='#'
+  RSVPD_FALSE=
+fi
+
+
+if test "${enable_lldpd}" = "yes"; then
+  LLDPD="lldpd"
+
+cat >>confdefs.h <<_ACEOF
+#define PATH_LLDPD_PID "$quagga_statedir/lldpd.pid"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define LLDP_VTYSH_PATH "$quagga_statedir/lldpd.vty"
+_ACEOF
+
+else
+  LLDPD=""
+fi
+ if test "x$LLDPD" = "xlldpd"; then
+  LLDPD_TRUE=
+  LLDPD_FALSE='#'
+else
+  LLDPD_TRUE='#'
+  LLDPD_FALSE=
+fi
+
+
+if test "${enable_mplsd}" = "yes"; then
+  MPLSD="mplsd"
+
+cat >>confdefs.h <<_ACEOF
+#define PATH_MPLSD_PID "$quagga_statedir/mplsd.pid"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define MPLS_VTYSH_PATH "$quagga_statedir/mplsd.vty"
+_ACEOF
+
+else
+  MPLSD=""
+fi
+ if test "x$MPLSD" = "xmplsd"; then
+  MPLSD_TRUE=
+  MPLSD_FALSE='#'
+else
+  MPLSD_TRUE='#'
+  MPLSD_FALSE=
+fi
+
+
+if test "${enable_vpnd}" = "yes"; then
+	VPND="vpnd"
+	L2TPD="vpnd/l2tp"
+
+$as_echo "#define HAVE_VPND_TUNNEL 1" >>confdefs.h
+
+
+cat >>confdefs.h <<_ACEOF
+#define PATH_VPND_PID "$quagga_statedir/vpnd.pid"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define VPN_VTYSH_PATH "$quagga_statedir/vpnd.vty"
+_ACEOF
+
+else
+	VPND=""
+	L2TPD=""
+fi
+ if test "x$VPND" = "xvpnd"; then
+  VPND_TRUE=
+  VPND_FALSE='#'
+else
+  VPND_TRUE='#'
+  VPND_FALSE=
+fi
+
+ if test "x$L2TPD" = "xvpnd"; then
+  L2TPD_TRUE=
+  L2TPD_FALSE='#'
+else
+  L2TPD_TRUE='#'
+  L2TPD_FALSE=
+fi
+
+ if test "x$enable_vpnd" = "xyes"; then
+  HAVE_VPND_TUNNEL_TRUE=
+  HAVE_VPND_TUNNEL_FALSE='#'
+else
+  HAVE_VPND_TUNNEL_TRUE='#'
+  HAVE_VPND_TUNNEL_FALSE=
+fi
+
+
 if test "${enable_olsrd}" = "yes" || test "${enable_frpd}" = "yes" ||
 	test "${enable_icrpd}" = "yes" || test "${enable_aodvd}" = "yes" ||
-	test "${enable_vrrpd}" = "yes"; then
+	test "${enable_vrrpd}" = "yes" || test "${enable_ldpd}" = "yes" ||
+	test "${enable_rsvpd}" = "yes" || test "${enable_lldpd}" = "yes" ||
+	test "${enable_mplsd}" = "yes" ; then
 
 
 $as_echo "#define HAVE_EXPAND_ROUTE_PLATFORM 1" >>confdefs.h
 
 fi
+
+
+
+
+
+
 
 
 
@@ -22408,7 +22612,7 @@ _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define OEM_PACKAGE_BUGREPORT "zhurish163@com"
+#define OEM_PACKAGE_BUGREPORT "zhurish@163.com"
 _ACEOF
 
 
@@ -22574,7 +22778,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_htonl_works" >&5
 $as_echo "$ac_cv_htonl_works" >&6; }
 
-ac_config_files="$ac_config_files Makefile lib/Makefile zebra/Makefile ripd/Makefile ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile pimd/Makefile fpm/Makefile imi-cli/Makefile tests/bgpd.tests/Makefile tests/libzebra.tests/Makefile redhat/Makefile pkgsrc/Makefile redhat/quagga.spec lib/version.h doc/defines.texi isisd/topology/Makefile pkgsrc/bgpd.sh pkgsrc/ospf6d.sh pkgsrc/ospfd.sh pkgsrc/ripd.sh pkgsrc/ripngd.sh pkgsrc/zebra.sh"
+ac_config_files="$ac_config_files Makefile lib/Makefile zebra/Makefile ripd/Makefile ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile pimd/Makefile fpm/Makefile ldpd/Makefile rsvpd/Makefile imi-cli/Makefile tests/bgpd.tests/Makefile vpnd/Makefile vpnd/l2tp/Makefile tests/libzebra.tests/Makefile redhat/Makefile pkgsrc/Makefile redhat/quagga.spec lib/version.h doc/defines.texi isisd/topology/Makefile pkgsrc/bgpd.sh pkgsrc/ospf6d.sh pkgsrc/ospfd.sh pkgsrc/ripd.sh pkgsrc/ripngd.sh pkgsrc/zebra.sh"
 
 ac_config_files="$ac_config_files solaris/Makefile"
 
@@ -22809,6 +23013,34 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${FPMD_TRUE}" && test -z "${FPMD_FALSE}"; then
   as_fn_error $? "conditional \"FPMD\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LDPD_TRUE}" && test -z "${LDPD_FALSE}"; then
+  as_fn_error $? "conditional \"LDPD\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${RSVPD_TRUE}" && test -z "${RSVPD_FALSE}"; then
+  as_fn_error $? "conditional \"RSVPD\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LLDPD_TRUE}" && test -z "${LLDPD_FALSE}"; then
+  as_fn_error $? "conditional \"LLDPD\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${MPLSD_TRUE}" && test -z "${MPLSD_FALSE}"; then
+  as_fn_error $? "conditional \"MPLSD\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${VPND_TRUE}" && test -z "${VPND_FALSE}"; then
+  as_fn_error $? "conditional \"VPND\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${L2TPD_TRUE}" && test -z "${L2TPD_FALSE}"; then
+  as_fn_error $? "conditional \"L2TPD\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_VPND_TUNNEL_TRUE}" && test -z "${HAVE_VPND_TUNNEL_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_VPND_TUNNEL\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
@@ -23701,8 +23933,12 @@ do
     "m4/Makefile") CONFIG_FILES="$CONFIG_FILES m4/Makefile" ;;
     "pimd/Makefile") CONFIG_FILES="$CONFIG_FILES pimd/Makefile" ;;
     "fpm/Makefile") CONFIG_FILES="$CONFIG_FILES fpm/Makefile" ;;
+    "ldpd/Makefile") CONFIG_FILES="$CONFIG_FILES ldpd/Makefile" ;;
+    "rsvpd/Makefile") CONFIG_FILES="$CONFIG_FILES rsvpd/Makefile" ;;
     "imi-cli/Makefile") CONFIG_FILES="$CONFIG_FILES imi-cli/Makefile" ;;
     "tests/bgpd.tests/Makefile") CONFIG_FILES="$CONFIG_FILES tests/bgpd.tests/Makefile" ;;
+    "vpnd/Makefile") CONFIG_FILES="$CONFIG_FILES vpnd/Makefile" ;;
+    "vpnd/l2tp/Makefile") CONFIG_FILES="$CONFIG_FILES vpnd/l2tp/Makefile" ;;
     "tests/libzebra.tests/Makefile") CONFIG_FILES="$CONFIG_FILES tests/libzebra.tests/Makefile" ;;
     "redhat/Makefile") CONFIG_FILES="$CONFIG_FILES redhat/Makefile" ;;
     "pkgsrc/Makefile") CONFIG_FILES="$CONFIG_FILES pkgsrc/Makefile" ;;
