@@ -20,7 +20,10 @@
 #include "zclient.h"
 
 #include "system-utils/utils.h"
+#include "system-utils/utils_interface.h"
+#include "system-utils/ip_vlan.h"
 #include "system-utils/ip_tunnel.h"
+#include "system-utils/ip_brctl.h"
 
 
 /* ripd options. */
@@ -31,10 +34,8 @@ static struct option longopts[] =
   { "pid_file",    required_argument, NULL, 'i'},
   { "socket",      required_argument, NULL, 'z'},
   { "help",        no_argument,       NULL, 'h'},
-  { "dryrun",      no_argument,       NULL, 'C'},
   { "vty_addr",    required_argument, NULL, 'A'},
   { "vty_port",    required_argument, NULL, 'P'},
-  { "retain",      no_argument,       NULL, 'r'},
   { "user",        required_argument, NULL, 'u'},
   { "group",       required_argument, NULL, 'g'},
   { "version",     no_argument,       NULL, 'v'},
@@ -261,12 +262,18 @@ main (int argc, char **argv)
   vty_init (master);
   memory_init ();
 
+  utils_interface_init();
   utils_zclient_init ();
 
-#ifdef HAVE_UTILS_TUNNEL
-  ip_tunnel_cmd_init ();
+#ifdef HAVE_UTILS_BRCTL
+  utils_bridge_cmd_init ();
 #endif
-
+#ifdef HAVE_UTILS_TUNNEL
+  utils_tunnel_cmd_init ();
+#endif
+#ifdef HAVE_UTILS_VLAN
+  utils_vlan_cmd_init ();
+#endif
   /* Get configuration file. */
   vty_read_config (config_file, config_default);
 

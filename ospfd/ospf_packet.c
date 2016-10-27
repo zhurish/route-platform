@@ -2785,11 +2785,13 @@ ospf_read (struct thread *thread)
   /* Note that sockopt_iphdrincl_swab_systoh was called in ospf_recv_packet. */
 
   if (ifp == NULL)
+  {
     /* Handle cases where the platform does not support retrieving the ifindex,
        and also platforms (such as Solaris 8) that claim to support ifindex
        retrieval but do not. */
     ifp = if_lookup_address (iph->ip_src);
-  
+    zlog_debug("ospf read and get read interface by ip src address:%s",inet_ntoa(iph->ip_src));
+  }
   if (ifp == NULL)
     return 0;
 

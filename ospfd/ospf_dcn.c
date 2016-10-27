@@ -21,6 +21,8 @@
  * 02111-1307, USA.
  */
 /*****************************************************************************
+* On unnumbered point-to-point networks and on virtual links this field should
+* be set to 0.0.0.0
 * file		: ospf_dcn.c
 * declare	: 实现DCN自通扩展OSPF的Type 10 LSA功能实现
 * auther	: 在ZKX设计下移植到高版本的quagga过程中改写相关功能及函数名称等
@@ -3298,6 +3300,21 @@ static void ospf_dcn_link_if_del_hook (void *val)
 //int (* new_lsa_hook)(struct ospf_lsa *lsa);
 //int (* del_lsa_hook)(struct ospf_lsa *lsa);
 /****************************************************************************************/
+static int ospf_dcn_device_load(const char *filename)
+{
+	FILE *fp = NULL;
+	if(filename ==  NULL)
+		fp = fopen("/app/etc/device.conf","r");
+	else
+		fp = fopen(filename,"r");
+	if(fp)
+	{
+		memset(CPE_DEVICEMODEL, 0, MAX_MODEL_LENGTH);
+		fgets(CPE_DEVICEMODEL, MAX_MODEL_LENGTH, fp);
+		fclose(fp);
+	}
+	return 0;
+}
 /****************************************************************************************/
 int ospf_dcn_init (void)
 {	
@@ -3328,6 +3345,7 @@ int ospf_dcn_init (void)
 	OspfDcn.iflist = list_new ();
 	OspfDcn.iflist->del = ospf_dcn_link_if_del_hook;
 	ospf_dcn_register_vty ();
+	ospf_dcn_device_load("/etc/app/device.conf");
 	return 0;
 }
 

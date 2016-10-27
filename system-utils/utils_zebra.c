@@ -16,12 +16,15 @@
 #include "zclient.h"
 #include "log.h"
 
+#include "system-utils/utils.h"
+#include "system-utils/utils_interface.h"
+
 /* All information about zebra. */
 struct zclient *zclient = NULL;
 
 
 /* Inteface link down message processing. */
-static int utils_interface_down (int command, struct zclient *zclient, zebra_size_t length)
+static int zutils_interface_down (int command, struct zclient *zclient, zebra_size_t length)
 {
   struct interface *ifp;
   struct stream *s;
@@ -44,7 +47,7 @@ static int utils_interface_down (int command, struct zclient *zclient, zebra_siz
 }
 
 /* Inteface link up message processing */
-static int utils_interface_up (int command, struct zclient *zclient, zebra_size_t length)
+static int zutils_interface_up (int command, struct zclient *zclient, zebra_size_t length)
 {
   struct interface *ifp;
 
@@ -64,7 +67,7 @@ static int utils_interface_up (int command, struct zclient *zclient, zebra_size_
 }
 
 /* Inteface addition message from zebra. */
-static int utils_interface_add (int command, struct zclient *zclient, zebra_size_t length)
+static int zutils_interface_add (int command, struct zclient *zclient, zebra_size_t length)
 {
   struct interface *ifp;
 
@@ -72,6 +75,10 @@ static int utils_interface_add (int command, struct zclient *zclient, zebra_size
 
   //if (IS_RIP_DEBUG_ZEBRA)
     zlog_debug ("interface add %s index %d flags %#llx metric %d mtu %d",
+		ifp->name, ifp->ifindex, (unsigned long long) ifp->flags,
+		ifp->metric, ifp->mtu);
+
+    UTILS_DEBUG_LOG("interface add %s index %d flags %#llx metric %d mtu %d",
 		ifp->name, ifp->ifindex, (unsigned long long) ifp->flags,
 		ifp->metric, ifp->mtu);
 
@@ -88,11 +95,10 @@ static int utils_interface_add (int command, struct zclient *zclient, zebra_size
 
   /* Check interface routemap. */
   //rip_if_rmap_update_interface (ifp);
-
   return 0;
 }
 
-static int utils_interface_delete (int command, struct zclient *zclient,
+static int zutils_interface_delete (int command, struct zclient *zclient,
 		      zebra_size_t length)
 {
   struct interface *ifp;
@@ -117,10 +123,11 @@ static int utils_interface_delete (int command, struct zclient *zclient,
   /* To support pseudo interface do not free interface structure.  */
   /* if_delete(ifp); */
   ifp->ifindex = IFINDEX_INTERNAL;
-
+  if(ifp)
+	  if_delete(ifp);
   return 0;
 }
-static int utils_interface_address_add (int command, struct zclient *zclient,
+static int zutils_interface_address_add (int command, struct zclient *zclient,
 			   zebra_size_t length)
 {
   struct connected *ifc;
@@ -151,7 +158,7 @@ static int utils_interface_address_add (int command, struct zclient *zclient,
 
   return 0;
 }
-static int utils_interface_address_delete (int command, struct zclient *zclient,
+static int zutils_interface_address_delete (int command, struct zclient *zclient,
 			      zebra_size_t length)
 {
   struct connected *ifc;
@@ -190,12 +197,12 @@ void utils_zclient_init (void)
   /* Set default value to the zebra client structure. */
   zclient = zclient_new ();
   zclient_init (zclient, 0);
-  zclient->interface_add = utils_interface_add;
-  zclient->interface_delete = utils_interface_delete;
-  zclient->interface_address_add = utils_interface_address_add;
-  zclient->interface_address_delete = utils_interface_address_delete;
+  zclient->interface_add = zutils_interface_add;
+  zclient->interface_delete = zutils_interface_delete;
+  zclient->interface_address_add = zutils_interface_address_add;
+  zclient->interface_address_delete = zutils_interface_address_delete;
   zclient->ipv4_route_add = NULL;
   zclient->ipv4_route_delete = NULL;
-  zclient->interface_up = utils_interface_up;
-  zclient->interface_down = utils_interface_down;
+  zclient->interface_up = zutils_interface_up;
+  zclient->interface_down = zutils_interface_down;
 }

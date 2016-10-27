@@ -1584,7 +1584,9 @@ if_config_write (struct vty *vty)
 
       for (ALL_LIST_ELEMENTS_RO (ifp->connected, addrnode, ifc))
 	  {
-	    if (CHECK_FLAG (ifc->conf, ZEBRA_IFC_CONFIGURED))
+	    if ( (vty->type == VTY_FILE && CHECK_FLAG (ifc->conf, ZEBRA_IFC_CONFIGURED)) ||
+	    		(vty->type != VTY_FILE) )
+		//if (CHECK_FLAG (ifc->conf, ZEBRA_IFC_CONFIGURED))
 	      {
 		char buf[INET6_ADDRSTRLEN];
 		p = ifc->address;

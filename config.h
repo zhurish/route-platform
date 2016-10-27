@@ -660,7 +660,7 @@
 #define LINUX_IPV6 1
 
 /* lldpd vty socket */
-/* #undef LLDP_VTYSH_PATH */
+#define LLDP_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/lldpd.vty"
 
 /* Mask for log files */
 #define LOGFILE_MASK 0664
@@ -690,7 +690,7 @@
 #define OEM_PACKAGE_BUGREPORT "zhurish@163.com"
 
 /* this copyright for OEM version */
-#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/10/16 zhurish(zhurish@163.com) et al."
+#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/10/27 zhurish(zhurish@163.com) et al."
 
 /* Name of OEM package */
 #define OEM_PACKAGE_NAME "routing-plaform"
@@ -762,7 +762,7 @@
 #define PATH_LDPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/ldpd.pid"
 
 /* lldpd PID */
-/* #undef PATH_LLDPD_PID */
+#define PATH_LLDPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/lldpd.pid"
 
 /* mplsd PID */
 /* #undef PATH_MPLSD_PID */

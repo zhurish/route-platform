@@ -482,14 +482,12 @@ ospf_if_lookup_recv_if (struct ospf *ospf, struct in_addr src,
     //  if (oi->type == OSPF_IFTYPE_POINTOPOINT)
     //    match = oi;
 #endif /* HAVE_OSPFD_DCN */
-      if (prefix_match (CONNECTED_PREFIX(oi->connected),
-      			(struct prefix *) &addr))
-	{
-	  if ( (match == NULL) || 
-	       (match->address->prefixlen < oi->address->prefixlen)
-	     )
-	    match = oi;
-	}
+      if (prefix_match (CONNECTED_PREFIX(oi->connected),(struct prefix *) &addr))
+      {
+    	  if ( (match == NULL) ||
+	       (match->address->prefixlen < oi->address->prefixlen) )
+    		  match = oi;
+      }
     }
 
   return match;
