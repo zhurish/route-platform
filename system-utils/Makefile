@@ -19,6 +19,7 @@
 
 
 
+
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
   case $${target_option-} in \
@@ -86,7 +87,7 @@ target_triplet = i686-pc-linux-gnu
 sbin_PROGRAMS = utilsd$(EXEEXT)
 subdir = system-utils
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp
+	$(top_srcdir)/depcomp $(noinst_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_sys_weak_alias.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
@@ -106,13 +107,17 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libutils_a_AR = $(AR) $(ARFLAGS)
 libutils_a_LIBADD =
-am_libutils_a_OBJECTS = utils.$(OBJEXT) utils_zebra.$(OBJEXT) \
-	ip_tunnel.$(OBJEXT)
+am_libutils_a_OBJECTS = utils.$(OBJEXT) utils_interface.$(OBJEXT) \
+	utils_zebra.$(OBJEXT) ip_tunnel.$(OBJEXT) ip_brctl.$(OBJEXT) \
+	ip_vlan.$(OBJEXT) ip_dhcp.$(OBJEXT) ip_firewall.$(OBJEXT) \
+	ip_iptables.$(OBJEXT)
 libutils_a_OBJECTS = $(am_libutils_a_OBJECTS)
 am__installdirs = "$(DESTDIR)$(sbindir)"
 PROGRAMS = $(sbin_PROGRAMS)
-am__objects_1 = utils.$(OBJEXT) utils_zebra.$(OBJEXT) \
-	ip_tunnel.$(OBJEXT)
+am__objects_1 = utils.$(OBJEXT) utils_interface.$(OBJEXT) \
+	utils_zebra.$(OBJEXT) ip_tunnel.$(OBJEXT) ip_brctl.$(OBJEXT) \
+	ip_vlan.$(OBJEXT) ip_dhcp.$(OBJEXT) ip_firewall.$(OBJEXT) \
+	ip_iptables.$(OBJEXT)
 am_utilsd_OBJECTS = main.$(OBJEXT) $(am__objects_1)
 utilsd_OBJECTS = $(am_utilsd_OBJECTS)
 utilsd_DEPENDENCIES = ../lib/libzebra.la
@@ -161,6 +166,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -195,8 +201,8 @@ BGPD =
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -Os -fno-omit-frame-pointer -g -std=gnu99 -Wall -Wsign-compare -Wpointer-arith -Wbad-function-cast -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wchar-subscripts -Wcast-qual
-CONFDATE = 20161016
-CONFIG_ARGS = --prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --enable-olsrd --enable-ldpd --enable-rsvpd --disable-bgpd --disable-isisd --disable-isis-topology --enable-utils --enable-vpnd --enable-fpm --disable-rtadv --disable-irdp --enable-configfile-mask=0664 --enable-logfile-mask=0664 --enable-imi=65530 LIBS=-lpthread
+CONFDATE = 20161030
+CONFIG_ARGS = --prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --enable-olsrd --enable-ldpd --enable-rsvpd --disable-bgpd --disable-isisd --disable-isis-topology --enable-utils --enable-vpnd --enable-fpm --disable-rtadv --disable-irdp --enable-lldpd --enable-configfile-mask=0664 --enable-logfile-mask=0664 --enable-imi=65530 LIBS=-lpthread
 CPP = gcc -E
 CPPFLAGS = 
 CURSES = 
@@ -248,7 +254,7 @@ LIBS = -lcrypt -lpthread -lrt
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIB_REGEX = 
 LIPO = 
-LLDPD = 
+LLDPD = lldpd
 LN_S = ln -s
 LTLIBOBJS = 
 MAKEINFO = ${SHELL} /home/zhurish/workspace/route-platform/route-platform/missing makeinfo
@@ -370,7 +376,13 @@ INSTALL_SDATA = /usr/bin/install -c -m 600
 AM_CFLAGS = $(PICFLAGS)
 AM_LDFLAGS = $(PILDFLAGS)
 noinst_LIBRARIES = libutils.a
-libutils_a_SOURCES = utils.c utils_zebra.c ip_tunnel.c
+libutils_a_SOURCES = utils.c utils_interface.c utils_zebra.c \
+	ip_tunnel.c ip_brctl.c ip_vlan.c ip_dhcp.c ip_firewall.c \
+	ip_iptables.c
+
+noinst_HEADERS = \
+	utils.h utils_interface.h ip_tunnel.h ip_vlan.h
+
 utilsd_SOURCES = main.c $(libutils_a_SOURCES)
 utilsd_LDADD = ../lib/libzebra.la -lcap
 all: all-am
@@ -475,9 +487,15 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+include ./$(DEPDIR)/ip_brctl.Po
+include ./$(DEPDIR)/ip_dhcp.Po
+include ./$(DEPDIR)/ip_firewall.Po
+include ./$(DEPDIR)/ip_iptables.Po
 include ./$(DEPDIR)/ip_tunnel.Po
+include ./$(DEPDIR)/ip_vlan.Po
 include ./$(DEPDIR)/main.Po
 include ./$(DEPDIR)/utils.Po
+include ./$(DEPDIR)/utils_interface.Po
 include ./$(DEPDIR)/utils_zebra.Po
 
 .c.o:
@@ -591,7 +609,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES) $(PROGRAMS)
+all-am: Makefile $(LIBRARIES) $(PROGRAMS) $(HEADERS)
 installdirs:
 	for dir in "$(DESTDIR)$(sbindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \

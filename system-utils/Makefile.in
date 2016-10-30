@@ -18,6 +18,7 @@
 # This is for RSVP-TE Daemon.
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -86,7 +87,7 @@ target_triplet = @target@
 sbin_PROGRAMS = utilsd$(EXEEXT)
 subdir = system-utils
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp
+	$(top_srcdir)/depcomp $(noinst_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_sys_weak_alias.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
@@ -106,13 +107,17 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libutils_a_AR = $(AR) $(ARFLAGS)
 libutils_a_LIBADD =
-am_libutils_a_OBJECTS = utils.$(OBJEXT) utils_zebra.$(OBJEXT) \
-	ip_tunnel.$(OBJEXT)
+am_libutils_a_OBJECTS = utils.$(OBJEXT) utils_interface.$(OBJEXT) \
+	utils_zebra.$(OBJEXT) ip_tunnel.$(OBJEXT) ip_brctl.$(OBJEXT) \
+	ip_vlan.$(OBJEXT) ip_dhcp.$(OBJEXT) ip_firewall.$(OBJEXT) \
+	ip_iptables.$(OBJEXT)
 libutils_a_OBJECTS = $(am_libutils_a_OBJECTS)
 am__installdirs = "$(DESTDIR)$(sbindir)"
 PROGRAMS = $(sbin_PROGRAMS)
-am__objects_1 = utils.$(OBJEXT) utils_zebra.$(OBJEXT) \
-	ip_tunnel.$(OBJEXT)
+am__objects_1 = utils.$(OBJEXT) utils_interface.$(OBJEXT) \
+	utils_zebra.$(OBJEXT) ip_tunnel.$(OBJEXT) ip_brctl.$(OBJEXT) \
+	ip_vlan.$(OBJEXT) ip_dhcp.$(OBJEXT) ip_firewall.$(OBJEXT) \
+	ip_iptables.$(OBJEXT)
 am_utilsd_OBJECTS = main.$(OBJEXT) $(am__objects_1)
 utilsd_OBJECTS = $(am_utilsd_OBJECTS)
 utilsd_DEPENDENCIES = ../lib/libzebra.la
@@ -161,6 +166,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -370,7 +376,13 @@ INSTALL_SDATA = @INSTALL@ -m 600
 AM_CFLAGS = $(PICFLAGS)
 AM_LDFLAGS = $(PILDFLAGS)
 noinst_LIBRARIES = libutils.a
-libutils_a_SOURCES = utils.c utils_zebra.c ip_tunnel.c
+libutils_a_SOURCES = utils.c utils_interface.c utils_zebra.c \
+	ip_tunnel.c ip_brctl.c ip_vlan.c ip_dhcp.c ip_firewall.c \
+	ip_iptables.c
+
+noinst_HEADERS = \
+	utils.h utils_interface.h ip_tunnel.h ip_vlan.h
+
 utilsd_SOURCES = main.c $(libutils_a_SOURCES)
 utilsd_LDADD = ../lib/libzebra.la @LIBCAP@
 all: all-am
@@ -475,9 +487,15 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_brctl.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_dhcp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_firewall.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_iptables.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_tunnel.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_vlan.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils_interface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils_zebra.Po@am__quote@
 
 .c.o:
@@ -591,7 +609,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES) $(PROGRAMS)
+all-am: Makefile $(LIBRARIES) $(PROGRAMS) $(HEADERS)
 installdirs:
 	for dir in "$(DESTDIR)$(sbindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \

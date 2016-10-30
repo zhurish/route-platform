@@ -27,5 +27,8 @@ libtoolize -c
 echo "AUTOMAKE"
 automake --gnu --add-missing --copy
 
-echo "autoreconf -ivf"
+echo "AUTORECONF"
 autoreconf -ivf
+
+echo "MAKE-SETUP"
+./make-setup x86 0.99.24

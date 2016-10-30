@@ -690,7 +690,7 @@
 #define OEM_PACKAGE_BUGREPORT "zhurish@163.com"
 
 /* this copyright for OEM version */
-#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/10/27 zhurish(zhurish@163.com) et al."
+#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/10/30 zhurish(zhurish@163.com) et al."
 
 /* Name of OEM package */
 #define OEM_PACKAGE_NAME "routing-plaform"
