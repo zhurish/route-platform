@@ -18,20 +18,22 @@
 
 /* mode */
 #define LLDP_DISABLE	0//
-#define LLDP_READ_MODE	1//接收
-#define LLDP_WRITE_MODE	2//发送
-#define LLDP_MED_MODE	4//
+#define LLDP_ENABLE		1//
+#define LLDP_READ_MODE	2//接收
+#define LLDP_WRITE_MODE	4//发送
+#define LLDP_MED_MODE	8//
 
+#ifdef LLDP_PROTOCOL_DEBUG
 /* protocol */
-#define LLDP_CDP_TYPE		1/* Cisco Discovery Protocol */
-#define LLDP_EDP_TYPE		2/* Extreme Discovery Protocol */
-#define LLDP_FDP_TYPE		3/* Foundry Discovery Protocol */
-#define LLDP_DOT1_TYPE		4/* Dot1 extension (VLAN stuff) */
-#define LLDP_DOT3_TYPE		5/* Dot3 extension (PHY stuff) */
-#define LLDP_SONMP_TYPE		6/*  */
-#define LLDP_MED_TYPE		7/* LLDP-MED extension */
-#define LLDP_CUSTOM_TYPE	8/* Custom TLV support */
-
+#define LLDP_CDP_TYPE		0x0001/* Cisco Discovery Protocol */
+#define LLDP_EDP_TYPE		0x0002/* Extreme Discovery Protocol */
+#define LLDP_FDP_TYPE		0x0004/* Foundry Discovery Protocol */
+#define LLDP_DOT1_TYPE		0x0008/* Dot1 extension (VLAN stuff) */
+#define LLDP_DOT3_TYPE		0x0010/* Dot3 extension (PHY stuff) */
+#define LLDP_SONMP_TYPE		0x0011/*  */
+#define LLDP_MED_TYPE		0x0012/* LLDP-MED extension */
+#define LLDP_CUSTOM_TYPE	0x0014/* Custom TLV support */
+#endif
 /* frame */
 #define LLDP_FRAME_TYPE	1
 #define SNAP_FRAME_TYPE	2
@@ -40,7 +42,9 @@
 struct lldp_interface
 {
   int mode;/* 使能状态 */
+#ifdef LLDP_PROTOCOL_DEBUG
   int protocol;/* 兼容协议 */
+#endif
   int states;/* 接口状态 */
   int frame;/* LLDP 帧封装格式 */
   int Changed;/* 本地信息发生变动 */
@@ -51,8 +55,8 @@ struct lldp_interface
   unsigned short lldp_holdtime;/* 生存时间 */
   int lldp_reinit;/* 重新初始化时间 */
   int lldp_fast_count;/* 快速发送计数 */
-  int lldp_tlv_select;//TLV选择
-  int lldp_check_interval;//本地检测周期，检测本地信息是否发生变化
+  //int lldp_tlv_select;//TLV选择
+  //int lldp_check_interval;//本地检测周期，检测本地信息是否发生变化
 
   unsigned char own_mac[ETH_ALEN];
   unsigned char dst_mac[ETH_ALEN];
@@ -70,6 +74,10 @@ struct lldp_interface
   struct thread *t_read;	/* read to output socket. */
   struct thread *t_write;	/* Write to output socket. */
   struct thread *t_time;	/* Write to output socket. */
+
+  int sen_pkts;
+  int rcv_pkts;
+  int err_pkts;
 };
 
 enum {

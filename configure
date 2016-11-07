@@ -22803,7 +22803,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_htonl_works" >&5
 $as_echo "$ac_cv_htonl_works" >&6; }
 
-ac_config_files="$ac_config_files Makefile lib/Makefile zebra/Makefile ripd/Makefile ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile pimd/Makefile fpm/Makefile olsrd/Makefile lldpd/Makefile ldpd/Makefile rsvpd/Makefile imi-cli/Makefile system-utils/Makefile system-utils/bfdd/Makefile tests/bgpd.tests/Makefile vpnd/Makefile vpnd/l2tp/Makefile tests/libzebra.tests/Makefile redhat/Makefile pkgsrc/Makefile redhat/quagga.spec lib/version.h doc/defines.texi isisd/topology/Makefile pkgsrc/bgpd.sh pkgsrc/ospf6d.sh pkgsrc/ospfd.sh pkgsrc/ripd.sh pkgsrc/ripngd.sh pkgsrc/zebra.sh"
+ac_config_files="$ac_config_files Makefile lib/Makefile zebra/Makefile ripd/Makefile ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile pimd/Makefile fpm/Makefile olsrd/Makefile lldpd/Makefile vrrpd/Makefile ldpd/Makefile rsvpd/Makefile imi-cli/Makefile system-utils/Makefile system-utils/bfdd/Makefile tests/bgpd.tests/Makefile vpnd/Makefile vpnd/l2tp/Makefile tests/libzebra.tests/Makefile redhat/Makefile pkgsrc/Makefile redhat/quagga.spec lib/version.h doc/defines.texi isisd/topology/Makefile pkgsrc/bgpd.sh pkgsrc/ospf6d.sh pkgsrc/ospfd.sh pkgsrc/ripd.sh pkgsrc/ripngd.sh pkgsrc/zebra.sh"
 
 ac_config_files="$ac_config_files solaris/Makefile"
 
@@ -23960,6 +23960,7 @@ do
     "fpm/Makefile") CONFIG_FILES="$CONFIG_FILES fpm/Makefile" ;;
     "olsrd/Makefile") CONFIG_FILES="$CONFIG_FILES olsrd/Makefile" ;;
     "lldpd/Makefile") CONFIG_FILES="$CONFIG_FILES lldpd/Makefile" ;;
+    "vrrpd/Makefile") CONFIG_FILES="$CONFIG_FILES vrrpd/Makefile" ;;
     "ldpd/Makefile") CONFIG_FILES="$CONFIG_FILES ldpd/Makefile" ;;
     "rsvpd/Makefile") CONFIG_FILES="$CONFIG_FILES rsvpd/Makefile" ;;
     "imi-cli/Makefile") CONFIG_FILES="$CONFIG_FILES imi-cli/Makefile" ;;

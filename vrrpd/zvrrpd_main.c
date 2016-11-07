@@ -1,43 +1,24 @@
 /*
- * lldp_main.c
+ * zvrrpd_main.c
  *
- *  Created on: Oct 24, 2016
+ *  Created on: Nov 6, 2016
  *      Author: zhurish
  */
 
-#include <zebra.h>
 
-#include <lib/version.h>
-#include "getopt.h"
-#include "thread.h"
-#include "prefix.h"
-#include "linklist.h"
-#include "if.h"
-#include "vector.h"
-#include "vty.h"
-#include "command.h"
-#include "filter.h"
-#include "plist.h"
-#include "stream.h"
-#include "log.h"
-#include "memory.h"
-#include "privs.h"
-#include "sigevent.h"
-#include "zclient.h"
+#include "zvrrpd.h"
+#include "zvrrp_if.h"
+#include "zvrrp_packet.h"
+#include "zvrrp_sched.h"
 
-#include "lldpd.h"
-#include "lldp_interface.h"
-#include "lldp_neighbor.h"
-#include "lldp_db.h"
-#include "lldp_packet.h"
-#include "lldp-socket.h"
+#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_LINUX)
 
 
 
 /* Master of threads. */
 struct thread_master *master;
-static const char *pid_file = PATH_LLDPD_PID;
-static char config_default[] = SYSCONFDIR LLDP_DEFAULT_CONFIG;
+static const char *pid_file = PATH_VRRPD_PID;
+static char config_default[] = SYSCONFDIR VRRP_DEFAULT_CONFIG;
 
 zebra_capabilities_t _caps_p [] =
 {
@@ -46,7 +27,7 @@ zebra_capabilities_t _caps_p [] =
   ZCAP_NET_ADMIN,
 };
 
-struct zebra_privs_t lldp_privs =
+struct zebra_privs_t vrrp_privs =
 {
 #if defined(QUAGGA_USER) && defined(QUAGGA_GROUP)
   .user = QUAGGA_USER,
@@ -84,7 +65,7 @@ usage (char *progname, int status)
   else
     {
       printf ("Usage : %s [OPTION...]\n\
-Daemon which manages LLDPD.\n\n\
+Daemon which manages VRRPD.\n\n\
 -d, --daemon       Runs in daemon mode\n\
 -f, --config_file  Set configuration file name\n\
 -i, --pid_file     Set process identifier file name\n\
@@ -120,7 +101,7 @@ static void sigusr1 (void)
   zlog_rotate (NULL);
 }
 
-struct quagga_signal_t lldp_signals[] =
+struct quagga_signal_t vrrp_signals[] =
 {
   {
     .signal = SIGHUP,
@@ -145,7 +126,7 @@ int main (int argc, char **argv)
 {
   char *p;
   char *vty_addr = NULL;
-  int vty_port = LLDP_VTY_PORT;
+  int vty_port = VRRP_VTY_PORT;
   int daemon_mode = 0;
   char *config_file = NULL;
   char *progname;
@@ -191,13 +172,13 @@ int main (int argc, char **argv)
           }
           vty_port = atoi (optarg);
           if (vty_port <= 0 || vty_port > 0xffff)
-            vty_port = LLDP_VTY_PORT;
+            vty_port = VRRP_VTY_PORT;
           break;
       case 'u':
-    	  lldp_privs.user = optarg;
+    	  vrrp_privs.user = optarg;
     	  break;
       case 'g':
-    	  lldp_privs.group = optarg;
+    	  vrrp_privs.group = optarg;
     	  break;
       case 'v':
     	  print_version (progname);
@@ -220,32 +201,39 @@ int main (int argc, char **argv)
       exit (1);
     }
 
-  zlog_default = openzlog (progname, ZLOG_LLDP,
+  zlog_default = openzlog (progname, ZLOG_VRRP,
 			   LOG_CONS|LOG_NDELAY|LOG_PID, LOG_DAEMON);
 
   master = thread_master_create ();
 
   /* Library inits. */
-  zprivs_init (&lldp_privs);
-  signal_init (master, array_size(lldp_signals), lldp_signals);
+  zprivs_init (&vrrp_privs);
+  signal_init (master, array_size(vrrp_signals), vrrp_signals);
   cmd_init (1);
 
   vty_init (master);
   memory_init ();
 
-  lldp_config_init();
+  //vrrp_interface_init();
 
-  lldp_interface_init();
+  zvrrp_master_init(1, master);
+  /*
+	if(gVrrpMatser)
+		return OK;
+	gVrrpMatser = malloc(sizeof(struct zvrrp_master));
+	if(gVrrpMatser == NULL)
+		return ERROR;
+	memset(gVrrpMatser, 0, sizeof(struct zvrrp_master));
 
-  lldp_zclient_init ();
-
+  zvrrp_zclient_init(gVrrpMatser);
+*/
   /* Get configuration file. */
   vty_read_config (config_file, config_default);
 
   /* Change to the daemon program. */
   if (daemon_mode && daemon (0, 0) < 0)
     {
-      zlog_err("LLDPd daemon failed: %s", strerror(errno));
+      zlog_err("VRRPD daemon failed: %s", strerror(errno));
       exit (1);
     }
 
@@ -253,15 +241,35 @@ int main (int argc, char **argv)
   pid_output (pid_file);
 
   /* Create VTY socket */
-  vty_serv_sock (vty_addr, vty_port, LLDP_VTYSH_PATH);
+  vty_serv_sock (vty_addr, vty_port, VRRP_VTYSH_PATH);
 
   /* Print banner. */
-  zlog_notice ("LLDPd %s starting: vty@%d", QUAGGA_VERSION, vty_port);
+  zlog_notice ("VRRPD %s starting: vty@%d", QUAGGA_VERSION, vty_port);
 
+  zvrrp_main(gVrrpMatser);
   /* Fetch next active thread. */
-  while (thread_fetch (master, &thread))
-    thread_call (&thread);
+  //while (thread_fetch (master, &thread))
+  //  thread_call (&thread);
 
   /* Not reached. */
   return (0);
 }
+
+#else
+int vrrp_init_test()
+{
+	//extern struct thread_master *daemon_master;
+	printf("%s\n",__func__);
+	zvrrp_master_init(160, NULL);
+	//zebra_node_func_install(0, CONFIG_NODE, zvrrp_master_init);
+}
+int vrrp_tes()
+{
+	//ifsend_debug = 1;zvrrp_show
+	zvrrp_cmd_vrrp(1, 3);//����������
+	zvrrp_cmd_vip(1, 3, ntohl(inet_addr("192.168.79.19")));//Ϊ��������������IP��ַ
+	zvrrp_cmd_interface(1, 3, "vnet0");
+	//zvrrp_send_adv(zvrrp_vsrv_lookup(3), 3);
+}
+#endif
+

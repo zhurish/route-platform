@@ -104,14 +104,14 @@ enum node_type
   OLSR_NODE,			/* OLSR protocol node. */
   ICRP_NODE,		/* ICRP protocol node. */
   FRP_NODE,                /* FRP protocol node */
+  VRRP_NODE,                /* FRP protocol node */
+  LLDP_NODE,
+  //VPN_NODE,
 
   LDP_NODE,
   LDP_IF_NODE,
-
   RSVP_NODE,
-  LLDP_NODE,
   MPLS_NODE,
-
   //IP_EXPLICIT_PATH_NODE,
 #endif//#ifdef HAVE_EXPAND_ROUTE_PLATFORM
 /* 2016年6月27日 21:02:05  zhurish: 扩展路由协议增加命令节点 */

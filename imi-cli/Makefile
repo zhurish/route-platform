@@ -213,8 +213,8 @@ BGPD =
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -Os -fno-omit-frame-pointer -g -std=gnu99 -Wall -Wsign-compare -Wpointer-arith -Wbad-function-cast -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wchar-subscripts -Wcast-qual
-CONFDATE = 20161030
-CONFIG_ARGS = --prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --enable-olsrd --enable-ldpd --enable-rsvpd --disable-bgpd --disable-isisd --disable-isis-topology --enable-utils --enable-vpnd --enable-fpm --disable-rtadv --disable-irdp --enable-lldpd --enable-configfile-mask=0664 --enable-logfile-mask=0664 --enable-imi=65530 LIBS=-lpthread
+CONFDATE = 20161106
+CONFIG_ARGS = --prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --enable-olsrd --disable-ldpd --disable-rsvpd --disable-bgpd --disable-isisd --disable-isis-topology --enable-utils --enable-vpnd --enable-vrrpd --enable-fpm --disable-rtadv --disable-irdp --enable-lldpd --enable-configfile-mask=0664 --enable-logfile-mask=0664 --enable-imi=65530 LIBS=-lpthread
 CPP = gcc -E
 CPPFLAGS = 
 CURSES = 
@@ -256,7 +256,7 @@ L2TPD = vpnd/l2tp
 LATEXMK = /bin/false
 LD = /usr/bin/ld
 LDFLAGS =  -rdynamic
-LDPD = ldpd
+LDPD = 
 LIBCAP = -lcap
 LIBM = -lm
 LIBOBJS = 
@@ -302,7 +302,7 @@ PIMD =
 RANLIB = ranlib
 RIPD = 
 RIPNGD = 
-RSVPD = rsvpd
+RSVPD = 
 RTREAD_METHOD = rtread_netlink.o
 RT_METHOD = rt_netlink.o
 RUNTESTDEFAULTFLAGS = -x --tool $$tool
@@ -314,7 +314,7 @@ STRIP = strip
 UTILS = system-utils
 VERSION = 0.99.24
 VPND = vpnd
-VRRPD = 
+VRRPD = vrrpd
 VTYSH = 
 WATCHQUAGGA = watchquagga
 WEAK_ALIAS = attribute
@@ -395,7 +395,7 @@ examplesdir = $(exampledir)
 dist_examples_DATA = imi-sh.conf.sample
 EXT_OLSR = $(top_srcdir)/olsrd/*.c
 #EXT_FRP = $(top_srcdir)/frpd/*.c
-#EXT_VRRP = $(top_srcdir)/vrrpd/*.c
+EXT_VRRP = $(top_srcdir)/vrrpd/*.c
 EXTRA_DIST = extract.pl
 imish_cmd_FILES = $(top_srcdir)/bgpd/*.c $(top_srcdir)/isisd/*.c \
 		  $(top_srcdir)/ospfd/*.c $(top_srcdir)/ospf6d/*.c \

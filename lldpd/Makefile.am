@@ -11,11 +11,11 @@ noinst_LIBRARIES = liblldp.a
 sbin_PROGRAMS = lldpd
 
 liblldp_a_SOURCES = lldp_interface.c lldp_zebra.c lldp_db.c \
-	lldpd.c lldp_write.c lldp_read.c lldp_packet.c lldp-socket.c 
+	lldpd.c lldp_neighbor.c lldp_write.c lldp_read.c lldp_packet.c lldp-socket.c 
 #	priv.c privsep_fdpass.c agent.c agent_priv.c
 
 noinst_HEADERS = \
-	lldpd.h lldp_db.h lldp_interface.h lldp_packet.h lldp-socket.h
+	lldpd.h lldp_db.h lldp_neighbor.h lldp_interface.h lldp_packet.h lldp-socket.h
 
 lldpd_SOURCES = lldp_main.c $(liblldp_a_SOURCES)
 

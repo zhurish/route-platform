@@ -654,7 +654,7 @@
 /* #undef KAME */
 
 /* ldpd vty socket */
-#define LDP_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/ldpd.vty"
+/* #undef LDP_VTYSH_PATH */
 
 /* Linux IPv6 stack */
 #define LINUX_IPV6 1
@@ -690,7 +690,7 @@
 #define OEM_PACKAGE_BUGREPORT "zhurish@163.com"
 
 /* this copyright for OEM version */
-#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/10/30 zhurish(zhurish@163.com) et al."
+#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/11/06 zhurish(zhurish@163.com) et al."
 
 /* Name of OEM package */
 #define OEM_PACKAGE_NAME "routing-plaform"
@@ -759,7 +759,7 @@
 #define PATH_ISISD_PID "/home/zhurish/workspace/route-platform/app/rt/var/isisd.pid"
 
 /* ldpd PID */
-#define PATH_LDPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/ldpd.pid"
+/* #undef PATH_LDPD_PID */
 
 /* lldpd PID */
 #define PATH_LLDPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/lldpd.pid"
@@ -786,7 +786,7 @@
 #define PATH_RIPNGD_PID "/home/zhurish/workspace/route-platform/app/rt/var/ripngd.pid"
 
 /* rsvpd PID */
-#define PATH_RSVPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/rsvpd.pid"
+/* #undef PATH_RSVPD_PID */
 
 /* utils PID */
 #define PATH_UTILS_PID "/home/zhurish/workspace/route-platform/app/rt/var/utils.pid"
@@ -795,7 +795,7 @@
 #define PATH_VPND_PID "/home/zhurish/workspace/route-platform/app/rt/var/vpnd.pid"
 
 /* vrrpd PID */
-/* #undef PATH_VRRPD_PID */
+#define PATH_VRRPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/vrrpd.pid"
 
 /* watchquagga PID */
 #define PATH_WATCHQUAGGA_PID "/home/zhurish/workspace/route-platform/app/rt/var/watchquagga.pid"
@@ -825,7 +825,7 @@
 #define RIP_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/ripd.vty"
 
 /* rsvpd vty socket */
-#define RSVP_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/rsvpd.vty"
+/* #undef RSVP_VTYSH_PATH */
 
 /* Define to the type of arg 1 for `select'. */
 #define SELECT_TYPE_ARG1 int
@@ -904,7 +904,7 @@
 #define VPN_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/vpnd.vty"
 
 /* vrrpd vty socket */
-/* #undef VRRP_VTYSH_PATH */
+#define VRRP_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/vrrpd.vty"
 
 /* VTY shell */
 #define VTYSH /**/

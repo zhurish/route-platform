@@ -45,7 +45,7 @@ static int lldp_interface_down (int command, struct zclient *zclient, zebra_size
     zlog_debug ("interface %s index %d flags %llx metric %d mtu %d is down",
 	       ifp->name, ifp->ifindex, (unsigned long long)ifp->flags,
 	       ifp->metric, ifp->mtu);
-
+  lldp_change_event();
   return 0;
 }
 
@@ -65,7 +65,7 @@ static int lldp_interface_up (int command, struct zclient *zclient, zebra_size_t
     zlog_debug ("interface %s index %d flags %#llx metric %d mtu %d is up",
 	       ifp->name, ifp->ifindex, (unsigned long long) ifp->flags,
 	       ifp->metric, ifp->mtu);
-
+  lldp_change_event();
   return 0;
 }
 
@@ -158,7 +158,7 @@ static int lldp_interface_address_add (int command, struct zclient *zclient,
       //rip_ifaddr_add (ifc->ifp, ifc);
 #endif /* HAVE_SNMP */
     }
-
+  lldp_change_event();
   return 0;
 }
 static int lldp_interface_address_delete (int command, struct zclient *zclient,
@@ -189,7 +189,7 @@ static int lldp_interface_address_delete (int command, struct zclient *zclient,
 	}
 
       connected_free (ifc);
-
+      lldp_change_event();
     }
 
   return 0;

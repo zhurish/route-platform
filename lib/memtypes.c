@@ -360,6 +360,21 @@ struct memory_list memory_list_ldp[] =
   { -1, NULL },
 };
 #endif
+#ifdef ZEBRA_ROUTE_LLDP
+struct memory_list memory_list_lldp[] =
+{
+  /* LDP Related Memory Types */
+  { MTYPE_LLDP,			"LLDP"				},
+  { MTYPE_LLDP_IF_INFO,		"LLDP interface information"	},
+  { MTYPE_LLDP_PORT_DESC,	"LLDP port desc information"		},
+  { MTYPE_LLDP_SYSTEM,		"LLDP system information"	},
+  { MTYPE_LLDP_NEIGHBOR,	"LLDP neighbor information"},
+  { MTYPE_LLDP_ORG,			"LLDP IEEE ORG tlv information"	},
+  { MTYPE_LLDP_PACKET,			"LLDP packet"		},
+  { MTYPE_LLDP_TLV,		"LLDP TLV information"	},
+  { -1, NULL },
+};
+#endif
 struct mlist mlists[] __attribute__ ((unused)) = {
   { memory_list_lib,	"LIB"	},
   { memory_list_zebra,	"ZEBRA"	},
@@ -381,6 +396,9 @@ struct mlist mlists[] __attribute__ ((unused)) = {
 #endif 
 #ifdef ZEBRA_ROUTE_RSVP
   { memory_list_rsvp,	"RSVP"	},
+#endif
+#ifdef ZEBRA_ROUTE_LLDP
+  { memory_list_lldp,	"LLDP"	},
 #endif
   { NULL, NULL},
 };

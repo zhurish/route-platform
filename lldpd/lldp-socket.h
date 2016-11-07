@@ -18,6 +18,9 @@
 #ifndef ETH_P_LLDP
 #define ETH_P_LLDP	0x88cc
 #endif
+#ifndef ETH_P_SLLDP
+#define ETH_P_SLLDP	0xaaaa
+#endif
 
 
 extern int lldp_write_packet (int fd, struct interface *ifp, struct stream *obuf);

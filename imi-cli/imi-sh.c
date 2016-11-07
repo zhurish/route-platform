@@ -1000,11 +1000,12 @@ static int imish_exit (struct vty *vty)
     case OLSR_NODE:			/* OLSR protocol node. */
     case ICRP_NODE:		/* ICRP protocol node. */
     case FRP_NODE:                /* FRP protocol node */
+    case VRRP_NODE:
+    case LLDP_NODE:
 
     case LDP_NODE:
     case LDP_IF_NODE:
     case RSVP_NODE:
-    case LLDP_NODE:
     case MPLS_NODE:
     //case IP_EXPLICIT_PATH_NODE:
     //case INTERFACE_TUNNEL_NODE:

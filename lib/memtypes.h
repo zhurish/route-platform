@@ -267,6 +267,14 @@ enum
   MTYPE_LDP_ADDR,
   MTYPE_LDP_FEC_RT,
   MTYPE_LDP_PEER_LABEL_DB,
+  MTYPE_LLDP,
+  MTYPE_LLDP_IF_INFO,
+  MTYPE_LLDP_PORT_DESC,
+  MTYPE_LLDP_SYSTEM,
+  MTYPE_LLDP_NEIGHBOR,
+  MTYPE_LLDP_ORG,
+  MTYPE_LLDP_PACKET,
+  MTYPE_LLDP_TLV,
   MTYPE_MAX,
 };
 
@@ -284,6 +292,7 @@ extern struct memory_list memory_list_vtysh[];
 extern struct memory_list memory_list_olsr[];
 extern struct memory_list memory_list_rsvp[];
 extern struct memory_list memory_list_ldp[];
+extern struct memory_list memory_list_lldp[];
 
 #endif /* _QUAGGA_MEMTYPES_H */
 

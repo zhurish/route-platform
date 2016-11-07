@@ -17,9 +17,10 @@
 #include "memory.h"
 
 #include "lldpd.h"
-#include "lldp_db.h"
 #include "lldp_interface.h"
-#include "lldp-socket.h"
+#include "lldp_db.h"
+//#include "lldp_packet.h"
+//#include "lldp-socket.h"
 
 
 const char * lldp_ststem_name(void)
@@ -53,12 +54,12 @@ const char * lldp_ststem_description(void)
 #endif /* IMISH_IMI_MODULE */
 	return system_desc;
 }
-int lldp_system_caability(struct system_caability *head)
+int lldp_system_caability(struct system_capability *head)
 {
-	memset(head, 0, sizeof(struct system_caability));
+	memset(head, 0, sizeof(struct system_capability));
 	head->CapEnabled = 1;
 	head->CapSupported = 1;
-	return sizeof(struct system_caability);
+	return sizeof(struct system_capability);
 }
 int lldp_ststem_mgt_address(struct mgt_address *mgt)
 {
@@ -78,12 +79,12 @@ int lldp_ststem_mgt_address(struct mgt_address *mgt)
 	mgt->oid[0] = 0;
 	return 0;
 }
-int lldp_chassis_id(struct interface *ifp, struct tlv_sub_head *head)
+int lldp_chassis_id(struct tlv_sub_head *head)
 {
-	struct lldp_interface *lifp = (struct lldp_interface *)ifp->info;
+	//struct lldp_interface *lifp = (struct lldp_interface *)ifp->info;
 	memset(head, 0, sizeof(struct tlv_sub_head));
 	head->subtype = LLDP_SUB_MAC_ADDR_ID;
-	memcpy(head->value, lifp->own_mac, ETH_ALEN);
+	//memcpy(head->value, lifp->own_mac, ETH_ALEN);
 	return (1 + ETH_ALEN);
 }
 int lldp_port_id(struct interface *ifp, struct tlv_sub_head *head)
@@ -101,12 +102,13 @@ int lldp_port_link(struct interface *ifp)
 		ret |= if_is_running (ifp);
 	return ret;
 }
+/* 802.1 */
 int lldp_port_vlan_id(struct interface *ifp, struct tlv_vlan *head)
 {
 	struct lldp_interface *lifp = (struct lldp_interface *)ifp->info;
 	memset(head, 0, sizeof(struct tlv_vlan));
 	head->vid = htons(23);
-	head->flag = 1;
+	//head->flag = 1;
 	return sizeof(struct tlv_vlan);
 }
 int lldp_port_vlan_name(struct interface *ifp, struct tlv_vlan_name *head)
@@ -122,8 +124,35 @@ int lldp_port_vlan_protocol(struct interface *ifp, struct tlv_vlan_proto *head)
 {
 	struct lldp_interface *lifp = (struct lldp_interface *)ifp->info;
 	memset(head, 0, sizeof(struct tlv_vlan_proto));
+	head->vid = htons(23);
+	head->flag = 1;
+	return sizeof(struct tlv_vlan_proto);
+}
+int lldp_port_protocol(struct interface *ifp, struct tlv_proto *head)
+{
+	struct lldp_interface *lifp = (struct lldp_interface *)ifp->info;
+	memset(head, 0, sizeof(struct tlv_proto));
 	head->len = 0;/* */
 	//head->value
 	return 1;//TLV_SUB_HDR(*head);
 }
 
+/* 802.3 */
+int lldp_port_frame_size(struct interface *ifp, unsigned short *size)
+{
+	if(size)
+	{
+		*size = ifp->mtu;
+		return 2;
+	}
+	return 0;
+}
+int lldp_port_phy_status(struct interface *ifp, struct tlv_phy_status *phy)
+{
+	struct lldp_interface *lifp = (struct lldp_interface *)ifp->info;
+	memset(phy, 0, sizeof(struct tlv_phy_status));
+	phy->negotiation = 0x03;/* */
+	phy->pmd_capa = htons(0x6c00);  /* 数据 */
+	phy->mau_type = htons(0x0010);  /* 数据 */
+	return sizeof(struct tlv_phy_status);
+}

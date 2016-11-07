@@ -22,8 +22,8 @@
 //#include <linux/if_packet.h>
 
 #include "lldpd.h"
-#include "lldp_db.h"
 #include "lldp_interface.h"
+#include "lldp_db.h"
 #include "lldp_packet.h"
 #include "lldp-socket.h"
 
@@ -65,6 +65,13 @@ static int lldp_constr_exp_ltv (struct stream *s, int orgtype, int subtype, unsi
 		tlv->identifer[1] = 0x12;
 		tlv->identifer[2] = 0x0f;
 	}
+	else if(orgtype == LLDP_TIA_TR41)
+	{
+		tlv->identifer[0] = 0x00;
+		tlv->identifer[1] = 0x12;
+		tlv->identifer[2] = 0xBB;
+	}
+
 	tlv->subtype = subtype;
 
 	memcpy(value, TLV, TLVlen);
@@ -115,8 +122,9 @@ static int lldp_constr_management_address_ltv(struct lldp_interface *lifp, struc
 }
 static int lldp_constr_system_ltv(struct lldp_interface *lifp, struct stream *s)
 {
+	int len = 0;
 	char *value = NULL;
-	struct system_caability capability;
+	struct system_capability capability;
 	value = lldp_ststem_name();
 	if(value)
 		lldp_constr_ltv(lifp->obuf, LLDP_SYSTEM_NAME_ID, (unsigned char *)value, strlen(value));/*系统名称*/
@@ -124,8 +132,9 @@ static int lldp_constr_system_ltv(struct lldp_interface *lifp, struct stream *s)
 	if(value)
 		lldp_constr_ltv(lifp->obuf, LLDP_SYSTEM_DESC_ID, (unsigned char *)value, strlen(value));/*系统描述*/
 
-	lldp_system_caability(&capability);
-	lldp_constr_ltv(lifp->obuf, LLDP_SYSTEM_CAPA_ID, (unsigned char *)&capability, sizeof(capability));
+	len = lldp_system_caability(&capability);
+	if(len)
+		lldp_constr_ltv(lifp->obuf, LLDP_SYSTEM_CAPA_ID, (unsigned char *)&capability, len);
 
 	lldp_constr_management_address_ltv(lifp, lifp->obuf);
 	return 0;
@@ -133,18 +142,41 @@ static int lldp_constr_system_ltv(struct lldp_interface *lifp, struct stream *s)
 static int lldp_constr_org_ltv(struct lldp_interface *lifp, struct stream *s)
 {
 	int len;
+	/* 802.3 */
+	unsigned short frame_size;
+	struct tlv_phy_status phy;
+	/* 802.1 */
 	struct tlv_vlan vlan;
 	struct tlv_vlan_name v_name;
 	struct tlv_vlan_proto v_proto;
+	struct tlv_proto proto;
 
+	/* 802.1 */
 	len = lldp_port_vlan_id(lifp->ifp, &vlan);
-	lldp_constr_exp_ltv (lifp->obuf, LLDP_8021_ORG, LLDP_PVID_TYPE, (unsigned char *)&vlan, len);
-
-	len = lldp_port_vlan_name(lifp->ifp, &v_name);
-	lldp_constr_exp_ltv (lifp->obuf, LLDP_8021_ORG, LLDP_VLAN_NAME_TYPE, (unsigned char *)&v_name, len);
+	if(len)
+		lldp_constr_exp_ltv (lifp->obuf, LLDP_8021_ORG, LLDP_PVID_TYPE, (unsigned char *)&vlan, len);
 
 	len = lldp_port_vlan_protocol(lifp->ifp, &v_proto);
-	lldp_constr_exp_ltv (lifp->obuf, LLDP_8021_ORG, LLDP_PROTOCOL_ID_TYPE, (unsigned char *)&v_proto, len);
+	if(len)
+		lldp_constr_exp_ltv (lifp->obuf, LLDP_8021_ORG, LLDP_PPVID_TYPE, (unsigned char *)&v_proto, len);
+
+	len = lldp_port_vlan_name(lifp->ifp, &v_name);
+	if(len)
+		lldp_constr_exp_ltv (lifp->obuf, LLDP_8021_ORG, LLDP_VLAN_NAME_TYPE, (unsigned char *)&v_name, len);
+
+	len = lldp_port_protocol(lifp->ifp, &proto);
+	if(len)
+		lldp_constr_exp_ltv (lifp->obuf, LLDP_8021_ORG, LLDP_PROTOCOL_ID_TYPE, (unsigned char *)&proto, len);
+
+	/* 802.3 */
+	len = frame_size = lldp_port_frame_size(lifp->ifp, &frame_size);
+	if(len)
+		lldp_constr_exp_ltv (lifp->obuf, LLDP_8023_ORG, LLDP_MAX_FRAME_SIZE_TYPE, (unsigned char *)&frame_size, len);
+
+	len = lldp_port_phy_status(lifp->ifp, &phy);
+	if(len)
+		lldp_constr_exp_ltv (lifp->obuf, LLDP_8023_ORG, LLDP_MAC_PHY_TYPE, (unsigned char *)&phy, len);
+
 	return 0;
 }
 static int lldp_make_ltv(struct interface *ifp)
@@ -156,31 +188,20 @@ static int lldp_make_ltv(struct interface *ifp)
 	if(lifp == NULL)
 		return -1;
 
-	//memset(&head, 0, sizeof(head));
-	//head.subtype = LLDP_SUB_MAC_ADDR_ID;
-	//memcpy(head.value, lifp->own_mac, ETH_ALEN);
-	//len = 1 + ETH_ALEN;
-	len = lldp_chassis_id(ifp, (struct tlv_sub_head *)&head);
-	lldp_constr_ltv (lifp->obuf, LLDP_CHASSIS_ID,  (unsigned char *)&head, len);
+	len = lldp_chassis_id((struct tlv_sub_head *)&head);
+	if(len)
+		lldp_constr_ltv (lifp->obuf, LLDP_CHASSIS_ID,  (unsigned char *)&head, len);
 
-	//memset(&head, 0, sizeof(head));
-	//head.subtype = LLDP_SUB_PORT_IF_NAME_ID;
-	//sprintf((char * restrict)head.value,"%s",ifindex2ifname(ifp->ifindex));
-	//len = LLDP_SUB_TLV_HDR(head);
 	len = lldp_port_id(ifp, (struct tlv_sub_head *)&head);
-	lldp_constr_ltv (lifp->obuf, LLDP_PORT_ID,  (unsigned char *)&head, len);
+	if(len)
+		lldp_constr_ltv (lifp->obuf, LLDP_PORT_ID,  (unsigned char *)&head, len);
 
 	hold_time = htons(lifp->lldp_holdtime);
 	lldp_constr_ltv (lifp->obuf, LLDP_TTL_ID, (unsigned char *)&hold_time, sizeof(lifp->lldp_holdtime));
 
 	if(ifp->desc)
 		lldp_constr_ltv (lifp->obuf, LLDP_PORT_DESC_ID, (unsigned char *)ifp->desc, strlen(ifp->desc));
-#if 0
-	lldp_constr_ltv(lifp->obuf, LLDP_SYSTEM_CAPA_ID, (unsigned char *)&capability, sizeof(capability));
-	lldp_constr_ltv(lifp->obuf, LLDP_SYSTEM_NAME_ID, (unsigned char *)lifp->lldpd->system_name, strlen(lifp->lldpd->system_name));/*系统名称*/
-	lldp_constr_ltv(lifp->obuf, LLDP_SYSTEM_DESC_ID, (unsigned char *)lifp->lldpd->system_desc, strlen(lifp->lldpd->system_desc));/*系统描述*/
-	lldp_constr_management_address_ltv(lifp, lifp->obuf);
-#endif
+
 	lldp_constr_system_ltv(lifp, lifp->obuf);
 
 	lldp_constr_org_ltv(lifp, lifp->obuf);
@@ -205,7 +226,7 @@ int lldp_head_format (struct interface *ifp, struct stream *obuf)
 	if(lifp->frame == SNAP_FRAME_TYPE)
 	{
 		char *lh = (char *)(l2_hdr + (2 * ETH_ALEN) );
-		char snap_hdr[8] = LLDP_SNAP_FRAME_HEAD;
+		char snap_hdr[8] = {0XAA, 0XAA, 0X03, 0X00, 0X00, 0X00, 0X88, 0XCC};
 		memcpy(lh, snap_hdr, 8);
 		len = 2 * ETH_ALEN + 8;
 	}

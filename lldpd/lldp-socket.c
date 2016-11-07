@@ -32,8 +32,9 @@
 #include <linux/if_packet.h>
 
 #include "lldpd.h"
-#include "lldp_db.h"
 #include "lldp_interface.h"
+//#include "lldp_db.h"
+#include "lldp_packet.h"
 #include "lldp-socket.h"
 
 extern struct zebra_privs_t lldp_privs;
@@ -115,6 +116,7 @@ int lldp_write_packet (int fd, struct interface *ifp, struct stream *obuf)
 		errno = 0;
 		return -1;
 	}
+	lifp->sen_pkts++;
 	LLDP_DEBUG_LOG( "sendto %x - %d: %s\n",lifp->dst_mac[5],lifp->sock,strerror(errno));
 	return ret;
 }
