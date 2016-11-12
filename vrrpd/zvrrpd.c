@@ -2,7 +2,7 @@
 #include "zvrrp_if.h"
 #include "zvrrp_packet.h"
 #include "zvrrp_sched.h"
-
+#include "zvrrp_zebra.h"
 
 
 /*******************************************************************************/
@@ -29,6 +29,11 @@ const char * zvrrpOperAdminStateStr[] =
 /*******************************************************************************/
 /*******************************************************************************/
 /*******************************************************************************/
+struct zvrrp_master *zvrrp_master_lookup(void)
+{
+    return gVrrpMatser;
+}
+/*******************************************************************************/
 /****************************************************************
  NAME    : vrrp_vsrv_init            00/02/06 09:18:02
  AIM    :
@@ -46,6 +51,7 @@ static void zvrrp_vsrv_init( vrrp_rt *vsrv )
     vsrv->adver_int   = VRRP_ADVER_DFL*VRRP_TIMER_HZ;
     vsrv->preempt     = VRRP_PREEMPT_DFL;
     vsrv->adminState  = zvrrpOperAdminState_down;
+    vsrv->zvrrp_master = gVrrpMatser;
     //vsrv->rowStatus   = zvrrpOperRowStatus_notReady;
 }
 /*******************************************************************************/
@@ -322,52 +328,27 @@ static int zvrrp_check_enable(vrrp_rt *pVsrv)
 }
 /*******************************************************************************/
 /*******************************************************************************/
-#if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_LINUX)
 static int zvrrp_timer_thread(void *m)
 {
     vrrp_rt *pVsrv = NULL;
 #ifdef ZVRRPD_ON_ROUTTING     
     pVsrv = THREAD_ARG(((struct thread *)m));
+#else
+    pVsrv = (vrrp_rt *)m;
 #endif
 
 	if ( (pVsrv)&&(zvrrp_check_enable(pVsrv))&&(pVsrv->vif.address)&&(pVsrv->vif.ifp) )
 	{
 			zvrrp_timer_for_one(pVsrv);
 	}
-	//zvrrputilschedaddtimer(vrrp->master, zvrrp_timer_thread, vrrp, 1000);
+	//
 #ifdef ZVRRPD_ON_ROUTTING
-	pVsrv->vif.zvrrp_timer = thread_add_timer_msec(gVrrpMatser->master, zvrrp_timer_thread, pVsrv, VRRP_TIMER_HZ*1000);
+	pVsrv->vif.zvrrp_timer = thread_add_timer_msec(pVsrv->zvrrp_master->master, zvrrp_timer_thread, pVsrv, VRRP_TIMER_HZ*1000);
+#else
+	zvrrputilschedaddtimer(pVsrv->zvrrp_master->master, zvrrp_timer_thread, pVsrv, 1000);
 #endif// ZVRRPD_ON_ROUTTING
-	//ptvthread_add_timer(vrrp->master, zvrrp_timer_thread, vrrp, 1);
 	return OK;
 }
-#endif//(ZVRRPD_OS_TYPE	== ZVRRPD_ON_LINUX)
-#if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_VXWORKS)
-static int zvrrp_timer_thread(void *m)
-{
-    int      i;
-    vrrp_rt *pVsrv = NULL;
-#ifdef ZVRRPD_ON_ROUTTING
-    struct zvrrp_master *vrrp = THREAD_ARG(((struct thread *)m));
-#endif    
-	/* ����ƥ��ı����� */
-	for (i = 0; i < VRRP_VSRV_SIZE_MAX; i++)
-	{
-		pVsrv = zvrrp_vsrv_lookup(i);
-	
-		if ( (pVsrv)&&(zvrrp_check_enable(pVsrv))&&(pVsrv->vif.address)&&(pVsrv->vif.ifp) )
-		{
-			zvrrp_timer_for_one(pVsrv);
-		}
-	}
-	//zvrrputilschedaddtimer(vrrp->master, zvrrp_timer_thread, vrrp, 1000);
-#ifdef ZVRRPD_ON_ROUTTING 	
-	//vrrp->zvrrp_timer = thread_add_timer_msec(vrrp->master, zvrrp_timer_thread, vrrp, VRRP_TIMER_HZ*1000);
-#endif// ZVRRPD_ON_ROUTTING 	
-	//ptvthread_add_timer(vrrp->master, zvrrp_timer_thread, vrrp, 1);
-	return OK;
-}
-#endif//(ZVRRPD_OS_TYPE	== ZVRRPD_ON_VXWORKS)
 /*******************************************************************************/
 /*******************************************************************************/
 int zvrrp_handle_on_state(vrrp_rt *pVsrv, const char *buff)
@@ -610,44 +591,57 @@ static int zvrrp_interface_config(vrrp_rt * vsrv, char *ifname, int opcode)
 	ifp = zif_lookup_by_name (ifname);
 	if(ifp == NULL)
 		return ERROR;
+	//接口已经存在
 	if(opcode == zvrrp_opcode_add_interface)
 	{
+		if(zvrrp_if_lookup_by_ifindex(ifp->ifindex))
+			return ERROR;
 		//vsrv->vif.ifindex = ifp->ifindex;
 		vsrv->vif.address = zif_prefix_get_by_name (ifp);
 		vsrv->vif.ifp = ifp;
 		//printf("mac size:%d\n",ifp->sdl.sdl_alen);
 		//mac_printf_debug(ifp->sdl.sdl_data, ifp->sdl.sdl_alen);
-#if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_LINUX)
 		ret = zvrrp_socket_init(ifp->ifindex);
-		if(ret)
-			vsrv->vif.zvrrp_timer = thread_add_timer_msec(gVrrpMatser->master, zvrrp_timer_thread, vsrv, VRRP_TIMER_HZ*1000);
-#endif
 #ifdef ZVRRPD_ON_ROUTTING
+		if(ret)
+		{
+			vsrv->vif.zvrrp_timer = thread_add_timer_msec(vsrv->zvrrp_master->master, zvrrp_timer_thread, vsrv, VRRP_TIMER_HZ*1000);
+			//vsrv->vif.zvrrp_timer = thread_add_timer_msec(vsrv->master->master, zvrrp_timer_thread, vsrv, VRRP_TIMER_HZ*1000);
+		    vsrv->vif.zvrrp_read = thread_add_read(vsrv->zvrrp_master->master,zvrrp_reading_thread, vsrv, vsrv->vif.sock);
+		}
 #ifdef HAVE_STRUCT_SOCKADDR_DL
 		memcpy(vsrv->vif.hwaddr, ifp->sdl.sdl_data, MIN(6, ifp->sdl.sdl_alen));
 #else
 		memcpy(vsrv->vif.hwaddr, ifp->hw_addr, MIN(6, ifp->hw_addr_len));
 #endif
 #else
+		if(ret)
+		{
+			zvrrputilschedaddtimer(vsrv->zvrrp_master->master, zvrrp_timer_thread, pVsrv, 1000);
+			zvrrputilschedaddread(vsrv->zvrrp_master->master, zvrrp_reading_thread, vsrv, vsrv->vif.sock);
+		}
 		memcpy(vsrv->vif.hwaddr, ifp->hw_addr, MIN(6, ifp->hw_addr_len));
 #endif
-		//memcpy(vsrv->vif.hwaddr, mac, sizeof(mac));
-		//vsrv->vif.ipaddr = ntohl(connected_address_lookup_index (ifp));
-		//vsrv->vif.netmask = vsrv->vif.ipaddr;
+
 	}
 	else
 	{
-#if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_LINUX)
+		//接口不存在
+		if(!zvrrp_if_lookup_by_ifindex(ifp->ifindex))
+			return ERROR;
+#ifdef ZVRRPD_ON_ROUTTING
 		if(vsrv->vif.zvrrp_read)
 			thread_cancel (vsrv->vif.zvrrp_read);
 		if(vsrv->vif.zvrrp_timer)
 			thread_cancel (vsrv->vif.zvrrp_timer);
+#else
+		zvrrputilschedcancel(vsrv->master->master, vsrv->master->master->sched_timer);
+		zvrrputilschedcancel(vsrv->master->master, vsrv->master->master->sched_read);
+#endif
 		if(vsrv->vif.sock)
 			close(vsrv->vif.sock);
-#endif
 		memset(&vsrv->vif, 0, sizeof(vrrp_if));
 		vsrv->vif.address = NULL;
-		
 	}
 	return OK;
 }
@@ -694,20 +688,20 @@ static int zvrrp_write_config_one(vrrp_rt * vsrv)
 	struct in_addr ip_src;
     if( (vsrv == NULL) )
     	return ERROR;
-    ZVRRP_SHOW("router vrrp %d",vsrv->vrid);
-    ZVRRP_SHOW(" priority %d",vsrv->priority);
+    zvrrp_show(vsrv,"router vrrp %d",vsrv->vrid);
+    zvrrp_show(vsrv," priority %d",vsrv->priority);
     for(i = 0; i < vsrv->naddr; i++)
     {
     	ip_src.s_addr = htonl(vsrv->vaddr[i].addr);
-    	ZVRRP_SHOW(" virtual-ip %s",inet_ntoa (ip_src));
+    	zvrrp_show(vsrv," virtual-ip %s",inet_ntoa (ip_src));
     }
-    ZVRRP_SHOW(" advertisement-interval %d",vsrv->adver_int);
-    //ZVRRP_SHOW(" state %s",zvrrpOperStateStr[vsrv->state]);
-    //ZVRRP_SHOW(" adminState %s",zvrrpOperAdminStateStr[vsrv->adminState]);  
-    //ZVRRP_SHOW(" interface %s",if_indextoname (vsrv->vif.ifindex, NULL));
-    ZVRRP_SHOW(" interface %s",vsrv->vif.ifp->name);    
+    zvrrp_show(vsrv," advertisement-interval %d",vsrv->adver_int);
+    //zvrrp_show(vsrv," state %s",zvrrpOperStateStr[vsrv->state]);
+    //zvrrp_show(vsrv," adminState %s",zvrrpOperAdminStateStr[vsrv->adminState]);
+    //zvrrp_show(vsrv," interface %s",if_indextoname (vsrv->vif.ifindex, NULL));
+    zvrrp_show(vsrv," interface %s",vsrv->vif.ifp->name);
     //ip_src.s_addr = htonl(vsrv->vif.ipaddr);
-	//ZVRRP_SHOW(" networks %s",inet_ntoa (ip_src));
+	//zvrrp_show(vsrv," networks %s",inet_ntoa (ip_src));
     return OK;                                           
 }
 /************************************************************************************/
@@ -719,14 +713,14 @@ static int zvrrp_show_one(vrrp_rt * vsrv)
 	struct in_addr ip_src;
     if( (vsrv == NULL) )
     	return ERROR;
-    ZVRRP_SHOW("VRID <%d> %s",vsrv->vrid,zvrrpOperAdminStateStr[vsrv->adminState]);
-    ZVRRP_SHOW(" State		:%s(Interface %s)",zvrrpOperStateStr[vsrv->state],if_is_up(vsrv->vif.ifp)? "UP":"DOWN");
+    zvrrp_show(vsrv,"VRID <%d> %s",vsrv->vrid,zvrrpOperAdminStateStr[vsrv->adminState]);
+    zvrrp_show(vsrv," State		:%s(Interface %s)",zvrrpOperStateStr[vsrv->state],if_is_up(vsrv->vif.ifp)? "UP":"DOWN");
     for(i = 0; i < vsrv->naddr; i++)
     {
     	ip_src.s_addr = htonl(vsrv->vaddr[i].addr);
-    	ZVRRP_SHOW(" Virtual-ip	:%s %s",inet_ntoa (ip_src),vsrv->nowner? "(IP owner)":"");
+    	zvrrp_show(vsrv," Virtual-ip	:%s %s",inet_ntoa (ip_src),vsrv->nowner? "(IP owner)":"");
     }
-    ZVRRP_SHOW(" Interface	:%s",vsrv->vif.ifp->name); 
+    zvrrp_show(vsrv," Interface	:%s",vsrv->vif.ifp->name);
     memset(vmac, 0 , sizeof(vmac));
     sprintf(vmac, "%02x-%02x-%02x-%02x-%02x-%02x",(int)(unsigned char)vsrv->vhwaddr[0],
                                                   (int)(unsigned char)vsrv->vhwaddr[1],
@@ -734,45 +728,45 @@ static int zvrrp_show_one(vrrp_rt * vsrv)
                                                   (int)(unsigned char)vsrv->vhwaddr[3],
                                                   (int)(unsigned char)vsrv->vhwaddr[4],
                                                   (int)(unsigned char)vsrv->vhwaddr[5]);
-    ZVRRP_SHOW(" VMAC		:%s",vmac);   
-    ZVRRP_SHOW(" Advt timer	:%d msecond(s)",vsrv->adver_int);
-    ZVRRP_SHOW(" Priority	:%d",vsrv->priority);
-    ZVRRP_SHOW(" Preempt	:%s",vsrv->preempt? "TRUE":"FALSE"); 
-    ZVRRP_SHOW(" Preempt delay	:%d second(s)",vsrv->delay);    
-    ZVRRP_SHOW(" ping		:%s",gVrrpMatser->ping_enable? "enable":"disable"); 
+    zvrrp_show(vsrv," VMAC		:%s",vmac);
+    zvrrp_show(vsrv," Advt timer	:%d msecond(s)",vsrv->adver_int);
+    zvrrp_show(vsrv," Priority	:%d",vsrv->priority);
+    zvrrp_show(vsrv," Preempt	:%s",vsrv->preempt? "TRUE":"FALSE");
+    zvrrp_show(vsrv," Preempt delay	:%d second(s)",vsrv->delay);
+    zvrrp_show(vsrv," ping		:%s",gVrrpMatser->ping_enable? "enable":"disable");
     
     ip_src.s_addr = htonl(vsrv->ms_router_id);
-    ZVRRP_SHOW(" Master router id	:%s",vsrv->ms_router_id? inet_ntoa (ip_src):"Unknown");
+    zvrrp_show(vsrv," Master router id	:%s",vsrv->ms_router_id? inet_ntoa (ip_src):"Unknown");
     if(vsrv->ms_priority == 0)
     {
-    	ZVRRP_SHOW(" Master Priority	:Unknown");
+    	zvrrp_show(vsrv," Master Priority	:Unknown");
     }
     else
     {
-    	ZVRRP_SHOW(" Master Priority	:%d",vsrv->ms_priority);
+    	zvrrp_show(vsrv," Master Priority	:%d",vsrv->ms_priority);
     }
     if(vsrv->ms_advt_timer == 0)
     {
-    	ZVRRP_SHOW(" Master advt times	:Unknown");
+    	zvrrp_show(vsrv," Master advt times	:Unknown");
     }
     else
     {
-    	ZVRRP_SHOW(" Master advt times	:%d",vsrv->ms_advt_timer);
+    	zvrrp_show(vsrv," Master advt times	:%d",vsrv->ms_advt_timer);
     }
     if(vsrv->ms_down_timer == 0)
     {
-    	ZVRRP_SHOW(" Master down timer	:Unknown");
+    	zvrrp_show(vsrv," Master down timer	:Unknown");
     }
     else
     {
-    	ZVRRP_SHOW(" Master down timer	:%d",vsrv->ms_down_timer);
+    	zvrrp_show(vsrv," Master down timer	:%d",vsrv->ms_down_timer);
     }
-    ZVRRP_SHOW(" Learn master mode	:%s",vsrv->ms_learn? "TRUE":"FALSE");    
+    zvrrp_show(vsrv," Learn master mode	:%s",vsrv->ms_learn? "TRUE":"FALSE");
     return OK;                                           
 }
 /************************************************************************************/
 /************************************************************************************/
-int zvrrp_show(int vrid)
+int zvrrp_vsrv_show(int vrid)
 {
     int      i;
     vrrp_rt *pVsrv = NULL;
@@ -784,7 +778,7 @@ int zvrrp_show(int vrid)
     		zvrrp_show_one(pVsrv);
     	}
     	else
-    		ZVRRP_SHOW("VRID <%d> is not configure",vrid);
+    		zvrrp_show(pVsrv,"VRID <%d> is not configure",vrid);
     	return OK;
     }
     for (i = 0; i < VRRP_VSRV_SIZE_MAX; i++)
@@ -974,7 +968,7 @@ static int zvrrp_cmd_config_process(struct zvrrp_master *vrrp)
 	    }
 		break;
 	case zvrrp_opcode_show://��ʾ��������Ϣ
-		zvrrp_show(opcode->vrid);
+		zvrrp_vsrv_show(opcode->vrid);
 		ret = OK;
 		break;
 	default:
@@ -987,13 +981,9 @@ static int zvrrp_cmd_config_process(struct zvrrp_master *vrrp)
 int zvrrp_cmd_config(void *m)
 {
 	int ret = -1;
-//#if (ZVRRPD_OS_TYPE == ZVRRPD_ON_VXWORKS)
 #ifdef ZVRRPD_ON_ROUTTING     
-    //struct zvrrp_master *vrrp = THREAD_ARG(((struct thread *)m));
     struct zvrrp_master *vrrp = (struct zvrrp_master *)m;
     vrrp->opcode->respone = 10;
-	//thread_add_event(vrrp->master, zvrrp_cmd_config_process, vrrp, 1);
-	//thread_execute(vrrp->master, zvrrp_cmd_config_process, vrrp, 1);
     zvrrp_cmd_config_process(vrrp);
 #else//ZVRRPD_ON_ROUTTING
     struct zvrrp_master *vrrp = (struct zvrrp_master *)m;
@@ -1016,7 +1006,6 @@ int zvrrp_cmd_config(void *m)
 		if(vrrp->opcode->param3)
 			free(vrrp->opcode->param3);	
 	}
-//#endif//
 	return ret;
 }
 /************************************************************************************/
@@ -1059,7 +1048,6 @@ int zvrrp_main(void *vrrp)
 	struct zvrrp_master * zvrrp_daemon_master= (struct zvrrp_master *)vrrp;
 	struct thread zvrrp_thread;//zebra�ػ����̵��̱߳�ʶ
 #if (ZVRRPD_OS_TYPE == ZVRRPD_ON_VXWORKS)
-	//���ϵͳ��·��ƽ̨�����ӷ����
 	zvrrp_daemon_master->zclient->daemon = ZEBRA_ROUTE_VRRP;
 	zclient_init (zvrrp_daemon_master->master, zvrrp_daemon_master->zclient, ZEBRA_ROUTE_VRRP);	
 #endif//(ZVRRPD_OS_TYPE == ZVRRPD_ON_VXWORKS)
@@ -1072,84 +1060,11 @@ int zvrrp_main(void *vrrp)
 /*******************************************************************************/
 /*******************************************************************************/
 /*******************************************************************************/
-//��ʼ�������¼��б�
-static int zvrrp_master_thread_init(struct zvrrp_master * zvrrp)
-{
-	int i = 0;
-	if(zvrrp == NULL)
-		return ERROR;
-    /* ��ʼ��glob_vsrv���� */
-    for (i = 0; i < VRRP_VSRV_SIZE_MAX; i++)
-    {
-    	zvrrp->gVrrp_vsrv[i].no = i;
-        zvrrp_vsrv_init(&zvrrp->gVrrp_vsrv[i]);
-    }
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)
-    zvrrp->sock = zvrrp_socket_init(0);
-    //zvrrp->zvrrp_read = thread_add_read(zvrrp->master, zvrrp_reading_thread, zvrrp, zvrrp->sock);
-#endif
-#ifdef ZVRRPD_ON_ROUTTING  
-    //ptvthread_init(160, gVrrpMatser->master);
-    //zvrrp->zvrrp_timer = thread_add_timer_msec(zvrrp->master, zvrrp_timer_thread, zvrrp, VRRP_TIMER_HZ*1000);
-    //ptvthread_add_timer(gVrrpMatser->master, zvrrp_timer_thread, gVrrpMatser, 1);
-	//zvrrp->zvrrp_read = thread_add_read(zvrrp->master, zvrrp_reading_thread, zvrrp, zvrrp->sock);
-#else//ZVRRPD_ON_ROUTTING
-    zvrrputilschedaddtimer(zvrrp->master, zvrrp_timer_thread, zvrrp, 1100);
-    zvrrputilschedaddread(zvrrp->master, zvrrp_reading_thread, zvrrp, 0);
-#endif //ZVRRPD_ON_ROUTTING      
-    return OK;
-}
-static int zvrrp_master_thread_uninit(struct zvrrp_master * zvrrp)
-{
-	int i = 0;
-	if(zvrrp == NULL)
-		return ERROR;
-#ifdef ZVRRPD_ON_ROUTTING
-	//thread_master_free ((struct thread_master *)gVrrpMatser->master);
-	//if(zvrrp->zvrrp_timer)
-	//	thread_cancel (zvrrp->zvrrp_timer);
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)
-	if(zvrrp->zvrrp_read)
-		thread_cancel (zvrrp->zvrrp_read);
-#endif
-	if(zvrrp->task)
-		thread_master_free ((struct thread_master *)zvrrp->master);
-#else//ZVRRPD_ON_ROUTTING
-	if(zvrrp->master)
-		zvrrputilschedclean(zvrrp->master);
-	if(zvrrp->SemMutexId)
-		zvrrpsemdelete(zvrrp->SemMutexId);
-#endif// ZVRRPD_ON_ROUTTING
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)
-	if(zvrrp->sock)
-		close(zvrrp->sock);
-#endif
-    /* ��ʼ��glob_vsrv���� */
-    for (i = 0; i < VRRP_VSRV_SIZE_MAX; i++)
-    {
-    	if(zvrrp->gVrrp_vsrv[i].used)
-    	{
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_LINUX)
-    		if(zvrrp->gVrrp_vsrv[i].vif.zvrrp_read)
-    			thread_cancel (zvrrp->gVrrp_vsrv[i].vif.zvrrp_read);
-    		if(zvrrp->gVrrp_vsrv[i].vif.zvrrp_timer)
-    			thread_cancel (zvrrp->gVrrp_vsrv[i].vif.zvrrp_timer);
-    		if(zvrrp->gVrrp_vsrv[i].vif.sock)
-    			close(zvrrp->gVrrp_vsrv[i].vif.sock);
-#endif
-			zvrrp_vsrv_delete(&zvrrp->gVrrp_vsrv[i]);
-			zvrrp_vsrv_free(&zvrrp->gVrrp_vsrv[i]);
-    	}
-    }	
-    zvrrp->init = 0;
-	zvrrpsleep(10);
-	
-    return OK;
-}
 /*******************************************************************************/
 //��ʼ������
 int zvrrp_master_init(int pri, void *m)
 {
+	int i = 0;
 	int ret = 0;
 	if(gVrrpMatser)
 		return OK;
@@ -1157,6 +1072,13 @@ int zvrrp_master_init(int pri, void *m)
 	if(gVrrpMatser == NULL)
 		return ERROR;
 	memset(gVrrpMatser, 0, sizeof(struct zvrrp_master));
+
+    /* ��ʼ��glob_vsrv���� */
+    for (i = 0; i < VRRP_VSRV_SIZE_MAX; i++)
+    {
+    	gVrrpMatser->gVrrp_vsrv[i].no = i;
+        zvrrp_vsrv_init(&gVrrpMatser->gVrrp_vsrv[i]);
+    }
 	//��ʼ���ڲ�ʹ�õ������������ݽṹ
 	ret = zvrrp_cmd_init(gVrrpMatser);
 	if(ret == ERROR)
@@ -1185,34 +1107,29 @@ int zvrrp_master_init(int pri, void *m)
     	free(gVrrpMatser);
     	return ERROR;
     }
+
     vrrp_interface_init();
-    //��ʼ�������б�
-    ret = zvrrp_master_thread_init(gVrrpMatser);
-    if(ret == ERROR)
-    {
-#ifndef ZVRRPD_ON_ROUTTING    	
-    	zvrrpsemdelete(gVrrpMatser->SemMutexId);
-#endif// ZVRRPD_ON_ROUTTING  
-    	zvrrp_cmd_uninit(gVrrpMatser);
-    	free(gVrrpMatser);
-    	return ERROR;
-    }
+
 #ifdef ZVRRPD_ON_ROUTTING     
     //��ʼ���ͻ������ݽṹ
     ret = zvrrp_zclient_init(gVrrpMatser);
     if(ret == ERROR)
     {
-    	//zvrrpsemdelete(gVrrpMatser->SemMutexId);
+#ifndef ZVRRPD_ON_ROUTTING
+    	zvrrpsemdelete(gVrrpMatser->SemMutexId);
     	zvrrp_cmd_uninit(gVrrpMatser);
-    	zvrrp_master_thread_uninit(gVrrpMatser);
     	free(gVrrpMatser);
+#else//ZVRRPD_ON_ROUTTING
+    	zvrrp_cmd_uninit(gVrrpMatser);
+    	thread_master_free ((struct thread_master *)gVrrpMatser->master);
+    	free(gVrrpMatser);
+#endif// ZVRRPD_ON_ROUTTING
     	return ERROR;
     }
 #endif// ZVRRPD_ON_ROUTTING     
     
 #if (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)
-    gVrrpMatser->init = 1;
-    //if(!m)
+    gVrrpMatser->init = pri;
     gVrrpMatser->task = taskSpawn("zvrrp",
 				pri,
                 0,
@@ -1223,23 +1140,58 @@ int zvrrp_master_init(int pri, void *m)
 #endif// (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)   
 #if (ZVRRPD_OS_TYPE==ZVRRPD_ON_LINUX)
     gVrrpMatser->init = pri;
-//    zvrrp_main(gVrrpMatser);
+    //zvrrp_main(gVrrpMatser);
 #endif// (ZVRRPD_OS_TYPE==ZVRRPD_ON_LINUX) 
     return OK;
 }
 
 int zvrrp_master_uninit(void)
 {
+	int i = 0;
 	if(gVrrpMatser == NULL)
 		return OK;
+    for (i = 0; i < VRRP_VSRV_SIZE_MAX; i++)
+    {
+    	if(gVrrpMatser->gVrrp_vsrv[i].used)
+    	{
+#ifdef ZVRRPD_ON_ROUTTING
+    		if(gVrrpMatser->gVrrp_vsrv[i].vif.zvrrp_read)
+    			thread_cancel (gVrrpMatser->gVrrp_vsrv[i].vif.zvrrp_read);
+    		if(gVrrpMatser->gVrrp_vsrv[i].vif.zvrrp_timer)
+    			thread_cancel (gVrrpMatser->gVrrp_vsrv[i].vif.zvrrp_timer);
+    		//if(gVrrpMatser->gVrrp_vsrv[i].vif.sock)
+    		//	close(gVrrpMatser->gVrrp_vsrv[i].vif.sock);
+#else
+    		if(gVrrpMatser->SemMutexId)
+    			zvrrpsemdelete(gVrrpMatser->SemMutexId);
+    		zvrrputilschedcancel(gVrrpMatser->master, gVrrpMatser->master->sched_timer);
+    		zvrrputilschedcancel(gVrrpMatser->master, gVrrpMatser->master->sched_read);
+#endif
+    		if(gVrrpMatser->gVrrp_vsrv[i].vif.sock)
+    			close(gVrrpMatser->gVrrp_vsrv[i].vif.sock);
+			zvrrp_vsrv_delete(&gVrrpMatser->gVrrp_vsrv[i]);
+			zvrrp_vsrv_free(&gVrrpMatser->gVrrp_vsrv[i]);
+    	}
+    }
+
 	zvrrp_cmd_uninit(gVrrpMatser);
 	zvrrp_zclient_uninit(gVrrpMatser);
-	zvrrp_master_thread_uninit(gVrrpMatser);
-	
+
+#ifdef ZVRRPD_ON_ROUTTING
 #if (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)
 	if(gVrrpMatser->task)
 		taskDelete(gVrrpMatser->task);
-#endif// (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS) 
+#endif
+
+	thread_master_free ((struct thread_master *)gVrrpMatser->master);
+
+#else//ZVRRPD_ON_ROUTTING
+	if(zvrrp->master)
+		zvrrputilschedclean(zvrrp->master);
+	if(zvrrp->SemMutexId)
+		zvrrpsemdelete(zvrrp->SemMutexId);
+#endif// ZVRRPD_ON_ROUTTING
+
 	free(gVrrpMatser);
     return OK;
 }

@@ -45,10 +45,10 @@ struct imish_client
 {
   int fd;
   const char *name;
-  const int flag;
+  const unsigned long flag;
   const char *path;
   const char *pid_path; 
-#define IMISH_CLIENT_TABLE(a,b,c) .flag = IMISH_ ## a, .path = b ## _VTYSH_PATH, .pid_path = PATH_ ## c ## _PID 
+//#define IMISH_CLIENT_TABLE(a,b,c) .flag = IMISH_ ## a, .path = b ## _VTYSH_PATH, .pid_path = PATH_ ## c ## _PID
   pid_t	pid;//保存子进程PID信息
 } imish_client[] =
 {	
@@ -59,11 +59,39 @@ struct imish_client
   { .fd = -1, .name = "ospf6d", .flag = IMISH_OSPF6D, .path = OSPF6_VTYSH_PATH, .pid_path = PATH_OSPF6D_PID, .pid = 0},
   { .fd = -1, .name = "bgpd", 	.flag = IMISH_BGPD, .path = BGP_VTYSH_PATH, .pid_path = PATH_BGPD_PID, .pid = 0},
   { .fd = -1, .name = "isisd", 	.flag = IMISH_ISISD, .path = ISIS_VTYSH_PATH, .pid_path = PATH_ISISD_PID, .pid = 0},
+  { .fd = -1, .name = "babeld", .flag = IMISH_BABELD, .path = BABEL_VTYSH_PATH, .pid_path = PATH_BABELD_PID, .pid = 0},
   { .fd = -1, .name = "pimd", 	.flag = IMISH_PIMD, .path = PIM_VTYSH_PATH, .pid_path = PATH_PIMD_PID, .pid = 0},
 /* 2016年7月2日 22:04:29  zhurish: 扩展路由协议后增加链接到路由协议客户端的定义  */
 #ifdef HAVE_EXPAND_ROUTE_PLATFORM    
+#ifdef HSLS_VTYSH_PATH
+  { .fd = -1, .name = "hsls", .flag = IMISH_HSLSD, .path = HSLS_VTYSH_PATH, .pid_path = PATH_HSLSD_PID, .pid = 0},
+#endif
 #ifdef OLSR_VTYSH_PATH
-  { .fd = -1, .name = "olsrd", .flag = IMISH_OLSRD, .path = OLSR_VTYSH_PATH, .pid_path = PATH_OLSRD_PID, .pid = 0},  
+  { .fd = -1, .name = "olsrd", .flag = IMISH_OLSRD, .path = OLSR_VTYSH_PATH, .pid_path = PATH_OLSRD_PID, .pid = 0},
+#endif
+#ifdef ICRP_VTYSH_PATH
+  { .fd = -1, .name = "icrp", .flag = IMISH_ICRPD, .path = ICRP_VTYSH_PATH, .pid_path = PATH_ICRPD_PID, .pid = 0},
+#endif
+#ifdef FRP_VTYSH_PATH
+  { .fd = -1, .name = "frpd", .flag = IMISH_FRPD, .path = FRP_VTYSH_PATH, .pid_path = PATH_FRPD_PID, .pid = 0},
+#endif
+#ifdef VRRP_VTYSH_PATH
+  { .fd = -1, .name = "vrrpd", .flag = IMISH_VRRPD, .path = VRRP_VTYSH_PATH, .pid_path = PATH_VRRPD_PID, .pid = 0},
+#endif
+#ifdef LLDP_VTYSH_PATH
+  { .fd = -1, .name = "lldpd", .flag = IMISH_LLDPD, .path = LLDP_VTYSH_PATH, .pid_path = PATH_LLDPD_PID, .pid = 0},
+#endif
+#ifdef VPN_VTYSH_PATH
+  { .fd = -1, .name = "vpnd", .flag = IMISH_VPND, .path = VPN_VTYSH_PATH, .pid_path = PATH_VPND_PID, .pid = 0},
+#endif
+#ifdef LDP_VTYSH_PATH
+  { .fd = -1, .name = "ldpd", .flag = IMISH_LDPD, .path = LDP_VTYSH_PATH, .pid_path = PATH_LDPD_PID, .pid = 0},
+#endif
+#ifdef RSVP_VTYSH_PATH
+  { .fd = -1, .name = "rsvpd", .flag = IMISH_RSVPD, .path = RSVP_VTYSH_PATH, .pid_path = PATH_RSVPD_PID, .pid = 0},
+#endif
+#ifdef MPLS_VTYSH_PATH
+  { .fd = -1, .name = "mplsd", .flag = IMISH_MPLSD, .path = MPLS_VTYSH_PATH, .pid_path = PATH_MPLSD_PID, .pid = 0},
 #endif
   #endif /* HAVE_EXPAND_ROUTE_PLATFORM */
 /* 2016年7月2日 22:04:29  zhurish: 扩展路由协议后增加链接到路由协议客户端的定义  */
@@ -494,135 +522,6 @@ static int imish_sh_execute (struct vty *vty, const char *line)
 {
   return imish_module_execute_callbak (vty, line, 1);
 }
-
-/* Vty node structures. */
-static struct cmd_node bgp_node =
-{
-  BGP_NODE,
-  "%s(config-router)# ",
-};
-
-static struct cmd_node rip_node =
-{
-  RIP_NODE,
-  "%s(config-router)# ",
-};
-
-static struct cmd_node isis_node =
-{
-  ISIS_NODE,
-  "%s(config-router)# ",
-};
-/* 2016年7月2日 22:07:39 zhurish: 扩展路由协议增加命令节点 */
-#ifdef HAVE_EXPAND_ROUTE_PLATFORM
-static struct cmd_node olsr_node =
-{
-  OLSR_NODE,
-  "%s(config-router)# ",
-};
-#endif
-/* 2016年7月2日 22:07:39  zhurish: 扩展路由协议增加命令节点 */
-static struct cmd_node interface_node =
-{
-  INTERFACE_NODE,
-  "%s(config-if)# ",
-};
-
-static struct cmd_node rmap_node =
-{
-  RMAP_NODE,
-  "%s(config-route-map)# "
-};
-
-static struct cmd_node zebra_node =
-{
-  ZEBRA_NODE,
-  "%s(config-router)# "
-};
-
-static struct cmd_node bgp_vpnv4_node =
-{
-  BGP_VPNV4_NODE,
-  "%s(config-router-af)# "
-};
-/*
-static struct cmd_node bgp_vpnv6_node =
-{
-  BGP_VPNV6_NODE,
-  "%s(config-router-af)# "
-};
-
-static struct cmd_node bgp_encap_node =
-{
-  BGP_ENCAP_NODE,
-  "%s(config-router-af)# "
-};
-
-static struct cmd_node bgp_encapv6_node =
-{
-  BGP_ENCAPV6_NODE,
-  "%s(config-router-af)# "
-};
-*/
-static struct cmd_node bgp_ipv4_node =
-{
-  BGP_IPV4_NODE,
-  "%s(config-router-af)# "
-};
-
-static struct cmd_node bgp_ipv4m_node =
-{
-  BGP_IPV4M_NODE,
-  "%s(config-router-af)# "
-};
-
-static struct cmd_node bgp_ipv6_node =
-{
-  BGP_IPV6_NODE,
-  "%s(config-router-af)# "
-};
-
-static struct cmd_node bgp_ipv6m_node =
-{
-  BGP_IPV6M_NODE,
-  "%s(config-router-af)# "
-};
-
-static struct cmd_node ospf_node =
-{
-  OSPF_NODE,
-  "%s(config-router)# "
-};
-
-static struct cmd_node ripng_node =
-{
-  RIPNG_NODE,
-  "%s(config-router)# "
-};
-
-static struct cmd_node ospf6_node =
-{
-  OSPF6_NODE,
-  "%s(config-ospf6)# "
-};
-
-static struct cmd_node babel_node =
-{
-  BABEL_NODE,
-  "%s(config-babel)# "
-};
-
-static struct cmd_node keychain_node =
-{
-  KEYCHAIN_NODE,
-  "%s(config-keychain)# "
-};
-
-static struct cmd_node keychain_key_node =
-{
-  KEYCHAIN_KEY_NODE,
-  "%s(config-keychain-key)# "
-};
 
 /* When '^Z' is received from imi, move down to the enable mode. */
 static int
@@ -2395,25 +2294,312 @@ DEFUN (show_startup_config,
   return CMD_SUCCESS;
 }
 
-
-static void
-imish_install_default (enum node_type node)
+static struct cmd_node cmd_node_list[] =
 {
-  install_element (node, &config_list_cmd);
+  //{ SERVICE_NODE, "%s(config)# " },
+#ifdef IMISH_IMI_MODULE
+  //{ LINUX_SHELL_NODE, "%s(config)# " },
+#endif//IMISH_IMI_MODULE
+  //{ DEBUG_NODE, "%s(config)# " },
+  //{ AAA_NODE, "%s(config-aaa)# " },
+  { KEYCHAIN_NODE, "%s(config-keychain)# " },
+  { KEYCHAIN_KEY_NODE, "%s(config-keychain-key)# " },
+  { INTERFACE_NODE, "%s(config-if)# " },
+  { ZEBRA_NODE, "%s(config-router)# " },
+  { TABLE_NODE, "%s(config-table)# " },
+  { RIP_NODE, "%s(config-router)# " },
+  { RIPNG_NODE, "%s(config-router)# " },
+  { BABEL_NODE, "%s(config-router)# " },
+
+  { BGP_NODE, "%s(config-router)# " },
+  { BGP_VPNV4_NODE, "%s(config-router-af)# " },
+  { BGP_IPV4_NODE, "%s(config-router-af)# " },
+  { BGP_IPV4M_NODE, "%s(config-router-af)# " },
+
+  { BGP_IPV6_NODE, "%s(config-router-af)# " },
+  { BGP_IPV6M_NODE, "%s(config-router-af)# " },
+  //{ BGP_VPNV6_NODE, "%s(config-router-af)# " },
+  //{ BGP_ENCAP_NODE, "%s(config-router-af)# " },
+  //{ BGP_ENCAPV6_NODE, "%s(config-router-af)# " },
+
+  { OSPF_NODE, "%s(config-router)# " },
+  { OSPF6_NODE, "%s(config-router)# " },
+  { ISIS_NODE, "%s(config-router)# " },
+  { PIM_NODE, "%s(config-router)# " },
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+  { HSLS_NODE, "%s(config-router)# " },
+  { OLSR_NODE, "%s(config-router)# " },
+  { ICRP_NODE, "%s(config-router)# " },
+  { FRP_NODE, "%s(config-router)# " },
+  { VRRP_NODE, "%s(config-router)# " },
+  { LLDP_NODE, "%s(config-router)# " },
+  { LDP_NODE, "%s(config-router)# " },
+  { RSVP_NODE, "%s(config-router)# " },
+  { MPLS_NODE, "%s(config-router)# " },
+#endif//#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+  /*
+  { MASC_NODE, "%s(config)# " },
+  { IRDP_NODE, "%s(config)# " },
+  { IP_NODE, "%s(config)# " },
+  { ACCESS_NODE, "%s(config)# " },
+
+  { PREFIX_NODE, "%s(config)# " },
+  { ACCESS_IPV6_NODE, "%s(config)# " },
+  { PREFIX_IPV6_NODE, "%s(config)# " },
+  { AS_LIST_NODE, "%s(config)# " },
+
+  { COMMUNITY_LIST_NODE, "%s(config)# " },
+  */
+  { RMAP_NODE, "%s(route-map)# " },
+  /*
+  { SMUX_NODE, "%s(config)# " },
+  { DUMP_NODE, "%s(config)# " },
+
+  { FORWARDING_NODE, "%s(config)# " },
+  { PROTOCOL_NODE, "%s(config)# " },
+  */
+  { VTY_NODE, "%s(config-line)# " },
+};
+
+static void imish_install_default (void)
+{
+	unsigned int i = 0;
+	for(i = 0; i < array_size(cmd_node_list); i++)
+	{
+		install_element (i, &config_list_cmd);
+	}
+}
+
+static void imish_module_node_init (void)
+{
+  unsigned int i = 0;
+  //extern struct cmd_node vty_node;
+  for(i = 0; i < array_size(cmd_node_list); i++)
+  {
+	  install_node (&cmd_node_list[i], NULL);
+  }
+}
+static void imish_module_end_cmd_init (void)
+{
+  unsigned int i = 0;
+  for(i = 0; i < array_size(cmd_node_list); i++)
+  {
+	  install_element (i, &imish_end_all_cmd);
+  }
+}
+static void imish_module_exit_cmd_init (void)
+{
+	  install_element (VIEW_NODE, &imish_exit_imish_cmd);
+	  install_element (VIEW_NODE, &imish_quit_imish_cmd);
+	  install_element (ENABLE_NODE, &imish_exit_imish_cmd);
+	  install_element (ENABLE_NODE, &imish_quit_imish_cmd);
+
+	  install_element (CONFIG_NODE, &imish_exit_all_cmd);
+	  install_element (RIP_NODE, &imish_exit_ripd_cmd);
+	  install_element (RIP_NODE, &imish_quit_ripd_cmd);
+	  install_element (RIPNG_NODE, &imish_exit_ripngd_cmd);
+	  install_element (RIPNG_NODE, &imish_quit_ripngd_cmd);
+	  install_element (OSPF_NODE, &imish_exit_ospfd_cmd);
+	  install_element (OSPF_NODE, &imish_quit_ospfd_cmd);
+	  install_element (OSPF6_NODE, &imish_exit_ospf6d_cmd);
+	  install_element (OSPF6_NODE, &imish_quit_ospf6d_cmd);
+	  install_element (BGP_NODE, &imish_exit_bgpd_cmd);
+	  install_element (BGP_NODE, &imish_quit_bgpd_cmd);
+	  install_element (BGP_VPNV4_NODE, &imish_exit_bgpd_cmd);
+	  install_element (BGP_VPNV4_NODE, &imish_quit_bgpd_cmd);
+	#ifdef HAVE_IPV6
+	  //install_element (BGP_VPNV6_NODE, &imish_exit_bgpd_cmd);
+	  //install_element (BGP_VPNV6_NODE, &imish_quit_bgpd_cmd);
+	#endif
+	  //install_element (BGP_ENCAP_NODE, &imish_exit_bgpd_cmd);
+	  //install_element (BGP_ENCAP_NODE, &imish_quit_bgpd_cmd);
+	#ifdef HAVE_IPV6
+	 // install_element (BGP_ENCAPV6_NODE, &imish_exit_bgpd_cmd);
+	 // install_element (BGP_ENCAPV6_NODE, &imish_quit_bgpd_cmd);
+	#endif
+	  install_element (BGP_IPV4_NODE, &imish_exit_bgpd_cmd);
+	  install_element (BGP_IPV4_NODE, &imish_quit_bgpd_cmd);
+	  install_element (BGP_IPV4M_NODE, &imish_exit_bgpd_cmd);
+	  install_element (BGP_IPV4M_NODE, &imish_quit_bgpd_cmd);
+	#ifdef HAVE_IPV6
+	  install_element (BGP_IPV6_NODE, &imish_exit_bgpd_cmd);
+	  install_element (BGP_IPV6_NODE, &imish_quit_bgpd_cmd);
+	  install_element (BGP_IPV6M_NODE, &imish_exit_bgpd_cmd);
+	  install_element (BGP_IPV6M_NODE, &imish_quit_bgpd_cmd);
+	#endif
+	  install_element (ISIS_NODE, &imish_exit_isisd_cmd);
+	  install_element (ISIS_NODE, &imish_quit_isisd_cmd);
+	  install_element (KEYCHAIN_NODE, &imish_exit_ripd_cmd);
+	  install_element (KEYCHAIN_NODE, &imish_quit_ripd_cmd);
+	  install_element (KEYCHAIN_KEY_NODE, &imish_exit_ripd_cmd);
+	  install_element (KEYCHAIN_KEY_NODE, &imish_quit_ripd_cmd);
+	  install_element (RMAP_NODE, &imish_exit_rmap_cmd);
+	  install_element (RMAP_NODE, &imish_quit_rmap_cmd);
+	  install_element (VTY_NODE, &imish_exit_line_vty_cmd);
+	  install_element (VTY_NODE, &imish_quit_line_vty_cmd);
+}
+
+static void imish_module_logging_cmd_init (void)
+{
+	  install_element (ENABLE_NODE, &imish_show_logging_cmd);
+	  install_element (VIEW_NODE, &imish_show_logging_cmd);
+	  install_element (CONFIG_NODE, &imish_log_stdout_cmd);
+	  install_element (CONFIG_NODE, &imish_log_stdout_level_cmd);
+	  install_element (CONFIG_NODE, &no_imish_log_stdout_cmd);
+	  install_element (CONFIG_NODE, &imish_log_file_cmd);
+	  install_element (CONFIG_NODE, &imish_log_file_level_cmd);
+	  install_element (CONFIG_NODE, &no_imish_log_file_cmd);
+	  install_element (CONFIG_NODE, &no_imish_log_file_level_cmd);
+	  install_element (CONFIG_NODE, &imish_log_monitor_cmd);
+	  install_element (CONFIG_NODE, &imish_log_monitor_level_cmd);
+	  install_element (CONFIG_NODE, &no_imish_log_monitor_cmd);
+	  install_element (CONFIG_NODE, &imish_log_syslog_cmd);
+	  install_element (CONFIG_NODE, &imish_log_syslog_level_cmd);
+	  install_element (CONFIG_NODE, &no_imish_log_syslog_cmd);
+	  install_element (CONFIG_NODE, &imish_log_trap_cmd);
+	  install_element (CONFIG_NODE, &no_imish_log_trap_cmd);
+	  install_element (CONFIG_NODE, &imish_log_facility_cmd);
+	  install_element (CONFIG_NODE, &no_imish_log_facility_cmd);
+	  install_element (CONFIG_NODE, &imish_log_record_priority_cmd);
+	  install_element (CONFIG_NODE, &no_imish_log_record_priority_cmd);
+	  install_element (CONFIG_NODE, &imish_log_timestamp_precision_cmd);
+	  install_element (CONFIG_NODE, &no_imish_log_timestamp_precision_cmd);
+}
+
+static void imish_module_base_cmd_init (void)
+{
+	  /*interface*/
+	  install_element (INTERFACE_NODE, &interface_desc_cmd);
+	  install_element (INTERFACE_NODE, &no_interface_desc_cmd);
+	  install_element (INTERFACE_NODE, &imish_end_all_cmd);
+	  install_element (INTERFACE_NODE, &imish_exit_interface_cmd);
+	  install_element (INTERFACE_NODE, &imish_quit_interface_cmd);
+
+
+	  install_element (VIEW_NODE, &imish_enable_cmd);
+	  install_element (ENABLE_NODE, &imish_config_terminal_cmd);
+	  install_element (ENABLE_NODE, &imish_disable_cmd);
+
+	  install_element (CONFIG_NODE, &imish_hostname_cmd);
+	  install_element (CONFIG_NODE, &imish_no_hostname_cmd);
+	  /* password command */
+	  //install_element (CONFIG_NODE, &imish_service_password_encrypt_cmd);
+	  //install_element (CONFIG_NODE, &no_imish_service_password_encrypt_cmd);
+
+	  install_element (CONFIG_NODE, &imish_password_cmd);
+	  install_element (CONFIG_NODE, &imish_password_text_cmd);
+	  install_element (CONFIG_NODE, &imish_enable_password_cmd);
+	  install_element (CONFIG_NODE, &imish_enable_password_text_cmd);
+	  install_element (CONFIG_NODE, &no_imish_enable_password_cmd);
+	  /*
+	  install_element (CONFIG_NODE, &banner_motd_default_cmd);
+	  install_element (CONFIG_NODE, &banner_motd_file_cmd);
+	  install_element (CONFIG_NODE, &no_banner_motd_cmd);
+	  */
+	  install_element (ENABLE_NODE, &terminal_monitor_cmd);
+	  install_element (ENABLE_NODE, &no_terminal_monitor_cmd);
+
+	  install_element (ENABLE_NODE, &service_terminal_length_cmd);
+	  install_element (ENABLE_NODE, &no_service_terminal_length_cmd);
+	  install_element (VIEW_NODE, &imish_terminal_length_cmd);
+	  install_element (ENABLE_NODE, &imish_terminal_length_cmd);
+	  install_element (VIEW_NODE, &imish_terminal_no_length_cmd);
+	  install_element (ENABLE_NODE, &imish_terminal_no_length_cmd);
+
+	  /* "write terminal" command. */
+	  install_element (ENABLE_NODE, &imish_write_terminal_cmd);
+	  install_element (ENABLE_NODE, &imish_show_running_config_cmd);
+	  install_element (ENABLE_NODE, &show_startup_config_cmd);
+
+	  /* "write memory" command. */
+	  install_element (ENABLE_NODE, &imish_write_memory_cmd);
+	  install_element (ENABLE_NODE, &imish_copy_runningconfig_startupconfig_cmd);
+	  install_element (ENABLE_NODE, &imish_write_file_cmd);
+	  install_element (ENABLE_NODE, &imish_write_cmd);
+	  install_element (ENABLE_NODE, &imish_write_memory_imish_cmd);
+
+	  /* "show xxxx" command*/
+	  install_element (VIEW_NODE, &imish_show_daemons_cmd);
+	  install_element (ENABLE_NODE, &imish_show_daemons_cmd);
+
+	  install_element (VIEW_NODE, &imish_show_memory_cmd);
+	  install_element (ENABLE_NODE, &imish_show_memory_cmd);
+
+	  install_element (VIEW_NODE, &imish_show_work_queues_cmd);
+	  install_element (ENABLE_NODE, &imish_show_work_queues_cmd);
+
+	  install_element (VIEW_NODE, &imish_show_thread_cmd);
+	  install_element (ENABLE_NODE, &imish_show_thread_cmd);
+
+	  install_element (CONFIG_NODE, &key_chain_cmd);
+	  install_element (CONFIG_NODE, &route_map_cmd);
+	  install_element (CONFIG_NODE, &line_vty_cmd);
+	  install_element (KEYCHAIN_NODE, &key_cmd);
+	  install_element (KEYCHAIN_NODE, &key_chain_cmd);
+	  install_element (KEYCHAIN_KEY_NODE, &key_chain_cmd);
+	  install_element (CONFIG_NODE, &imish_interface_cmd);
+	  install_element (CONFIG_NODE, &imish_no_interface_cmd);
+	  //install_element (CONFIG_NODE, &imish_interface_vrf_cmd);
+	  //install_element (CONFIG_NODE, &imish_no_interface_vrf_cmd);
+}
+
+static void imish_module_router_cmd_init (void)
+{
+
+	  install_element (CONFIG_NODE, &router_rip_cmd);
+	#ifdef HAVE_IPV6
+	  install_element (CONFIG_NODE, &router_ripng_cmd);
+	#endif
+	  install_element (CONFIG_NODE, &router_ospf_cmd);
+	#ifdef HAVE_IPV6
+	  install_element (CONFIG_NODE, &router_ospf6_cmd);
+	#endif
+	/* 2016年7月2日 22:08:58 zhurish: 扩展路由协议增加命令 */
+	#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+	  install_element (CONFIG_NODE, &router_olsr_cmd);
+	  install_element (OLSR_NODE, &imish_exit_olsr_cmd);
+	  install_element (OLSR_NODE, &imish_quit_olsr_cmd);
+	  install_element (OLSR_NODE, &imish_end_all_cmd);
+	#endif
+	/* 2016年7月2日 22:08:58  zhurish: 扩展路由协议增加命令 */
+	  install_element (CONFIG_NODE, &router_isis_cmd);
+	  install_element (CONFIG_NODE, &router_bgp_cmd);
+	  install_element (CONFIG_NODE, &router_bgp_view_cmd);
+	  install_element (BGP_NODE, &address_family_vpnv4_cmd);
+	  install_element (BGP_NODE, &address_family_vpnv4_unicast_cmd);
+	  //install_element (BGP_NODE, &address_family_vpnv6_cmd);
+	  //install_element (BGP_NODE, &address_family_vpnv6_unicast_cmd);
+	  //install_element (BGP_NODE, &address_family_encap_cmd);
+	  //install_element (BGP_NODE, &address_family_encapv6_cmd);
+	  install_element (BGP_NODE, &address_family_ipv4_unicast_cmd);
+	  install_element (BGP_NODE, &address_family_ipv4_multicast_cmd);
+	#ifdef HAVE_IPV6
+	  install_element (BGP_NODE, &address_family_ipv6_cmd);
+	  install_element (BGP_NODE, &address_family_ipv6_unicast_cmd);
+	#endif
+	  install_element (BGP_VPNV4_NODE, &exit_address_family_cmd);
+	  //install_element (BGP_VPNV6_NODE, &exit_address_family_cmd);
+	  //install_element (BGP_ENCAP_NODE, &exit_address_family_cmd);
+	  //install_element (BGP_ENCAPV6_NODE, &exit_address_family_cmd);
+
+	  install_element (BGP_IPV4_NODE, &exit_address_family_cmd);
+	  install_element (BGP_IPV4M_NODE, &exit_address_family_cmd);
+	  install_element (BGP_IPV6_NODE, &exit_address_family_cmd);
+	  install_element (BGP_IPV6M_NODE, &exit_address_family_cmd);
 }
 
 void imish_module_init (void)
 {
-	char oem[] = SYSCONFDIR IMISH_OEM_DEFAULT;
-	extern void imi_shell_init (struct thread_master *master_thread);
-	extern int (*imi_sh_execute)(struct vty *vty, char *buf);
-	extern struct cmd_node vty_node;
+  char oem[] = SYSCONFDIR IMISH_OEM_DEFAULT;
+  extern void imi_shell_init (struct thread_master *master_thread);
+  extern int (*imi_sh_execute)(struct vty *vty, char *buf);
+
   /* Initialize commands. */
   memset(&host, 0, sizeof(struct host));
   cmd_init (0);
 	
-	imi_sh_execute = imish_sh_execute;
-	host.motd = NULL;
+  imi_sh_execute = imish_sh_execute;
+  host.motd = NULL;
   if (host.motdfile)
     XFREE (MTYPE_HOST, host.motdfile);
   host.motdfile = XSTRDUP (MTYPE_HOST, oem);
@@ -2421,281 +2607,29 @@ void imish_module_init (void)
   imish_connect = thread_add_timer (master, imish_module_connect_thread, NULL, 5);
   
   /* Install nodes. */
-  install_node (&bgp_node, NULL);
-  install_node (&rip_node, NULL);
-  install_node (&interface_node, NULL);
-  install_node (&rmap_node, NULL);
-  install_node (&zebra_node, NULL);
-  install_node (&bgp_vpnv4_node, NULL);
-  //install_node (&bgp_vpnv6_node, NULL);
-  //install_node (&bgp_encap_node, NULL);
-  //install_node (&bgp_encapv6_node, NULL);
-  install_node (&bgp_ipv4_node, NULL);
-  install_node (&bgp_ipv4m_node, NULL);
-/* #ifdef HAVE_IPV6 */
-  install_node (&bgp_ipv6_node, NULL);
-  install_node (&bgp_ipv6m_node, NULL);
-/* #endif */
-  install_node (&ospf_node, NULL);
-/* #ifdef HAVE_IPV6 */
-  install_node (&ripng_node, NULL);
-  install_node (&ospf6_node, NULL);
-/* #endif */
-  install_node (&babel_node, NULL);
-  install_node (&keychain_node, NULL);
-  install_node (&keychain_key_node, NULL);
-  install_node (&isis_node, NULL);
-  install_node (&vty_node, NULL);
+  //install_node (&bgp_node, NULL);
+  imish_module_node_init ();
   
   imi_shell_init (master);
-/* 2016年7月2日 22:08:37 zhurish: 扩展路由协议增加命令 */
-#ifdef HAVE_EXPAND_ROUTE_PLATFORM
-  install_node (&olsr_node, NULL);
-#endif
-/* 2016年7月2日 22:08:37  zhurish: 扩展路由协议增加命令 */
-  imish_install_default (VIEW_NODE);
-  imish_install_default (ENABLE_NODE);
-  imish_install_default (CONFIG_NODE);
-  imish_install_default (BGP_NODE);
-  imish_install_default (RIP_NODE);
-  imish_install_default (INTERFACE_NODE);
-  imish_install_default (RMAP_NODE);
-  imish_install_default (ZEBRA_NODE);
-  imish_install_default (BGP_VPNV4_NODE);
-  //imish_install_default (BGP_VPNV6_NODE);
-  //imish_install_default (BGP_ENCAP_NODE);
-  //imish_install_default (BGP_ENCAPV6_NODE);
-  imish_install_default (BGP_IPV4_NODE);
-  imish_install_default (BGP_IPV4M_NODE);
-  imish_install_default (BGP_IPV6_NODE);
-  imish_install_default (BGP_IPV6M_NODE);
-  imish_install_default (OSPF_NODE);
-  imish_install_default (RIPNG_NODE);
-  imish_install_default (OSPF6_NODE);
-  imish_install_default (BABEL_NODE);
-  imish_install_default (ISIS_NODE);
-  imish_install_default (KEYCHAIN_NODE);
-  imish_install_default (KEYCHAIN_KEY_NODE);
-  imish_install_default (VTY_NODE);
-/* 2016年7月2日 22:08:45 zhurish: 扩展路由协议增加命令 */
-#ifdef HAVE_EXPAND_ROUTE_PLATFORM
-  imish_install_default (OLSR_NODE);
-#endif
-/* 2016年7月2日 22:08:45  zhurish: 扩展路由协议增加命令 */
+
+  imish_install_default ();
 
   /* "exit" command. */
-  install_element (VIEW_NODE, &imish_exit_imish_cmd);
-  install_element (VIEW_NODE, &imish_quit_imish_cmd);
-  install_element (ENABLE_NODE, &imish_exit_imish_cmd);
-  install_element (ENABLE_NODE, &imish_quit_imish_cmd);
-  //install_element (VIEW_NODE, &imish_exit_all_cmd);
-  //install_element (VIEW_NODE, &imish_quit_all_cmd);
-  //install_element (ENABLE_NODE, &imish_exit_all_cmd);
-  //install_element (ENABLE_NODE, &imish_quit_all_cmd);
-  
-  install_element (CONFIG_NODE, &imish_exit_all_cmd);
-  install_element (RIP_NODE, &imish_exit_ripd_cmd);
-  install_element (RIP_NODE, &imish_quit_ripd_cmd);
-  install_element (RIPNG_NODE, &imish_exit_ripngd_cmd);
-  install_element (RIPNG_NODE, &imish_quit_ripngd_cmd);
-  install_element (OSPF_NODE, &imish_exit_ospfd_cmd);
-  install_element (OSPF_NODE, &imish_quit_ospfd_cmd);
-  install_element (OSPF6_NODE, &imish_exit_ospf6d_cmd);
-  install_element (OSPF6_NODE, &imish_quit_ospf6d_cmd);
-  install_element (BGP_NODE, &imish_exit_bgpd_cmd);
-  install_element (BGP_NODE, &imish_quit_bgpd_cmd);
-  install_element (BGP_VPNV4_NODE, &imish_exit_bgpd_cmd);
-  install_element (BGP_VPNV4_NODE, &imish_quit_bgpd_cmd);
-#ifdef HAVE_IPV6
-  //install_element (BGP_VPNV6_NODE, &imish_exit_bgpd_cmd);
-  //install_element (BGP_VPNV6_NODE, &imish_quit_bgpd_cmd);
-#endif
-  //install_element (BGP_ENCAP_NODE, &imish_exit_bgpd_cmd);
-  //install_element (BGP_ENCAP_NODE, &imish_quit_bgpd_cmd);
-#ifdef HAVE_IPV6
- // install_element (BGP_ENCAPV6_NODE, &imish_exit_bgpd_cmd);
- // install_element (BGP_ENCAPV6_NODE, &imish_quit_bgpd_cmd);
-#endif
-  install_element (BGP_IPV4_NODE, &imish_exit_bgpd_cmd);
-  install_element (BGP_IPV4_NODE, &imish_quit_bgpd_cmd);
-  install_element (BGP_IPV4M_NODE, &imish_exit_bgpd_cmd);
-  install_element (BGP_IPV4M_NODE, &imish_quit_bgpd_cmd);
-#ifdef HAVE_IPV6
-  install_element (BGP_IPV6_NODE, &imish_exit_bgpd_cmd);
-  install_element (BGP_IPV6_NODE, &imish_quit_bgpd_cmd);
-  install_element (BGP_IPV6M_NODE, &imish_exit_bgpd_cmd);
-  install_element (BGP_IPV6M_NODE, &imish_quit_bgpd_cmd);
-#endif  
-  install_element (ISIS_NODE, &imish_exit_isisd_cmd);
-  install_element (ISIS_NODE, &imish_quit_isisd_cmd);
-  install_element (KEYCHAIN_NODE, &imish_exit_ripd_cmd);
-  install_element (KEYCHAIN_NODE, &imish_quit_ripd_cmd);
-  install_element (KEYCHAIN_KEY_NODE, &imish_exit_ripd_cmd);
-  install_element (KEYCHAIN_KEY_NODE, &imish_quit_ripd_cmd);
-  install_element (RMAP_NODE, &imish_exit_rmap_cmd);
-  install_element (RMAP_NODE, &imish_quit_rmap_cmd);
-  install_element (VTY_NODE, &imish_exit_line_vty_cmd);
-  install_element (VTY_NODE, &imish_quit_line_vty_cmd);
+  imish_module_exit_cmd_init ();
 
   /* "end" command. */
-  install_element (CONFIG_NODE, &imish_end_all_cmd);
-  install_element (ENABLE_NODE, &imish_end_all_cmd);
-  install_element (RIP_NODE, &imish_end_all_cmd);
-  install_element (RIPNG_NODE, &imish_end_all_cmd);
-  install_element (OSPF_NODE, &imish_end_all_cmd);
-  install_element (OSPF6_NODE, &imish_end_all_cmd);
-  install_element (BABEL_NODE, &imish_end_all_cmd);
-  install_element (BGP_NODE, &imish_end_all_cmd);
-  install_element (BGP_IPV4_NODE, &imish_end_all_cmd);
-  install_element (BGP_IPV4M_NODE, &imish_end_all_cmd);
-  install_element (BGP_VPNV4_NODE, &imish_end_all_cmd);
-  //install_element (BGP_VPNV6_NODE, &imish_end_all_cmd);
-  //install_element (BGP_ENCAP_NODE, &imish_end_all_cmd);
-  //install_element (BGP_ENCAPV6_NODE, &imish_end_all_cmd);
-  install_element (BGP_IPV6_NODE, &imish_end_all_cmd);
-  install_element (BGP_IPV6M_NODE, &imish_end_all_cmd);
-  install_element (ISIS_NODE, &imish_end_all_cmd);
-  install_element (KEYCHAIN_NODE, &imish_end_all_cmd);
-  install_element (KEYCHAIN_KEY_NODE, &imish_end_all_cmd);
-  install_element (RMAP_NODE, &imish_end_all_cmd);
-  install_element (VTY_NODE, &imish_end_all_cmd);
+  imish_module_end_cmd_init();
 
-  install_element (INTERFACE_NODE, &interface_desc_cmd);
-  install_element (INTERFACE_NODE, &no_interface_desc_cmd);
-  install_element (INTERFACE_NODE, &imish_end_all_cmd);
-  install_element (INTERFACE_NODE, &imish_exit_interface_cmd);
-  install_element (INTERFACE_NODE, &imish_quit_interface_cmd);
-  install_element (CONFIG_NODE, &router_rip_cmd);
-#ifdef HAVE_IPV6
-  install_element (CONFIG_NODE, &router_ripng_cmd);
-#endif
-  install_element (CONFIG_NODE, &router_ospf_cmd);
-#ifdef HAVE_IPV6
-  install_element (CONFIG_NODE, &router_ospf6_cmd);
-#endif
-/* 2016年7月2日 22:08:58 zhurish: 扩展路由协议增加命令 */
-#ifdef HAVE_EXPAND_ROUTE_PLATFORM
-  install_element (CONFIG_NODE, &router_olsr_cmd);
-  install_element (OLSR_NODE, &imish_exit_olsr_cmd);
-  install_element (OLSR_NODE, &imish_quit_olsr_cmd);
-  install_element (OLSR_NODE, &imish_end_all_cmd);  
-#endif
-/* 2016年7月2日 22:08:58  zhurish: 扩展路由协议增加命令 */
-  install_element (CONFIG_NODE, &router_isis_cmd);
-  install_element (CONFIG_NODE, &router_bgp_cmd);
-  install_element (CONFIG_NODE, &router_bgp_view_cmd);
-  install_element (BGP_NODE, &address_family_vpnv4_cmd);
-  install_element (BGP_NODE, &address_family_vpnv4_unicast_cmd);
-  //install_element (BGP_NODE, &address_family_vpnv6_cmd);
-  //install_element (BGP_NODE, &address_family_vpnv6_unicast_cmd);
-  //install_element (BGP_NODE, &address_family_encap_cmd);
-  //install_element (BGP_NODE, &address_family_encapv6_cmd);
-  install_element (BGP_NODE, &address_family_ipv4_unicast_cmd);
-  install_element (BGP_NODE, &address_family_ipv4_multicast_cmd);
-#ifdef HAVE_IPV6
-  install_element (BGP_NODE, &address_family_ipv6_cmd);
-  install_element (BGP_NODE, &address_family_ipv6_unicast_cmd);
-#endif
-  install_element (BGP_VPNV4_NODE, &exit_address_family_cmd);
-  //install_element (BGP_VPNV6_NODE, &exit_address_family_cmd);
-  //install_element (BGP_ENCAP_NODE, &exit_address_family_cmd);
-  //install_element (BGP_ENCAPV6_NODE, &exit_address_family_cmd);
-  install_element (BGP_IPV4_NODE, &exit_address_family_cmd);
-  install_element (BGP_IPV4M_NODE, &exit_address_family_cmd);
-  install_element (BGP_IPV6_NODE, &exit_address_family_cmd);
-  install_element (BGP_IPV6M_NODE, &exit_address_family_cmd);
-  install_element (CONFIG_NODE, &key_chain_cmd);
-  install_element (CONFIG_NODE, &route_map_cmd);
-  install_element (CONFIG_NODE, &line_vty_cmd);
-  install_element (KEYCHAIN_NODE, &key_cmd);
-  install_element (KEYCHAIN_NODE, &key_chain_cmd);
-  install_element (KEYCHAIN_KEY_NODE, &key_chain_cmd);
-  install_element (CONFIG_NODE, &imish_interface_cmd);
-  install_element (CONFIG_NODE, &imish_no_interface_cmd);
-  //install_element (CONFIG_NODE, &imish_interface_vrf_cmd);
-  //install_element (CONFIG_NODE, &imish_no_interface_vrf_cmd);
-  
-  
-  install_element (VIEW_NODE, &imish_enable_cmd);
-  install_element (ENABLE_NODE, &imish_config_terminal_cmd);
-  install_element (ENABLE_NODE, &imish_disable_cmd);
-  
-  install_element (CONFIG_NODE, &imish_hostname_cmd);
-  install_element (CONFIG_NODE, &imish_no_hostname_cmd);
-  /* password command */
-  //install_element (CONFIG_NODE, &imish_service_password_encrypt_cmd);
-  //install_element (CONFIG_NODE, &no_imish_service_password_encrypt_cmd);
 
-  install_element (CONFIG_NODE, &imish_password_cmd);
-  install_element (CONFIG_NODE, &imish_password_text_cmd);
-  install_element (CONFIG_NODE, &imish_enable_password_cmd);
-  install_element (CONFIG_NODE, &imish_enable_password_text_cmd);
-  install_element (CONFIG_NODE, &no_imish_enable_password_cmd);
-  /*
-  install_element (CONFIG_NODE, &banner_motd_default_cmd);
-  install_element (CONFIG_NODE, &banner_motd_file_cmd);
-  install_element (CONFIG_NODE, &no_banner_motd_cmd);
-  */    
-  install_element (ENABLE_NODE, &terminal_monitor_cmd);
-  install_element (ENABLE_NODE, &no_terminal_monitor_cmd);
-  
-  install_element (ENABLE_NODE, &service_terminal_length_cmd);
-  install_element (ENABLE_NODE, &no_service_terminal_length_cmd);
-  install_element (VIEW_NODE, &imish_terminal_length_cmd);
-  install_element (ENABLE_NODE, &imish_terminal_length_cmd);
-  install_element (VIEW_NODE, &imish_terminal_no_length_cmd);
-  install_element (ENABLE_NODE, &imish_terminal_no_length_cmd);
+  imish_module_router_cmd_init();
 
-  /* "write terminal" command. */
-  install_element (ENABLE_NODE, &imish_write_terminal_cmd);
-  install_element (ENABLE_NODE, &imish_show_running_config_cmd);  
-  install_element (ENABLE_NODE, &show_startup_config_cmd);
-  
-  /* "write memory" command. */
-  install_element (ENABLE_NODE, &imish_write_memory_cmd);
-  install_element (ENABLE_NODE, &imish_copy_runningconfig_startupconfig_cmd);
-  install_element (ENABLE_NODE, &imish_write_file_cmd);
-  install_element (ENABLE_NODE, &imish_write_cmd);
-  install_element (ENABLE_NODE, &imish_write_memory_imish_cmd);  
-  
-  /* "show xxxx" command*/
-  install_element (VIEW_NODE, &imish_show_daemons_cmd);
-  install_element (ENABLE_NODE, &imish_show_daemons_cmd);
 
-  install_element (VIEW_NODE, &imish_show_memory_cmd);
-  install_element (ENABLE_NODE, &imish_show_memory_cmd);
-
-  install_element (VIEW_NODE, &imish_show_work_queues_cmd);
-  install_element (ENABLE_NODE, &imish_show_work_queues_cmd);
-
-  install_element (VIEW_NODE, &imish_show_thread_cmd);
-  install_element (ENABLE_NODE, &imish_show_thread_cmd);
-
+  /* base */
+  imish_module_base_cmd_init ();
   /* Logging */
-  install_element (ENABLE_NODE, &imish_show_logging_cmd);
-  install_element (VIEW_NODE, &imish_show_logging_cmd);
-  install_element (CONFIG_NODE, &imish_log_stdout_cmd);
-  install_element (CONFIG_NODE, &imish_log_stdout_level_cmd);
-  install_element (CONFIG_NODE, &no_imish_log_stdout_cmd);
-  install_element (CONFIG_NODE, &imish_log_file_cmd);
-  install_element (CONFIG_NODE, &imish_log_file_level_cmd);
-  install_element (CONFIG_NODE, &no_imish_log_file_cmd);
-  install_element (CONFIG_NODE, &no_imish_log_file_level_cmd);
-  install_element (CONFIG_NODE, &imish_log_monitor_cmd);
-  install_element (CONFIG_NODE, &imish_log_monitor_level_cmd);
-  install_element (CONFIG_NODE, &no_imish_log_monitor_cmd);
-  install_element (CONFIG_NODE, &imish_log_syslog_cmd);
-  install_element (CONFIG_NODE, &imish_log_syslog_level_cmd);
-  install_element (CONFIG_NODE, &no_imish_log_syslog_cmd);
-  install_element (CONFIG_NODE, &imish_log_trap_cmd);
-  install_element (CONFIG_NODE, &no_imish_log_trap_cmd);
-  install_element (CONFIG_NODE, &imish_log_facility_cmd);
-  install_element (CONFIG_NODE, &no_imish_log_facility_cmd);
-  install_element (CONFIG_NODE, &imish_log_record_priority_cmd);
-  install_element (CONFIG_NODE, &no_imish_log_record_priority_cmd);
-  install_element (CONFIG_NODE, &imish_log_timestamp_precision_cmd);
-  install_element (CONFIG_NODE, &no_imish_log_timestamp_precision_cmd);
+  imish_module_logging_cmd_init();
 }
+
 void imish_module_exit (void)
 {
   if(imish_connect)

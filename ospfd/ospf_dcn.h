@@ -25,7 +25,9 @@
 #define _ZEBRA_OSPF_DCN_H
 
 
+#define DCN_MAC_TABLE
 
+#define OSPF_DCN_MONITER_TIME	(5)
 /*
  * Following section defines TLV body parts.
  */
@@ -183,13 +185,6 @@ struct dcn_link_subtlv_ipaddrv6
 /* Here are "non-official" architechtual constants. */
 #define DCN_MINIMUM_BANDWIDTH	1.0	/* Reasonable? *//* XXX */
 
-
-
-
-
-
-
-
 struct ospf_dcn
 {
   enum status{disabled = 0, enabled = 1} status;
@@ -217,7 +212,8 @@ struct dcn_link
   /* Area info in which this DCN link belongs to. */
   struct ospf_area *area;
   struct in_addr ip_address;
-  /* Flags to manage this link parameters. */
+  u_char 	mac_address[MAX_MAC_LENGTH];
+  int change;
 
   int install_lsa;//标识是否已经安装本的LSA
   int isInitialed;  /*标识接口是否已经初始化完毕*/
@@ -233,6 +229,11 @@ struct dcn_link
 #ifdef HAVE_IPV6  
   struct dcn_link_subtlv_ipaddrv6 lv_ipaddrv6;
 #endif /* HAVE_IPV6 */  
+
+  int mac_sock;
+  struct thread *t_time;
+  struct thread *t_event;
+  struct thread *t_mac;
 };
 
 /* 保存连接端MAC和IP地址信息 */
@@ -244,14 +245,41 @@ struct dcn_link_nbr
 	int initialed;
 };
 
+#ifdef DCN_MAC_TABLE
+#define OSPF_DCN_NBR_MAC_MAX	(128)
+#define OSPF_DCN_NBR_MAC_TTL_MAX	(15)
+struct dcn_nbr_mac
+{
+	int initialed;
+	unsigned char mac[MAX_MAC_LENGTH];
+	struct in_addr nbrIp;
+	struct timeval tv;
+};
+#endif
 extern int ospf_dcn_debug;
 
-#define IS_OSPF_DCN_EVENT_DEBUG	(ospf_dcn_debug & 0x01)
-#define IS_OSPF_DCN_LSA_DEBUG	(ospf_dcn_debug & 0x02)
-#define IS_OSPF_DCN_LSA_D_DEBUG	(ospf_dcn_debug & 0x04)
-#define IS_OSPF_DCN_LINK_DEBUG	(ospf_dcn_debug & 0x08)
+
+#define DEBUG_OSPF_DCN_EVENT	(0x01)
+#define DEBUG_OSPF_DCN_LSA		(0x02)
+#define DEBUG_OSPF_DCN_LSA_D	(0x04)
+#define DEBUG_OSPF_DCN_LINK		(0x08)
+#ifdef DCN_MAC_TABLE
+#define DEBUG_OSPF_DCN_MAC		(0x10)
+#else
+#define DEBUG_OSPF_DCN_MAC		(0)
+#endif
+#define DEBUG_OSPF_DCN_ALL		(DEBUG_OSPF_DCN_EVENT|DEBUG_OSPF_DCN_LSA|DEBUG_OSPF_DCN_LSA_D| \
+		DEBUG_OSPF_DCN_LINK|DEBUG_OSPF_DCN_MAC)
 
 
+#define IS_OSPF_DCN_EVENT_DEBUG	(ospf_dcn_debug & DEBUG_OSPF_DCN_EVENT)
+#define IS_OSPF_DCN_LSA_DEBUG	(ospf_dcn_debug & DEBUG_OSPF_DCN_LSA)
+#define IS_OSPF_DCN_LSA_D_DEBUG	(ospf_dcn_debug & DEBUG_OSPF_DCN_LSA_D)
+#define IS_OSPF_DCN_LINK_DEBUG	(ospf_dcn_debug & DEBUG_OSPF_DCN_LINK)
+#define IS_OSPF_DCN_ALL_DEBUG	(ospf_dcn_debug & DEBUG_OSPF_DCN_ALL)
+#ifdef DCN_MAC_TABLE
+#define IS_OSPF_DCN_MAC_DEBUG	(ospf_dcn_debug & DEBUG_OSPF_DCN_MAC)
+#endif
 
 extern int ospf_dcn_init (void);
 extern void ospf_dcn_term (void);
@@ -259,12 +287,12 @@ extern void ospf_dcn_term (void);
 
 
 #ifdef GT_DCN_DEBUG
-#define GT_ZLOG_DEBUG	printf
-#define GT_DEBUG	printf
-#define GT_TLV_DEBUG	printf
+#define GT_ZLOG_DEBUG	zlog_debug
+#define GT_DEBUG	zlog_debug
+#define GT_TLV_DEBUG	zlog_debug
 #else
 #define GT_ZLOG_DEBUG(__fmt__, __args__...)
-#define GT_DEBUG	printf
+#define GT_DEBUG(__fmt__, __args__...)
 #define GT_TLV_DEBUG(__fmt__, __args__...)
 #endif
 

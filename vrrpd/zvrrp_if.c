@@ -120,10 +120,12 @@ vrrp_if * zvrrp_if_lookup_by_ifindex(int ifindex)
 {
 	int index;
 	vrrp_rt * vsrv = NULL;
+	struct zvrrp_master * vmaster = zvrrp_master_lookup();
+	if(vmaster == NULL)
+		return NULL;
 	for(index = 0; index < VRRP_VSRV_SIZE_MAX; index++)
 	{
-	    	vsrv = &(gVrrpMatser->gVrrp_vsrv[index]);
-	    	//vsrv->vif
+	    	vsrv = &(vmaster->gVrrp_vsrv[index]);
 	    	if((vsrv->vif.ifp) && (vsrv->vif.ifp->ifindex == ifindex))
 	    		return &(vsrv->vif);
 	}
@@ -163,7 +165,6 @@ int vrrp_interface_init()
 	//if_add_hook (IF_DELETE_HOOK, lldp_interface_delete_hook);
 	install_node (&interface_node, vrrp_interface_config_write);
 	install_default (INTERFACE_NODE);
-
 	//install_element (VIEW_NODE, &show_lldp_interface_cmd);
 	//install_element (ENABLE_NODE, &show_lldp_interface_cmd);
 	install_element (CONFIG_NODE, &interface_cmd);

@@ -2628,6 +2628,18 @@ vty_read_config (char *config_file,
     }
   if(confp)
   {
+	  fseek(confp,0,SEEK_END); //定位到文件末
+	  if(ftell(confp) < 16) //文件长度
+	  {
+		  fclose(confp);
+		  confp = NULL;
+		  fprintf (stderr, "configuration file is BACK\n");
+	  }
+	  else
+		  fseek(confp,0,SEEK_SET);
+  }
+  if(confp)
+  {
 	  vty_read_file (confp);
 
 	  fclose (confp);

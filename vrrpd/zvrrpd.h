@@ -11,10 +11,12 @@ extern "C" {
 #define ZVRRPD_ON_VXWORKS	2
 #define ZVRRPD_OS_TYPE		ZVRRPD_ON_LINUX
 
+//#define ZVRRP_DEBUG
 
+#if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_LINUX)
 #define VRRP_DEFAULT_CONFIG	"vrrpd.conf"
 #define VRRP_VTY_PORT	2615
-
+#endif
 
 #define ZVRRPD_ON_ROUTTING	1
 
@@ -243,6 +245,8 @@ typedef struct {
     uint32_t    addr;         /* the ip address */
 } vip_addr;
 
+struct zvrrp_master;
+
 typedef struct {    /* parameters per virtual router -- rfc2338.6.1.2 */    
     int    no;         /* number �ڱ����������е��±� */
     int    used;       /* 0: δ�ã�1: ��ʹ�� */
@@ -288,28 +292,21 @@ typedef struct {    /* parameters per virtual router -- rfc2338.6.1.2 */
     ulong_t     staInvAuthType;      /* �յ���δ֪��֤���͵ı����� */
     ulong_t     staAuthTypeMismatch; /* �յ�����֤���Ͳ�ͬ�ڱ��صı����� */
     ulong_t     staPktsLenErrors;    /* �յ��ĳ��ȷǷ��ı����� */
+
+    struct zvrrp_master *zvrrp_master;
 } vrrp_rt;
 
 
 struct zvrrp_master
 {
 	int init;
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)
-	int sock;
-#endif
 	int task;
 	void *SemMutexId;    
 	int	ping_enable;/* ʹ��ping 1: enable��0: disable */
 	void *master;
 #ifdef ZVRRPD_ON_ROUTTING	
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)
-	struct thread *zvrrp_read;
-#endif
 	struct zclient *zclient;
-	//struct thread *zvrrp_timer;
-#if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_LINUX)	
-//	struct vty	vty;
-#endif//(ZVRRPD_OS_TYPE	== ZVRRPD_ON_LINUX)	
+	struct vty *vty;
 #endif// ZVRRPD_ON_ROUTTING	
 	zvrrp_opcode *opcode;
 	int vrid;
@@ -317,7 +314,7 @@ struct zvrrp_master
 };
 
 extern struct zvrrp_master *gVrrpMatser;
-
+extern struct zvrrp_master *zvrrp_master_lookup(void);
 extern vrrp_rt * zvrrp_vsrv_lookup( int vrid );
 extern int zvrrp_handle_on_state(vrrp_rt *pVsrv, const char *buff);
 extern int vrrp_mach_ipaddr( vrrp_rt *vsrv, uint32_t vipaddr );
@@ -327,7 +324,7 @@ extern int zvrrp_cmd_config(void *m);
 extern int zvrrp_main(void *vrrp);
 extern int zvrrp_master_init(int pri, void *m);
 extern int zvrrp_master_uninit(void);
-extern int zvrrp_show(int vrid);
+extern int zvrrp_vsrv_show(int vrid);
 
 
 
@@ -347,7 +344,7 @@ enum {
     zvrrpOperAdminState_down = 2,	
 };
 
-
+#ifdef ZVRRP_DEBUG
 #define ZVRRP_DEBUG_LOG(msg,args...)	\
 		{	\
 			printf("## DEBUG: (%s:%d) %s --> ",__FILE__,__LINE__,__FUNCTION__);\
@@ -355,16 +352,29 @@ enum {
 			printf("\r\n");\
 		}
 
-#define ZVRRP_DEBUG(msg,args...)	\
+#define zvrrp_debug(msg,args...)	\
 		{	\
 			printf(msg,##args);\
 		}
-#define ZVRRP_SHOW(msg,args...)	\
+#define zvrrp_show(vsrv,msg,args...)	\
 		{	\
 			printf(msg,##args);\
 			printf("\r\n");\
 		}
+#else
+#define ZVRRP_DEBUG_LOG(msg,args...)
 
+#define zvrrp_debug(msg,args...)	\
+		{	\
+			zlog_debug(msg,##args);\
+		}
+#define zvrrp_show(vsrv,msg,args...)	\
+		{	\
+			struct vty *vty = (struct vty *)vsrv->zvrrp_master->vty; \
+			vty_out(vty, msg,##args);\
+			vty_out(vty,"%s",VTY_NEWLINE);\
+		}
+#endif
 
 
 #ifdef __cplusplus

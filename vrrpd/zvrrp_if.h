@@ -48,8 +48,8 @@ typedef struct vrrp_if_ {    /* parameters per interface -- rfc2338.6.1.1 */
 	struct interface *ifp;//�����ַ��ָ��Ľӿ�
 	struct prefix *address;
     char        hwaddr[6];    /* WORK: lame hardcoded for ethernet !!!! */
-#if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_LINUX)
 	int sock;
+#ifdef ZVRRPD_ON_ROUTTING
 	struct thread *zvrrp_timer;
 	struct thread *zvrrp_read;
 #endif

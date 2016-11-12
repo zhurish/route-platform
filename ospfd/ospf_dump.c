@@ -1651,7 +1651,9 @@ config_write_debug (struct vty *vty)
 	       VTY_NEWLINE);
       write = 1;
     }
-
+#ifdef HAVE_OPAQUE_LSA
+  ospf_opaque_config_write_debug (vty);
+#endif /* HAVE_OPAQUE_LSA */
   return write;
 }
 

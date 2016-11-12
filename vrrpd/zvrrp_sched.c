@@ -10,11 +10,11 @@ int zvrrp_gettimeofday(struct timeval *tv, int opt)
 {
 	int ret = -1;
 	struct timespec rtp;
-	ret = clock_gettime (CLOCK_REALTIME, &rtp);////»ñÈ¡ÏµÍ³µ±Ç°ÊµÊ±Ê±ÖÓ£¬¾«¶ÈÄÉÃë
+	ret = clock_gettime (CLOCK_REALTIME, &rtp);////ï¿½ï¿½È¡ÏµÍ³ï¿½ï¿½Ç°ÊµÊ±Ê±ï¿½Ó£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if(ret < 0)
 		return ERROR;
 	tv->tv_sec = rtp.tv_sec;
-	tv->tv_usec = rtp.tv_nsec/1000;//ÄÉÃë»»ËãÎªÎ¢Ãî	
+	tv->tv_usec = rtp.tv_nsec/1000;//ï¿½ï¿½ï¿½ë»»ï¿½ï¿½ÎªÎ¢ï¿½ï¿½	
 	return OK;
 }
 /*******************************************************************************/
@@ -109,12 +109,17 @@ zvrrp_sched_master * zvrrputilschedinit(void)
 
 int zvrrputilschedclean(zvrrp_sched_master * master)
 {
+	if(master){
+		free(master);
+	}
 	return OK;
 }
 
 int zvrrputilschedcancel(zvrrp_sched_master * master, zvrrp_sched * pSched)
 {
-
+	if(master && pSched){
+		memset(pSched, 0, sizeof(zvrrp_sched));
+	}
 	return OK;
 }
 static int zvrrputilschedadd_onenode(zvrrp_sched * sched, int (*func)(void *), void *param, int type, int cmd, int mtime)

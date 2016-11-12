@@ -43,6 +43,23 @@ static int zvrrp_icmppkt_handle(const char *ethbuf, int ethlen);
 static int zvrrp_sending_pkt( vrrp_rt *vsrv, char *buffer, int buflen);
 /*******************************************************************************/
 /*******************************************************************************/
+#if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_LINUX)
+int bswap(void *a, void *b, size_t size)
+{
+	unsigned char *p = (unsigned char *)a;
+	unsigned char *q = (unsigned char *)b;
+	unsigned char temp;
+	while(size--)
+	{
+		temp = *p;
+		*p = *q;
+		*q = temp;
+		p ++;
+		q ++;
+	}
+	return size;
+}
+#endif/*ZVRRPD_ON_LINUX*/
 /*******************************************************************************/
 /*******************************************************************************/
 static int zvrrp_vip_debug(const char *ip, int num)
@@ -53,7 +70,7 @@ static int zvrrp_vip_debug(const char *ip, int num)
 	for(i = 0; i < num; i++)
 	{
 		ip_src.s_addr = *ipaddress;
-		ZVRRP_DEBUG("  virtual ip %d  %s\n",i,inet_ntoa (ip_src));
+		zvrrp_debug("  virtual ip %d  %s\n",i,inet_ntoa (ip_src));
 	}
 	return OK;
 }
@@ -65,7 +82,7 @@ static int zvrrp_vip_auto_debug(int type, const char *text, int size)
 	if(type == VRRP_AUTH_PASS)
 	{
 		memcpy(authentification, text, VRRP_MIN(VRRP_AUTH_LEN,size));
-		ZVRRP_DEBUG("  authentification password sample text:%s\n",authentification);
+		zvrrp_debug("  authentification password sample text:%s\n",authentification);
 	}
 	return OK;
 }
@@ -75,13 +92,13 @@ static int zvrrp_packet_debug(const char *packet, int size)
 	vrrp_pkt *pkt = (vrrp_pkt *)packet;
 	ver = (pkt->vers_type)>>4;
 	type = (pkt->vers_type)&0x0f;
-	ZVRRP_DEBUG(" version %d type %d\n",ver,type);
-	ZVRRP_DEBUG("  virtual router id %d\n",pkt->vrid);
-	ZVRRP_DEBUG("  priority %d\n",pkt->priority);
-	ZVRRP_DEBUG("  address counter %d\n",pkt->naddr);
-	ZVRRP_DEBUG("  authentification type %s\n",(pkt->auth_type==VRRP_AUTH_NONE)? "NO Authentication":"Reserved");
-	ZVRRP_DEBUG("  advertissement interval %d\n",pkt->adver_int);
-	ZVRRP_DEBUG("  checksum 0x%x\n",ntohs(pkt->chksum));
+	zvrrp_debug(" version %d type %d\n",ver,type);
+	zvrrp_debug("  virtual router id %d\n",pkt->vrid);
+	zvrrp_debug("  priority %d\n",pkt->priority);
+	zvrrp_debug("  address counter %d\n",pkt->naddr);
+	zvrrp_debug("  authentification type %s\n",(pkt->auth_type==VRRP_AUTH_NONE)? "NO Authentication":"Reserved");
+	zvrrp_debug("  advertissement interval %d\n",pkt->adver_int);
+	zvrrp_debug("  checksum 0x%x\n",ntohs(pkt->chksum));
 	if(pkt->naddr > 0)
 		zvrrp_vip_debug((const char *)(packet + sizeof(vrrp_pkt)), pkt->naddr);
 	offset = sizeof(vrrp_pkt) + pkt->naddr * 4;
@@ -106,7 +123,7 @@ vrrp_rt * zvrrp_vsrv_find_by_pkt_id(struct ip * iph)
     //struct interface * vif = NULL;
     //long ipaddr = 0;
     //ipaddr = ntohl(iph->ip_src.s_addr);
-    if( (gVrrpMatser == NULL) )
+    if(iph == NULL)
     	return NULL;
     
     CHECK_VALID(iph, NULL);
@@ -143,6 +160,8 @@ vrrp_rt * zvrrp_vsrv_find_by_pkt_ip(struct ip * iph)
 {
     vrrp_rt *pVsrv = NULL;
     int      i;
+    if( iph == NULL )
+    	return NULL;
     /* ����ƥ��ı����� */
     for (i = 0; i < VRRP_VSRV_SIZE_MAX; i++)
     {
@@ -522,6 +541,8 @@ int zvrrp_send_adv( vrrp_rt *vsrv, int prio )
     /* alloc the memory */
     buflen = zvrrp_dlt_len(vsrv) + zvrrp_iphdr_len(vsrv) + zvrrp_hd_len2(vsrv);
     buffer = malloc( buflen + 4 );
+    if(!buffer)
+        return ERROR;
     //buffer = memalign( 4, buflen + 4 );
     assert( buffer );
     /* build the packet  */
@@ -530,7 +551,8 @@ int zvrrp_send_adv( vrrp_rt *vsrv, int prio )
     ret = zvrrp_send_pkt( vsrv, buffer + 2, buflen );
     /* build the memory */
     //zvrrp_packet_debug(buffer + 2 + 14 + 20, buflen - 14 - 20);
-    free( buffer );
+    if(!buffer)
+    	free( buffer );
     return ret;
 }
 /*******************************************************************************/
@@ -621,7 +643,7 @@ static int zvrrp_ethpkt_handle(const char *ethbuf, int ethlen)
 {  
 	int ret = -1;
     int pkt_type = 0;
-   
+    struct zvrrp_master * vmaster = zvrrp_master_lookup();
     pkt_type = zvrrp_ethhdr_chk(ethbuf);   
     switch(pkt_type)
     {
@@ -631,7 +653,8 @@ static int zvrrp_ethpkt_handle(const char *ethbuf, int ethlen)
     	ret = zvrrp_ippkt_handle(ethbuf, ethlen);
     	break;
     case ETHERTYPE_ARP:/* Addr. resolution protocol */
-    	zvrrp_arppkt_handle(ethbuf, ethlen);
+    	if(vmaster && vmaster->ping_enable)
+    		zvrrp_arppkt_handle(ethbuf, ethlen);
     	break;
     case ETHERTYPE_REVARP:/* reverse Addr. resolution protocol */
     	break;
@@ -688,10 +711,10 @@ static int zvrrp_icmppkt_handle(const char *ethbuf, int ethlen)
 	    }
 		printf("ICMP:request :%s\n",inet_ntoa(iph->ip_dst));
 		//printf_msg_hex((unsigned char *)ethbuf, ethlen);
-#if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_VXWORKS)
+
 		bswap((char *)ethbuf, (char *)(ethbuf + 6), 6);//����mac��ַ
 		bswap((char *)&iph->ip_dst.s_addr, (char *)&iph->ip_src.s_addr, 4);//����ip��ַ
-#endif
+
 		iph->ip_sum = 0;
 		iph->ip_sum = zvrrp_in_csum( (u_short*)iph, iplen, 0 );//У��IP
 	    
@@ -954,7 +977,7 @@ static int zvrrp_sending_pkt( vrrp_rt *vsrv, char *buffer, int buflen)
 	struct sockaddr_ll sll;
     struct ether_header *    eth = (struct ether_header *)buffer;
     
-	if( (!gVrrpMatser)||(!vsrv->vif.ifp)||(!vsrv->vif.address) )
+	if( (!vsrv->vif.ifp)||(!vsrv->vif.address) )
 	{
 		return ERROR;
 	}
@@ -979,12 +1002,7 @@ static int zvrrp_sending_pkt( vrrp_rt *vsrv, char *buffer, int buflen)
 	//memcpy(sll.sll_addr, vsrv->vhwaddr, 6);    /* Link layer address */
 	memcpy(sll.sll_addr, eth->ether_dhost, 6);
 	//memcpy(sll.sll_addr, eth->ether_shost, 6);
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_LINUX)
 	ret = sendto(vsrv->vif.sock, (caddr_t)buffer, buflen, 0, (struct sockaddr *)&sll, sizeof(sll));
-#endif
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)
-	ret = sendto(gVrrpMatser->sock, (caddr_t)buffer, buflen, 0, (struct sockaddr *)&sll, sizeof(sll));
-#endif
 	if(ret < 0)
 	{
 		ZVRRP_DEBUG_LOG("ERROR PACKET RAW socket send :%s",strerror(errno));
@@ -993,22 +1011,12 @@ static int zvrrp_sending_pkt( vrrp_rt *vsrv, char *buffer, int buflen)
 	return ret;	
 }
 /*******************************************************************************/
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_LINUX)
 static int zvrrp_reading(vrrp_rt *vsrv)
-#endif
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)
-static int zvrrp_reading(struct zvrrp_master *vrrp)
-#endif
 {
     int len = 0;
     char ethbuf[2048];	
     /* ��ȡVRRP���� */
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_LINUX)
     len = read(vsrv->vif.sock, ethbuf, sizeof(ethbuf));
-#endif
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)
-    len = read(vrrp->sock, ethbuf, sizeof(ethbuf));
-#endif
     if(len < 14)
     	return ERROR;
     //��⵱ǰ��ʲô���ݰ�
@@ -1032,77 +1040,30 @@ int zvrrp_reading_thread(void *p)
     timer_val.tv_sec = 0;
     timer_val.tv_usec = 1000;
     struct timeval *timer_wait = &timer_val;
-    struct zvrrp_master *vrrp = (struct zvrrp_master *)p;
+    //struct zvrrp_master *vrrp = (struct zvrrp_master *)p;
+    vrrp_rt * vsrv = (vrrp_rt *)p;
+
+    zvrrputilschedaddread(vsrv->zvrrp_master->master, zvrrp_reading_thread, vsrv, vsrv->vif.sock);
     
     FD_ZERO(&readfds);
-    FD_SET(vrrp->sock, &readfds);
-    cs = select(vrrp->sock + 1, &readfds, NULL, NULL, timer_wait);
+    FD_SET(vsrv->vif.sock, &readfds);
+    cs = select(vsrv->vif.sock + 1, &readfds, NULL, NULL, timer_wait);
     if (cs <= 0)
     {
     	return ERROR;
     }
-    if(FD_ISSET(vrrp->sock, &readfds))
+    if(FD_ISSET(vsrv->vif.sock, &readfds))
     	return zvrrp_reading(vrrp);
     return ERROR;
 #else//ZVRRPD_ON_ROUTTING  
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_LINUX)
     vrrp_rt *vsrv = THREAD_ARG(((struct thread *)p));
-
-    vsrv->vif.zvrrp_read = thread_add_read(gVrrpMatser->master,
+    vsrv->vif.zvrrp_read = thread_add_read(vsrv->zvrrp_master->master,
     		zvrrp_reading_thread, vsrv, vsrv->vif.sock);
     return zvrrp_reading(vsrv);
-#endif
-#if (ZVRRPD_OS_TYPE==ZVRRPD_ON_VXWORKS)
-    struct zvrrp_master *vrrp = THREAD_ARG(((struct thread *)p));
-    vrrp->zvrrp_read = thread_add_read(vrrp->master, zvrrp_reading_thread, vrrp, vrrp->sock);  
-    return zvrrp_reading(vrrp);
-#endif
 #endif//ZVRRPD_ON_ROUTTING    
 }
 /*******************************************************************************/
 /*******************************************************************************/
-int zvrrp_reading_task(void *p)
-{
-#ifndef ZVRRPD_ON_ROUTTING	
-    int cs = 0;
-    int len = 0;
-    fd_set readfds;
-    char ethbuf[2048];
-    struct timeval timer_val;
-    timer_val.tv_sec = 0;
-    timer_val.tv_usec = 10000;
-    struct timeval *timer_wait = NULL;//&timer_val;
-    struct zvrrp_master *master = (struct zvrrp_master *)p;
-    
-    //zvrrputilschedadd(master->master, zvrrp_reading_thread, master, 0);
-    for (;;)
-    {
-        /* �ȴ�VRRP���� */
-    	//zvrrpsemtake(master->SemMutexId, -1);
-        FD_ZERO(&readfds);
-        FD_SET(master->sock, &readfds);
-        cs = select(master->sock + 1, &readfds, NULL, NULL, timer_wait);
-        if (cs <= 0)
-        {
-        	//zvrrpsemgive(master->SemMutexId);
-        	continue;
-        }
-        /* ��ȡVRRP���� */
-        len = read(master->sock, ethbuf, sizeof(ethbuf));
-        
-        if(len < 14)
-        {
-        	//zvrrpsemgive(master->SemMutexId);
-        	continue;
-        }
-        //��⵱ǰ��ʲô���ݰ�
-        zvrrp_ethpkt_handle((const char *)ethbuf, len);
-        
-        //zvrrpsemgive(master->SemMutexId);
-    }
-#else//ZVRRPD_ON_ROUTTING  
-#endif//ZVRRPD_ON_ROUTTING    
-}
 /*******************************************************************************/
 /*******************************************************************************/
 /*******************************************************************************/

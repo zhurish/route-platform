@@ -111,6 +111,17 @@ echo ""
 #
 #
 #
+if test -d ".git"; then
+GIT_AUTHER=`git log -1 --format=%an`
+GIT_EMAIL=`git log -1 --format=%ae`
+GIT_RELESE=`git branch | awk '{print $2}'`
+GIT_VER=`git log -1 --format=%s | awk '{print $1}'`
+GIT_COMMIT=`git log -1 --format=%H`
+
+echo "#define GIT_SUFFIX	\"$GIT_VER (on $GIT_RELESE)\"" >> config.h
+echo "#define GIT_INFO	\"commit:$GIT_COMMIT\"" >> config.h
+fi
+
 #
 #
 

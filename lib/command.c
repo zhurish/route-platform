@@ -2997,7 +2997,7 @@ DEFUN (show_version,
   if(ret == -1)
   {
 	  vty_out (vty, " Hello this is %s (version:%s).%s", OEM_PACKAGE_NAME, OEM_VERSION, VTY_NEWLINE);
-	  vty_out (vty, " %s%s%s", OEM_PACKAGE_COPYRIGHT, GIT_INFO, VTY_NEWLINE);
+	  vty_out (vty, " %s%s", OEM_PACKAGE_COPYRIGHT, VTY_NEWLINE);
 	  vty_out (vty, " Design it Base on (%s).%s", OEM_PACKAGE_BASE, VTY_NEWLINE);
 	  if( (GIT_SUFFIX)&&(strlen(GIT_SUFFIX) > 2) )
 		vty_out (vty, " Git suffex:%s%s Git info:%s%s", GIT_SUFFIX, VTY_NEWLINE, GIT_INFO, VTY_NEWLINE);
@@ -3006,9 +3006,13 @@ DEFUN (show_version,
 #else  /* IMISH_IMI_MODULE */ 
   vty_out (vty, "Quagga %s (%s).%s", QUAGGA_VERSION, host.name?host.name:"",
 	   VTY_NEWLINE);
+  vty_out (vty, "%s%s", QUAGGA_COPYRIGHT, VTY_NEWLINE);
+  vty_out (vty, " Git suffex:%s%s Git info:%s%s", GIT_SUFFIX, VTY_NEWLINE, GIT_INFO, VTY_NEWLINE);
+  /*
   vty_out (vty, "%s%s%s", QUAGGA_COPYRIGHT, GIT_INFO, VTY_NEWLINE);
   vty_out (vty, "configured with:%s    %s%s", VTY_NEWLINE,
            QUAGGA_CONFIG_ARGS, VTY_NEWLINE);
+  */
 #endif /* IMISH_IMI_MODULE */ 
 /* 2016??7??2?? 21:56:11  zhurish: ????IMI Module??Ԫ?????޸???ʾ?汾??Ϣ */
   return CMD_SUCCESS;

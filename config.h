@@ -690,7 +690,7 @@
 #define OEM_PACKAGE_BUGREPORT "zhurish@163.com"
 
 /* this copyright for OEM version */
-#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/11/06 zhurish(zhurish@163.com) et al."
+#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/11/12 zhurish(zhurish@163.com) et al."
 
 /* Name of OEM package */
 #define OEM_PACKAGE_NAME "routing-plaform"
@@ -998,3 +998,5 @@
 /* Define to empty if the keyword `volatile' does not work. Warning: valid
    code using `volatile' can become incorrect without. Disable with care. */
 /* #undef volatile */
+#define GIT_SUFFIX	"V0.0.0.12 (on master)"
+#define GIT_INFO	"commit:53cd476e8773b005e0af40088a2c136aedce5b72"

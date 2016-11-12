@@ -328,7 +328,9 @@ ospf_interface_address_delete (int command, struct zclient *zclient,
  * 设置直连路由的ARP表
  * 
  */
+extern struct in_addr nbr_address;
 extern int ospf_zebra_auto_arp(int type, struct prefix_ipv4 *p, char *mac, char *ifname);
+extern int ospf_zebra_auto_update_nexthop(struct prefix_ipv4 *p, struct stream *s, int ifindex, struct in_addr *nexthop);
 #endif /* HAVE_OSPFD_DCN */
 void
 ospf_zebra_add (struct prefix_ipv4 *p, struct ospf_route *or)
@@ -393,11 +395,32 @@ ospf_zebra_add (struct prefix_ipv4 *p, struct ospf_route *or)
             }
           else
             {
+#ifdef HAVE_OSPFD_DCN
+		/*update nexthop address*/
+		ospf_zebra_auto_update_nexthop(p, s, path->ifindex, &nbr_address);
+/*
+		if(nbr_address.s_addr)
+		{
+			stream_putc (s, ZEBRA_NEXTHOP_IPV4_IFINDEX);
+              		stream_put_in_addr (s, &nbr_address);
+	      		stream_putl (s, path->ifindex);
+		}
+		else
+		{
+              		stream_putc (s, ZEBRA_NEXTHOP_IFINDEX);
+              		if (path->ifindex)
+                		stream_putl (s, path->ifindex);
+              		else
+                		stream_putl (s, 0);
+		}
+*/
+#else
               stream_putc (s, ZEBRA_NEXTHOP_IFINDEX);
               if (path->ifindex)
                 stream_putl (s, path->ifindex);
               else
                 stream_putl (s, 0);
+#endif /* HAVE_OSPFD_DCN */
             }
 
           if (IS_DEBUG_OSPF (zebra, ZEBRA_REDISTRIBUTE))
@@ -485,8 +508,26 @@ ospf_zebra_delete (struct prefix_ipv4 *p, struct ospf_route *or)
 	    }
 	  else
 	    {
+#ifdef HAVE_OSPFD_DCN
+		/*update nexthop address*/
+		ospf_zebra_auto_update_nexthop(p, s, path->ifindex, &nbr_address);
+/*
+		if(nbr_address.s_addr)
+		{
+			stream_putc (s, ZEBRA_NEXTHOP_IPV4_IFINDEX);
+              		stream_put_in_addr (s, &nbr_address);
+	      		stream_putl (s, path->ifindex);
+		}
+		else
+		{
+	      		stream_putc (s, ZEBRA_NEXTHOP_IFINDEX);
+	      		stream_putl (s, path->ifindex);
+		}
+*/
+#else
 	      stream_putc (s, ZEBRA_NEXTHOP_IFINDEX);
 	      stream_putl (s, path->ifindex);
+#endif /* HAVE_OSPFD_DCN */
 	    }
 
 	  if (IS_DEBUG_OSPF (zebra, ZEBRA_REDISTRIBUTE))

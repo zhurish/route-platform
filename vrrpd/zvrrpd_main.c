@@ -11,10 +11,10 @@
 #include "zvrrp_packet.h"
 #include "zvrrp_sched.h"
 
+
 #if (ZVRRPD_OS_TYPE==ZVRRPD_ON_LINUX)
 
-
-
+#ifdef  ZVRRPD_ON_ROUTTING
 /* Master of threads. */
 struct thread_master *master;
 static const char *pid_file = PATH_VRRPD_PID;
@@ -130,7 +130,7 @@ int main (int argc, char **argv)
   int daemon_mode = 0;
   char *config_file = NULL;
   char *progname;
-  struct thread thread;
+  //struct thread thread;
 
   /* Set umask before anything for security */
   umask (0027);
@@ -254,7 +254,7 @@ int main (int argc, char **argv)
   /* Not reached. */
   return (0);
 }
-
+#endif
 #else
 int vrrp_init_test()
 {
