@@ -196,7 +196,7 @@ void utils_zclient_init (void)
 {
   /* Set default value to the zebra client structure. */
   zclient = zclient_new ();
-  zclient_init (zclient, 0);
+  zclient_init (zclient, ZEBRA_ROUTE_UTILS);
   zclient->interface_add = zutils_interface_add;
   zclient->interface_delete = zutils_interface_delete;
   zclient->interface_address_add = zutils_interface_address_add;

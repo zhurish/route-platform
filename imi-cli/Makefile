@@ -99,9 +99,9 @@ CONFIG_CLEAN_FILES = extract.pl
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(examplesdir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_imish_OBJECTS = imi-sh.$(OBJEXT) imi-sh_config.$(OBJEXT) \
-	imi-sh_kernel.$(OBJEXT) imi-sh_log.$(OBJEXT) \
-	imi-sh_main.$(OBJEXT)
+am_imish_OBJECTS = imi-sh.$(OBJEXT) imi-sh_client.$(OBJEXT) \
+	imi-sh_config.$(OBJEXT) imi-sh_kernel.$(OBJEXT) \
+	imi-sh_log.$(OBJEXT) imi-sh_main.$(OBJEXT)
 nodist_imish_OBJECTS = imi-sh_cmd.$(OBJEXT)
 imish_OBJECTS = $(am_imish_OBJECTS) $(nodist_imish_OBJECTS)
 imish_DEPENDENCIES = ../lib/libzebra.la
@@ -209,12 +209,13 @@ AUTOHEADER = ${SHELL} /home/zhurish/workspace/route-platform/route-platform/miss
 AUTOMAKE = ${SHELL} /home/zhurish/workspace/route-platform/route-platform/missing automake-1.13
 AWK = gawk
 BABELD = 
+BFDD = 
 BGPD = 
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -Os -fno-omit-frame-pointer -g -std=gnu99 -Wall -Wsign-compare -Wpointer-arith -Wbad-function-cast -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wchar-subscripts -Wcast-qual
-CONFDATE = 20161112
-CONFIG_ARGS = --prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --enable-olsrd --disable-ldpd --disable-rsvpd --disable-bgpd --disable-isisd --disable-isis-topology --enable-utils --enable-vpnd --enable-vrrpd --enable-fpm --disable-rtadv --disable-irdp --enable-lldpd --enable-configfile-mask=0664 --enable-logfile-mask=0664 --enable-imi=65530 LIBS=-lpthread
+CONFDATE = 20161116
+CONFIG_ARGS = --prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --disable-bgpd --disable-isisd --disable-isis-topology --enable-fpm --disable-rtadv --disable-irdp --enable-olsrd --enable-lldpd --enable-vrrpd --enable-utils --enable-vpnd --disable-ldpd --disable-rsvpd --enable-imi=65530 --enable-configfile-mask=0664 --enable-logfile-mask=0664 LIBS=-lpthread
 CPP = gcc -E
 CPPFLAGS = 
 CURSES = 
@@ -386,7 +387,7 @@ top_srcdir = ..
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/lib -I$(top_builddir)/lib
 AM_CFLAGS = $(PICFLAGS)
 AM_LDFLAGS = $(PILDFLAGS)
-imish_SOURCES = imi-sh.c imi-sh_config.c imi-sh_kernel.c imi-sh_log.c imi-sh_main.c 
+imish_SOURCES = imi-sh.c imi-sh_client.c imi-sh_config.c imi-sh_kernel.c imi-sh_log.c imi-sh_main.c 
 noinst_HEADERS = imi-sh.h imi-sh_kernel.h imi-sh_log.h
 nodist_imish_SOURCES = imi-sh_cmd.c
 CLEANFILES = imi-sh_cmd.c
@@ -396,12 +397,14 @@ dist_examples_DATA = imi-sh.conf.sample
 EXT_OLSR = $(top_srcdir)/olsrd/*.c
 #EXT_FRP = $(top_srcdir)/frpd/*.c
 EXT_VRRP = $(top_srcdir)/vrrpd/*.c
+EXT_LLDP = $(top_srcdir)/lldpd/*.c
+EXT_SRC = $(EXT_OLSR) $(EXT_FRP) $(EXT_VRRP) $(EXT_LLDP)
 EXTRA_DIST = extract.pl
 imish_cmd_FILES = $(top_srcdir)/bgpd/*.c $(top_srcdir)/isisd/*.c \
 		  $(top_srcdir)/ospfd/*.c $(top_srcdir)/ospf6d/*.c \
 		  $(top_srcdir)/ripd/*.c $(top_srcdir)/ripngd/*.c \
 		  $(top_srcdir)/babeld/*.c \
-		  $(top_srcdir)/pimd/pim_cmd.c $(EXT_OLSR) $(EXT_FRP) $(EXT_VRRP) \
+		  $(top_srcdir)/pimd/pim_cmd.c $(EXT_SRC) \
 		  $(top_srcdir)/lib/keychain.c $(top_srcdir)/lib/routemap.c \
 		  $(top_srcdir)/lib/filter.c $(top_srcdir)/lib/plist.c \
 		  $(top_srcdir)/lib/distribute.c $(top_srcdir)/lib/if_rmap.c \
@@ -412,7 +415,7 @@ imish_cmd_FILES = $(top_srcdir)/bgpd/*.c $(top_srcdir)/isisd/*.c \
 		  $(top_srcdir)/zebra/rtadv.c $(top_srcdir)/zebra/zebra_vty.c \
 		  $(top_srcdir)/zebra/zserv.c $(top_srcdir)/zebra/router-id.c \
 		  $(top_srcdir)/zebra/zebra_routemap.c \
-	    $(top_srcdir)/zebra/zebra_fpm.c
+	      $(top_srcdir)/zebra/zebra_fpm.c 
 
 all: all-am
 
@@ -511,6 +514,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/imi-sh.Po
+include ./$(DEPDIR)/imi-sh_client.Po
 include ./$(DEPDIR)/imi-sh_cmd.Po
 include ./$(DEPDIR)/imi-sh_config.Po
 include ./$(DEPDIR)/imi-sh_kernel.Po

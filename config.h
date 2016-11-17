@@ -10,6 +10,9 @@
 /* babeld vty socket */
 #define BABEL_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/babeld.vty"
 
+/* bfdd vty socket */
+/* #undef BFD_VTYSH_PATH */
+
 /* bgpd vty socket */
 #define BGP_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/bgpd.vty"
 
@@ -690,7 +693,7 @@
 #define OEM_PACKAGE_BUGREPORT "zhurish@163.com"
 
 /* this copyright for OEM version */
-#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/11/12 zhurish(zhurish@163.com) et al."
+#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/11/16 zhurish(zhurish@163.com) et al."
 
 /* Name of OEM package */
 #define OEM_PACKAGE_NAME "routing-plaform"
@@ -742,6 +745,9 @@
 
 /* babeld PID */
 #define PATH_BABELD_PID "/home/zhurish/workspace/route-platform/app/rt/var/babeld.pid"
+
+/* bfdd PID */
+/* #undef PATH_BFDD_PID */
 
 /* bgpd PID */
 #define PATH_BGPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/bgpd.pid"
@@ -998,5 +1004,5 @@
 /* Define to empty if the keyword `volatile' does not work. Warning: valid
    code using `volatile' can become incorrect without. Disable with care. */
 /* #undef volatile */
-#define GIT_SUFFIX	"V0.0.0.12 (on master)"
-#define GIT_INFO	"commit:53cd476e8773b005e0af40088a2c136aedce5b72"
+#define GIT_SUFFIX	"V0.0.0.13 (on master)"
+#define GIT_INFO	"commit:c40f6f9de2d9426f464ce445a8e463024d772421"

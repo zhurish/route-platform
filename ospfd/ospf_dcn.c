@@ -594,6 +594,10 @@ static int ospf_dcn_link_new_hook (struct interface *ifp)
   lp->area = NULL;
   lp->instance = ospf_dcn_link_get_instance ();
   lp->ifp = ifp;
+  lp->mac_sock = 0;
+  lp->t_time = NULL;
+  lp->t_event = NULL;
+  lp->t_mac = NULL;
   //lp->ifp->ifindex = ifp->ifindex;
   
   GT_DEBUG("%s:create an interface :%s\n",__func__,ifp->name);
@@ -958,7 +962,8 @@ void ospf_dcn_link_ism_change_hook (struct ospf_interface *oi, int old_state)
       ospf_dcn_link_lsa_schedule (lp, FLUSH_THIS_LSA);
     }
 #endif
-  //ospf_dcn_link_initialize (lp);
+  if(lp->isInitialed == 0)
+	  ospf_dcn_link_initialize (lp);
   //lp->ip_address.s_addr = ospf_dcn_link_ip_address(lp->ifp);
   //set_dcn_link_ipaddr (lp, &lp->ip_address);
   GT_DEBUG("*************************************\n");
@@ -1653,6 +1658,12 @@ static int ospf_dcn_monitor_thread(struct thread *thread)
 	struct dcn_link *lp;
 	lp = THREAD_ARG (thread);
 	lp->t_mac = thread_add_timer (master, ospf_dcn_monitor_thread, lp, OSPF_DCN_MONITER_TIME);
+
+	if(lp->isInitialed == 0)
+	{
+		ospf_dcn_link_initialize (lp);
+		ospf_dcn_link_lsa_schedule (lp, REORIGINATE_PER_AREA);
+	}
 	ospf_dcn_mac_table_update(OSPF_DCN_NBR_MAC_TTL_MAX);
 
     ret = ospf_dcn_link_mac_address(lp->ifp, mac_address);
@@ -1702,7 +1713,7 @@ static int ospf_dcn_monitor_init(struct dcn_link *lp)
 {
 	if(lp && lp->t_time)
 		thread_cancel(lp->t_time);
-	lp->t_time = thread_add_timer (master, ospf_dcn_monitor_thread, lp, OSPF_DCN_MONITER_TIME);
+	lp->t_time = thread_add_timer (master, ospf_dcn_monitor_thread, lp, OSPF_DCN_MONITER_TIME*2);
 }
 static int ospf_dcn_monitor_exit(struct dcn_link *lp)
 {

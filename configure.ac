@@ -302,6 +302,8 @@ AC_ARG_ENABLE(mplsd,
   AS_HELP_STRING([--disable-mplsd], [do not build mplsd]))  
 AC_ARG_ENABLE(vpnd,
   AS_HELP_STRING([--disable-vpnd], [do not  vpnd])) 
+AC_ARG_ENABLE(bfdd,
+  AS_HELP_STRING([--disable-bfdd], [do not  bfdd])) 
   AC_ARG_ENABLE(utils,
   AS_HELP_STRING([--enable-utils], [build system utils]))      
 dnl ------------------------------ zhurish
@@ -1685,6 +1687,16 @@ fi
 AM_CONDITIONAL(VPND, test "x$VPND" = "xvpnd")
 AM_CONDITIONAL(L2TPD, test "x$L2TPD" = "xvpnd")
 
+if test "${enable_bfdd}" = "yes"; then
+	BFDD="bfdd"	
+  	AC_DEFINE_UNQUOTED(PATH_BFDD_PID, "$quagga_statedir/bfdd.pid",bfdd PID)
+	AC_DEFINE_UNQUOTED(BFD_VTYSH_PATH, "$quagga_statedir/bfdd.vty",bfdd vty socket)
+else  
+	BFDD=""		
+fi
+AM_CONDITIONAL(BFDD, test "x$BFDD" = "xbfdd")
+
+
 if test "${enable_utils}" = "yes"; then
 	UTILS="system-utils"	
 	dnl AC_DEFINE(HAVE_VPND_TUNNEL, 1, Enable Tunnel Support)
@@ -1705,20 +1717,24 @@ if test "${enable_olsrd}" = "yes" || test "${enable_frpd}" = "yes" ||
   AC_DEFINE(HAVE_EXPAND_ROUTE_PLATFORM,1,Expand routing protocol Platform :enable other route protocol)
 fi
 
+
+AC_SUBST(FPMD)
 AC_SUBST(OLSRD)
-AC_SUBST(FRPD)
 AC_SUBST(ICRPD)
+AC_SUBST(FRPD)
 AC_SUBST(AODVD) 
 AC_SUBST(VRRPD)
-AC_SUBST(IMISHD)
-AC_SUBST(FPMD)
-AC_SUBST(LDPD) 
-AC_SUBST(RSVPD) 
 AC_SUBST(LLDPD) 
-AC_SUBST(MPLSD) 
 AC_SUBST(VPND)
 AC_SUBST(L2TPD)
+AC_SUBST(BFDD)
+
+AC_SUBST(LDPD) 
+AC_SUBST(RSVPD) 
+AC_SUBST(MPLSD) 
+
 AC_SUBST(UTILS)
+AC_SUBST(IMISHD)
 
 if test "${enable_imi}" != ""; then
 	if test -d $quagga_statedir; then
@@ -1783,9 +1799,14 @@ AC_CONFIG_FILES([Makefile lib/Makefile zebra/Makefile ripd/Makefile
 	  ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile
 	  ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile
 	  doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile
-	  pimd/Makefile fpm/Makefile olsrd/Makefile lldpd/Makefile vrrpd/Makefile
-	  ldpd/Makefile rsvpd/Makefile imi-cli/Makefile system-utils/Makefile system-utils/bfdd/Makefile
-	  tests/bgpd.tests/Makefile vpnd/Makefile vpnd/l2tp/Makefile
+	  pimd/Makefile fpm/Makefile  
+	  
+	  olsrd/Makefile icrpd/Makefile frpd/Makefile adovd/Makefile vrrpd/Makefile 
+	  lldpd/Makefile vpnd/Makefile vpnd/l2tp/Makefile 
+	  bfdd/Makefile ldpd/Makefile rsvpd/Makefile mplsd/Makefile 
+	  system-utils/Makefile imi-cli/Makefile
+	  
+	  tests/bgpd.tests/Makefile 
 	  tests/libzebra.tests/Makefile
 	  redhat/Makefile
 	  pkgsrc/Makefile

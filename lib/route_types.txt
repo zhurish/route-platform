@@ -61,18 +61,24 @@ ZEBRA_ROUTE_HSLS,       hsls,      hslsd,  'H', 0, 0, "HSLS"
 ZEBRA_ROUTE_OLSR,       olsr,      olsrd,  'o', 1, 0, "OLSR"
 ZEBRA_ROUTE_BABEL,      babel,     babeld, 'A', 1, 1, "Babel"
 #扩展路由协议
-ZEBRA_ROUTE_ICRP,	 icrp,		icrpd,	'i', 1, 0, "ICRP"
+ZEBRA_ROUTE_ICRP,	 icrp,		icrpd,		'i', 1, 0, "ICRP"
 ZEBRA_ROUTE_FRP,	 frp,		frpd,		'F', 1, 0, "FRP"  
 ZEBRA_ROUTE_AODV,	 aodv,		aodvd,		'a', 1, 0, "AODV" 
 
 ZEBRA_ROUTE_VRRP,	 vrrp,		vrrpd,		'v', 0, 0, "VRRP" 
-ZEBRA_ROUTE_RSVP,	 rsvp,		rsvpd,		'V', 0, 0, "RSVP" 
-ZEBRA_ROUTE_LDP,	 ldp,		ldpd,		'l', 0, 0, "LDP" 
-ZEBRA_ROUTE_MPLS,	 mpls,		mplsd,		'M', 0, 0, "MPLS"  
 ZEBRA_ROUTE_LLDP,	 lldp,		lldpd,		'L', 0, 0, "LLDP" 
-ZEBRA_ROUTE_VPN,	 vpn,		vpnd,		'N', 0, 0, "VPN" 
-ZEBRA_ROUTE_MANAGE,	 manage,	mgtd,	'm', 0, 0, "manage"
-ZEBRA_ROUTE_SWITCH,	 switch,		switchd,		's', 0, 0, "switch" 
+
+ZEBRA_ROUTE_VPN,	 vpn,		vpnd,		'N', 0, 0, "VPN"
+ZEBRA_ROUTE_BFD,	 bfd,		bfdd,		'B', 0, 0, "BFD" 
+
+ZEBRA_ROUTE_LDP,	 ldp,		ldpd,		'l', 0, 0, "LDP" 
+ZEBRA_ROUTE_RSVP,	 rsvp,		rsvpd,		'V', 0, 0, "RSVP" 
+ZEBRA_ROUTE_MPLS,	 mpls,		mplsd,		'M', 0, 0, "MPLS" 
+ 
+ZEBRA_ROUTE_UTILS,	 utils,		utilsd,		'u', 0, 0, "utils"
+
+ZEBRA_ROUTE_MANAGE,	 manage,	mgtd,		'm', 0, 0, "manage"
+ZEBRA_ROUTE_SWITCH,	 switch,	switchd,	's', 0, 0, "switch" 
  
 
 ## help strings
@@ -95,12 +101,15 @@ ZEBRA_ROUTE_ICRP,	"Internet Based On Node Contact Time Routing Protocol  (ICRP)"
 ZEBRA_ROUTE_FRP,	"Fast and Reliable Routing Protocol  (FRP)"
 ZEBRA_ROUTE_AODV,	"AD HOT MANET Routing Protocol  (AODV)"
 ZEBRA_ROUTE_VRRP,	"VRRP Routing Protocol  (VRRP)"
+ZEBRA_ROUTE_LLDP,	"LLDP Protocol  (LLDP)"
 
-ZEBRA_ROUTE_RSVP,	"RSVP ON MPLS Routing Protocol  (RSVP)"
-ZEBRA_ROUTE_LDP,	"LDP ON MPLS Routing Protocol  (LDP)"
-ZEBRA_ROUTE_MPLS,	"MPLS Routing Protocol  (MPLS)" 
-ZEBRA_ROUTE_LLDP,	"LLDP Routing Protocol  (LLDP)"
-ZEBRA_ROUTE_VPN,	"VPN Routing Protocol  (VPN)"
+ZEBRA_ROUTE_VPN,	"VPN Protocol  (VPN)"
+ZEBRA_ROUTE_BFD,	"BFD Protocol  (BFD)"
 
+ZEBRA_ROUTE_LDP,	"LDP ON MPLS Protocol  (LDP)"
+ZEBRA_ROUTE_RSVP,	"RSVP ON MPLS Protocol  (RSVP)"
+ZEBRA_ROUTE_MPLS,	"MPLS Protocol  (MPLS)" 
+
+ZEBRA_ROUTE_UTILS,	 "linux kernel utils"
 ZEBRA_ROUTE_MANAGE,	 "board manage module"
 ZEBRA_ROUTE_SWITCH,	 "switch or sdn module"

@@ -9,6 +9,9 @@
 /* babeld vty socket */
 #undef BABEL_VTYSH_PATH
 
+/* bfdd vty socket */
+#undef BFD_VTYSH_PATH
+
 /* bgpd vty socket */
 #undef BGP_VTYSH_PATH
 
@@ -741,6 +744,9 @@
 
 /* babeld PID */
 #undef PATH_BABELD_PID
+
+/* bfdd PID */
+#undef PATH_BFDD_PID
 
 /* bgpd PID */
 #undef PATH_BGPD_PID

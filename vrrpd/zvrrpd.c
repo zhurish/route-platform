@@ -270,22 +270,26 @@ static int zvrrp_timer_for_one(vrrp_rt *pVsrv)
 	/* �����ӽӿ��Ƿ�down */
 	if (pVsrv->priority < VRRP_PRIO_OWNER)
 	{
+		struct interface *ifp = NULL;
 		pVsrv->priority = pVsrv->oldpriority;
 		for (j = 0; j < pVsrv->niftrack; j++)
 		{
 			// IfIsDown ����: TRUE: �ӿ�down
 	        // FALSE: �ӿڷ�down
-			/*
-			if (IfIsDown(pVsrv->iftrack[j]))
+			if (pVsrv->iftrack[j])
 			{
-				pVsrv->priority -= pVsrv->pritrack[j];
-				if (pVsrv->priority < 1)
+				ifp = if_lookup_by_index (pVsrv->iftrack[j]);
+
+				if ((ifp && !if_is_up(ifp)))
 				{
-					pVsrv->priority = 1;
-					break;
+					pVsrv->priority -= pVsrv->pritrack[j];
+					if (pVsrv->priority < 1)
+					{
+						pVsrv->priority = 1;
+						break;
+					}
 				}
 			}
-			*/
 		}
 	}
 
@@ -955,7 +959,12 @@ static int zvrrp_cmd_config_process(struct zvrrp_master *vrrp)
 	    vsrv = zvrrp_vsrv_lookup(opcode->vrid);
 	    if(vsrv)
 	    {
-	    	vsrv->niftrack = opcode->value;
+	        vsrv->iftrack[vsrv->niftrack] = ifname2ifindex(opcode->ifname); /* ���ӽӿ��������� */
+	        vsrv->pritrack[vsrv->niftrack] = opcode->value; /* ���ӽӿ�downʱ���͵����ȼ�ֵ */
+	        if(opcode->value == 0)
+	        	vsrv->pritrack[vsrv->niftrack] = VRRP_PRI_TRACK;
+	        vsrv->niftrack++;
+	    	//vsrv->niftrack = opcode->value;
 	    	ret = OK;
 	    }
 		break;
@@ -963,7 +972,37 @@ static int zvrrp_cmd_config_process(struct zvrrp_master *vrrp)
 	    vsrv = zvrrp_vsrv_lookup(opcode->vrid);
 	    if(vsrv)
 	    {
-	    	vsrv->niftrack = VRRP_IF_TRACK_MAX;//opcode->value;
+	    	int i = 0;
+	    	int j = 0;
+	        int	iftrack[VRRP_IF_TRACK_MAX];
+	        int	pritrack[VRRP_IF_TRACK_MAX];
+	        memset(iftrack, 0, sizeof(iftrack));
+	        memset(pritrack, 0, sizeof(iftrack));
+	        for(i = 0; i < VRRP_IF_TRACK_MAX; i++)
+	        {
+	        	iftrack[i] = vsrv->iftrack[i];
+	        	pritrack[i] = vsrv->pritrack[i];
+	        }
+	        for(i = 0; i < VRRP_IF_TRACK_MAX; i++)
+	        {
+	        	if( (iftrack[i] != 0)&&(iftrack[i] == ifname2ifindex(opcode->ifname)) )
+	        	{
+	        		iftrack[i] = 0;
+	        		pritrack[i] = 0;
+	        	}
+	        }
+	        memset(vsrv->iftrack, 0, sizeof(vsrv->iftrack));
+	        memset(vsrv->pritrack, 0, sizeof(vsrv->pritrack));
+	        for(i = 0; i < VRRP_IF_TRACK_MAX; i++)
+	        {
+	        	if(iftrack[i] != 0 )
+	        	{
+	        		vsrv->iftrack[j] = iftrack[i];
+	        		vsrv->pritrack[j] = pritrack[i];
+	        		j++;
+	        	}
+	        }
+	    	vsrv->niftrack--;
 	    	ret = OK;
 	    }
 		break;

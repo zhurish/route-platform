@@ -58,9 +58,11 @@ const char *zlog_proto_names[] =
   "HSLS",
   "ICRP",
   "FRP",
+  "ADOV",
   "VRRP",
   "LLDP",
-
+  "VPN",
+  "BFD",
   "LDP",
   "RSVP",
   "MPLS",

@@ -416,7 +416,7 @@ int zvrrp_cmd_track(int type, int vrid, int id, char *ifname, int vlaue)
 		gVrrpMatser->opcode->cmd = zvrrp_opcode_set_track;
 	else	
 		gVrrpMatser->opcode->cmd = zvrrp_opcode_unset_track;
-	gVrrpMatser->opcode->ifindex = id;
+	//gVrrpMatser->opcode->ifindex = id;
 	gVrrpMatser->opcode->value = vlaue;
 	if(ifname)
 		strcpy(gVrrpMatser->opcode->ifname, ifname);

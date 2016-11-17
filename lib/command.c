@@ -2885,18 +2885,17 @@ DEFUN (config_exit,
 /* 2016??7??2?? 21:55:37 zhurish: ??չ·??Э?????????????ڵ????? */
 #ifdef HAVE_EXPAND_ROUTE_PLATFORM
     case HSLS_NODE:		/* HSLS protocol node. */
-    case OLSR_NODE:			/* OLSR protocol node. */
+    case OLSR_NODE:		/* OLSR protocol node. */
     case ICRP_NODE:		/* ICRP protocol node. */
-    case FRP_NODE:                /* FRP protocol node */
+    case FRP_NODE:      /* FRP protocol node */
+    case ADOV_NODE:
     case VRRP_NODE:
     case LLDP_NODE:
-
+    case VPN_NODE:
+    case BFD_NODE:
     case LDP_NODE:
-    case LDP_IF_NODE:
     case RSVP_NODE:
     case MPLS_NODE:
-    //case IP_EXPLICIT_PATH_NODE:
-    //case INTERFACE_TUNNEL_NODE:
 #endif /* HAVE_EXPAND_ROUTE_PLATFORM */    	
 /* 2016??7??2?? 21:55:37  zhurish: ??չ·??Э?????????????ڵ????? */
       vty->node = CONFIG_NODE;
@@ -2963,15 +2962,14 @@ DEFUN (config_end,
     case OLSR_NODE:			/* OLSR protocol node. */
     case ICRP_NODE:		/* ICRP protocol node. */
     case FRP_NODE:                /* FRP protocol node */
+    case ADOV_NODE:
     case VRRP_NODE:
     case LLDP_NODE:
-
+    case VPN_NODE:
+    case BFD_NODE:
     case LDP_NODE:
-    case LDP_IF_NODE:
     case RSVP_NODE:
     case MPLS_NODE:
-    //case IP_EXPLICIT_PATH_NODE:
-    //case INTERFACE_TUNNEL_NODE:
 #endif /* HAVE_EXPAND_ROUTE_PLATFORM */     	
 /* 2016??7??2?? 21:55:46  zhurish: ??չ·??Э?????????????ڵ????? */
       vty_config_unlock (vty);

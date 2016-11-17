@@ -60,9 +60,11 @@ typedef enum
   ZLOG_HSLS,  
   ZLOG_ICRP,
   ZLOG_FRP,
+  ZLOG_ADOV,
   ZLOG_VRRP,
   ZLOG_LLDP,
-
+  ZLOG_VPN,
+  ZLOG_BFD,
   ZLOG_LDP,
   ZLOG_RSVP,
   ZLOG_MPLS,

@@ -23,14 +23,16 @@
 #define ZEBRA_ROUTE_FRP                  15
 #define ZEBRA_ROUTE_AODV                 16
 #define ZEBRA_ROUTE_VRRP                 17
-#define ZEBRA_ROUTE_RSVP                 18
-#define ZEBRA_ROUTE_LDP                  19
-#define ZEBRA_ROUTE_MPLS                 20
-#define ZEBRA_ROUTE_LLDP                 21
-#define ZEBRA_ROUTE_VPN                  22
-#define ZEBRA_ROUTE_MANAGE               23
-#define ZEBRA_ROUTE_SWITCH               24
-#define ZEBRA_ROUTE_MAX                  25
+#define ZEBRA_ROUTE_LLDP                 18
+#define ZEBRA_ROUTE_VPN                  19
+#define ZEBRA_ROUTE_BFD                  20
+#define ZEBRA_ROUTE_LDP                  21
+#define ZEBRA_ROUTE_RSVP                 22
+#define ZEBRA_ROUTE_MPLS                 23
+#define ZEBRA_ROUTE_UTILS                24
+#define ZEBRA_ROUTE_MANAGE               25
+#define ZEBRA_ROUTE_SWITCH               26
+#define ZEBRA_ROUTE_MAX                  27
 
 #define SHOW_ROUTE_V4_HEADER \
   "Codes: K - kernel route, C - connected, S - static, R - RIP,%s" \
@@ -396,11 +398,13 @@ static const struct zebra_desc_table route_types[] = {
   DESC_ENTRY	(ZEBRA_ROUTE_FRP,	 "frp",	'F' ),
   DESC_ENTRY	(ZEBRA_ROUTE_AODV,	 "aodv",	'a' ),
   DESC_ENTRY	(ZEBRA_ROUTE_VRRP,	 "vrrp",	'v' ),
-  DESC_ENTRY	(ZEBRA_ROUTE_RSVP,	 "rsvp",	'V' ),
-  DESC_ENTRY	(ZEBRA_ROUTE_LDP,	 "ldp",	'l' ),
-  DESC_ENTRY	(ZEBRA_ROUTE_MPLS,	 "mpls",	'M' ),
   DESC_ENTRY	(ZEBRA_ROUTE_LLDP,	 "lldp",	'L' ),
   DESC_ENTRY	(ZEBRA_ROUTE_VPN,	 "vpn",	'N' ),
+  DESC_ENTRY	(ZEBRA_ROUTE_BFD,	 "bfd",	'B' ),
+  DESC_ENTRY	(ZEBRA_ROUTE_LDP,	 "ldp",	'l' ),
+  DESC_ENTRY	(ZEBRA_ROUTE_RSVP,	 "rsvp",	'V' ),
+  DESC_ENTRY	(ZEBRA_ROUTE_MPLS,	 "mpls",	'M' ),
+  DESC_ENTRY	(ZEBRA_ROUTE_UTILS,	 "utils",	'u' ),
   DESC_ENTRY	(ZEBRA_ROUTE_MANAGE,	 "manage",	'm' ),
   DESC_ENTRY	(ZEBRA_ROUTE_SWITCH,	 "switch",	's' ),
 };

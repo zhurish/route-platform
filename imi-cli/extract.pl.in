@@ -120,7 +120,8 @@ foreach (@ARGV) {
             $protocol = "IMISH_RIPD|IMISH_RIPNGD|IMISH_OSPFD|IMISH_OSPF6D|IMISH_BGPD|IMISH_ZEBRA";
         }
         elsif ($file =~ /lib\/filter\.c$/) {
-            $protocol = "IMISH_ALL";
+            # $protocol = "IMISH_ALL";
+            $protocol = "IMISH_FILTER";
         }
         elsif ($file =~ /lib\/plist\.c$/) {
             if ($defun_array[1] =~ m/ipv6/) {
@@ -146,7 +147,7 @@ foreach (@ARGV) {
         elsif ($file =~ /lib\/vty\.c$/) {
            $protocol = "IMISH_ALL";
         }
-	else {
+		else {
            ($protocol) = ($file =~ /^.*\/([a-z0-9]+)\/[a-zA-Z0-9_\-]+\.c$/);
            $protocol = "IMISH_" . uc $protocol;
         }

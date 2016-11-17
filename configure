@@ -637,22 +637,25 @@ ac_func_list=
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
+IMISHD
 UTILS
-L2TPD
-VPND
 MPLSD
-LLDPD
 RSVPD
 LDPD
-FPMD
-IMISHD
+BFDD
+L2TPD
+VPND
+LLDPD
 VRRPD
 AODVD
-ICRPD
 FRPD
+ICRPD
 OLSRD
+FPMD
 UTILS_FALSE
 UTILS_TRUE
+BFDD_FALSE
+BFDD_TRUE
 L2TPD_FALSE
 L2TPD_TRUE
 VPND_FALSE
@@ -947,6 +950,7 @@ enable_rsvpd
 enable_lldpd
 enable_mplsd
 enable_vpnd
+enable_bfdd
 enable_utils
 enable_largefile
 enable_pie
@@ -1651,6 +1655,7 @@ Optional Features:
   --disable-lldpd         do not build lldpd
   --disable-mplsd         do not build mplsd
   --disable-vpnd          do not vpnd
+  --disable-bfdd          do not bfdd
   --enable-utils          build system utils
   --disable-largefile     omit support for large files
   --disable-pie           Do not build tools as a Position Independent
@@ -12765,6 +12770,11 @@ if test "${enable_vpnd+set}" = set; then :
   enableval=$enable_vpnd;
 fi
 
+# Check whether --enable-bfdd was given.
+if test "${enable_bfdd+set}" = set; then :
+  enableval=$enable_bfdd;
+fi
+
   # Check whether --enable-utils was given.
 if test "${enable_utils+set}" = set; then :
   enableval=$enable_utils;
@@ -22540,6 +22550,31 @@ else
 fi
 
 
+if test "${enable_bfdd}" = "yes"; then
+	BFDD="bfdd"
+
+cat >>confdefs.h <<_ACEOF
+#define PATH_BFDD_PID "$quagga_statedir/bfdd.pid"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define BFD_VTYSH_PATH "$quagga_statedir/bfdd.vty"
+_ACEOF
+
+else
+	BFDD=""
+fi
+ if test "x$BFDD" = "xbfdd"; then
+  BFDD_TRUE=
+  BFDD_FALSE='#'
+else
+  BFDD_TRUE='#'
+  BFDD_FALSE=
+fi
+
+
+
 if test "${enable_utils}" = "yes"; then
 	UTILS="system-utils"
 
@@ -22577,6 +22612,10 @@ if test "${enable_olsrd}" = "yes" || test "${enable_frpd}" = "yes" ||
 $as_echo "#define HAVE_EXPAND_ROUTE_PLATFORM 1" >>confdefs.h
 
 fi
+
+
+
+
 
 
 
@@ -22803,7 +22842,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_htonl_works" >&5
 $as_echo "$ac_cv_htonl_works" >&6; }
 
-ac_config_files="$ac_config_files Makefile lib/Makefile zebra/Makefile ripd/Makefile ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile pimd/Makefile fpm/Makefile olsrd/Makefile lldpd/Makefile vrrpd/Makefile ldpd/Makefile rsvpd/Makefile imi-cli/Makefile system-utils/Makefile system-utils/bfdd/Makefile tests/bgpd.tests/Makefile vpnd/Makefile vpnd/l2tp/Makefile tests/libzebra.tests/Makefile redhat/Makefile pkgsrc/Makefile redhat/quagga.spec lib/version.h doc/defines.texi isisd/topology/Makefile pkgsrc/bgpd.sh pkgsrc/ospf6d.sh pkgsrc/ospfd.sh pkgsrc/ripd.sh pkgsrc/ripngd.sh pkgsrc/zebra.sh"
+ac_config_files="$ac_config_files Makefile lib/Makefile zebra/Makefile ripd/Makefile ripngd/Makefile bgpd/Makefile ospfd/Makefile watchquagga/Makefile ospf6d/Makefile isisd/Makefile babeld/Makefile vtysh/Makefile doc/Makefile ospfclient/Makefile tests/Makefile m4/Makefile pimd/Makefile fpm/Makefile olsrd/Makefile icrpd/Makefile frpd/Makefile adovd/Makefile vrrpd/Makefile lldpd/Makefile vpnd/Makefile vpnd/l2tp/Makefile bfdd/Makefile ldpd/Makefile rsvpd/Makefile mplsd/Makefile system-utils/Makefile imi-cli/Makefile tests/bgpd.tests/Makefile tests/libzebra.tests/Makefile redhat/Makefile pkgsrc/Makefile redhat/quagga.spec lib/version.h doc/defines.texi isisd/topology/Makefile pkgsrc/bgpd.sh pkgsrc/ospf6d.sh pkgsrc/ospfd.sh pkgsrc/ripd.sh pkgsrc/ripngd.sh pkgsrc/zebra.sh"
 
 ac_config_files="$ac_config_files solaris/Makefile"
 
@@ -23062,6 +23101,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${L2TPD_TRUE}" && test -z "${L2TPD_FALSE}"; then
   as_fn_error $? "conditional \"L2TPD\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${BFDD_TRUE}" && test -z "${BFDD_FALSE}"; then
+  as_fn_error $? "conditional \"BFDD\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${UTILS_TRUE}" && test -z "${UTILS_FALSE}"; then
@@ -23959,16 +24002,20 @@ do
     "pimd/Makefile") CONFIG_FILES="$CONFIG_FILES pimd/Makefile" ;;
     "fpm/Makefile") CONFIG_FILES="$CONFIG_FILES fpm/Makefile" ;;
     "olsrd/Makefile") CONFIG_FILES="$CONFIG_FILES olsrd/Makefile" ;;
-    "lldpd/Makefile") CONFIG_FILES="$CONFIG_FILES lldpd/Makefile" ;;
+    "icrpd/Makefile") CONFIG_FILES="$CONFIG_FILES icrpd/Makefile" ;;
+    "frpd/Makefile") CONFIG_FILES="$CONFIG_FILES frpd/Makefile" ;;
+    "adovd/Makefile") CONFIG_FILES="$CONFIG_FILES adovd/Makefile" ;;
     "vrrpd/Makefile") CONFIG_FILES="$CONFIG_FILES vrrpd/Makefile" ;;
-    "ldpd/Makefile") CONFIG_FILES="$CONFIG_FILES ldpd/Makefile" ;;
-    "rsvpd/Makefile") CONFIG_FILES="$CONFIG_FILES rsvpd/Makefile" ;;
-    "imi-cli/Makefile") CONFIG_FILES="$CONFIG_FILES imi-cli/Makefile" ;;
-    "system-utils/Makefile") CONFIG_FILES="$CONFIG_FILES system-utils/Makefile" ;;
-    "system-utils/bfdd/Makefile") CONFIG_FILES="$CONFIG_FILES system-utils/bfdd/Makefile" ;;
-    "tests/bgpd.tests/Makefile") CONFIG_FILES="$CONFIG_FILES tests/bgpd.tests/Makefile" ;;
+    "lldpd/Makefile") CONFIG_FILES="$CONFIG_FILES lldpd/Makefile" ;;
     "vpnd/Makefile") CONFIG_FILES="$CONFIG_FILES vpnd/Makefile" ;;
     "vpnd/l2tp/Makefile") CONFIG_FILES="$CONFIG_FILES vpnd/l2tp/Makefile" ;;
+    "bfdd/Makefile") CONFIG_FILES="$CONFIG_FILES bfdd/Makefile" ;;
+    "ldpd/Makefile") CONFIG_FILES="$CONFIG_FILES ldpd/Makefile" ;;
+    "rsvpd/Makefile") CONFIG_FILES="$CONFIG_FILES rsvpd/Makefile" ;;
+    "mplsd/Makefile") CONFIG_FILES="$CONFIG_FILES mplsd/Makefile" ;;
+    "system-utils/Makefile") CONFIG_FILES="$CONFIG_FILES system-utils/Makefile" ;;
+    "imi-cli/Makefile") CONFIG_FILES="$CONFIG_FILES imi-cli/Makefile" ;;
+    "tests/bgpd.tests/Makefile") CONFIG_FILES="$CONFIG_FILES tests/bgpd.tests/Makefile" ;;
     "tests/libzebra.tests/Makefile") CONFIG_FILES="$CONFIG_FILES tests/libzebra.tests/Makefile" ;;
     "redhat/Makefile") CONFIG_FILES="$CONFIG_FILES redhat/Makefile" ;;
     "pkgsrc/Makefile") CONFIG_FILES="$CONFIG_FILES pkgsrc/Makefile" ;;

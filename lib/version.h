@@ -47,7 +47,7 @@
 
 #define QUAGGA_COPYRIGHT "Copyright 1996-2005 Kunihiro Ishiguro, et al."
 
-#define QUAGGA_CONFIG_ARGS "--prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --enable-olsrd --disable-ldpd --disable-rsvpd --disable-bgpd --disable-isisd --disable-isis-topology --enable-utils --enable-vpnd --enable-vrrpd --enable-fpm --disable-rtadv --disable-irdp --enable-lldpd --enable-configfile-mask=0664 --enable-logfile-mask=0664 --enable-imi=65530 LIBS=-lpthread"
+#define QUAGGA_CONFIG_ARGS "--prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --disable-bgpd --disable-isisd --disable-isis-topology --enable-fpm --disable-rtadv --disable-irdp --enable-olsrd --enable-lldpd --enable-vrrpd --enable-utils --enable-vpnd --disable-ldpd --disable-rsvpd --enable-imi=65530 --enable-configfile-mask=0664 --enable-logfile-mask=0664 LIBS=-lpthread"
 
 pid_t pid_output (const char *);
 

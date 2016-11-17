@@ -407,15 +407,15 @@ static int zvrrp_no_vrrp_preempt_delay(struct vty *vty, int argc, char *argv[])
 static int zvrrp_vrrp_track(struct vty *vty, int argc, char *argv[])
 {
 	int ret = ERROR;
-	if( (argc != 2)||(argv[0]==NULL))
+	if( (argc < 1)||(argv[0]==NULL))
 	{
 			vty_out (vty, "%% Invalid %s value %s",argv[0]? argv[0]:"argv is null", VTY_NEWLINE);
 			return CMD_WARNING;
 	}	
-	if(atoi(argv[1])<=0)
-		ret = zvrrp_cmd_track(1, gVrrpMatser->opcode->vrid, atoi(argv[0]), argv[1], 0);
+	if(argc == 2)
+		ret = zvrrp_cmd_track(1, gVrrpMatser->opcode->vrid, 0, argv[0], atoi(argv[1]));
 	else
-		ret = zvrrp_cmd_track(1, gVrrpMatser->opcode->vrid, atoi(argv[0]), NULL, atoi(argv[1]));
+		ret = zvrrp_cmd_track(1, gVrrpMatser->opcode->vrid, 0, argv[0], 0);
 	if(ret == OK)
 		return CMD_SUCCESS;	
 	return CMD_WARNING;
@@ -423,15 +423,12 @@ static int zvrrp_vrrp_track(struct vty *vty, int argc, char *argv[])
 static int zvrrp_no_vrrp_track(struct vty *vty, int argc, char *argv[])
 {
 	int ret = ERROR;
-	if( (argc != 2)||(argv[0]==NULL))
+	if( (argc != 1)||(argv[0]==NULL))
 	{
 			vty_out (vty, "%% Invalid %s value %s",argv[0]? argv[0]:"argv is null", VTY_NEWLINE);
 			return CMD_WARNING;
 	}	
-	if(atoi(argv[1])<=0)
-		ret = zvrrp_cmd_track(0, gVrrpMatser->opcode->vrid, atoi(argv[0]), argv[1], 0);
-	else
-		ret = zvrrp_cmd_track(0, gVrrpMatser->opcode->vrid, atoi(argv[0]), NULL, atoi(argv[1]));
+	ret = zvrrp_cmd_track(0, gVrrpMatser->opcode->vrid, 0, argv[0], 0);
 	if(ret == OK)
 		return CMD_SUCCESS;	
 	return CMD_WARNING;
@@ -690,6 +687,7 @@ DEFUN (vrrp_learn,
 		else if(memcmp(argv[0], "fa", 2)==0)
 			return	zvrrp_no_vrrp_learn(vty, argc, argv);
 	}	
+	return CMD_WARNING;
 }
 
 DEFUN (vrrp_preempt,
@@ -704,6 +702,7 @@ DEFUN (vrrp_preempt,
 		else if(memcmp(argv[0], "fa", 2)==0)
 			return	zvrrp_no_vrrp_preempt(vty, argc, argv);
 	}
+	return CMD_WARNING;
 }
 
 DEFUN (vrrp_preempt_delay,
@@ -722,46 +721,33 @@ DEFUN (vrrp_no_preempt_delay,
 {
 	return	zvrrp_no_vrrp_preempt_delay(vty, argc, argv);
 }
-
+//vrrp 2 track eth0 20
 DEFUN (vrrp_track_interface,
 	vrrp_track_interface_cmd,
-	"track <1-500> interface IFNAME",
+	"track interface IFNAME",
 	"track mode\n"
-	"track obj ID\n"
 	INTERFACE_STR
 	IFNAME_STR)
 {
 	return	zvrrp_vrrp_track(vty, argc, argv);
 }
-DEFUN (vrrp_track_decrement,
-	vrrp_track_decrement_cmd,
-	"track <1-500> decrement <1-255>",
-	"track mode\n"
-	"track obj ID\n"
-	"decrement\n"
-	"priority value\n")
-{
-	return	zvrrp_vrrp_track(vty, argc, argv);
-}
+
+ALIAS (vrrp_track_interface,
+		vrrp_track_interface_decrement_cmd,
+		"track interface IFNAME decrement <1-255>",
+		"track mode\n"
+		INTERFACE_STR
+		IFNAME_STR
+		"decrement\n"
+		"priority value\n")
+
 DEFUN (vrrp_no_track_interface,
 	vrrp_no_track_interface_cmd,
-	"no track <1-500> interface IFNAME",
+	"no track interface IFNAME",
 	NO_STR
 	"track mode\n"	
-	"track obj ID\n"
 	INTERFACE_STR
 	IFNAME_STR)
-{
-	return	zvrrp_no_vrrp_track(vty, argc, argv);
-}
-DEFUN (vrrp_no_track_decrement,
-	vrrp_no_track_decrement_cmd,
-	"no track",
-	NO_STR
-	"track mode\n"	
-	"track obj ID\n"
-	"decrement\n"
-	"priority value\n")
 {
 	return	zvrrp_no_vrrp_track(vty, argc, argv);
 }
@@ -815,6 +801,13 @@ static int zvrrp_write_config_one(vrrp_rt * vsrv, struct vty *vty)
     	vty_out (vty, " interface %s%s",vsrv->vif.ifp->name, VTY_NEWLINE);    
     //ip_src.s_addr = htonl(vsrv->vif.ipaddr);
 	//ZVRRP_SHOW(" networks %s",inet_ntoa (ip_src));
+    for(i = 0; i < vsrv->niftrack; i++)
+    {
+        if(vsrv->pritrack[i] == VRRP_PRI_TRACK)
+        	vty_out (vty, " track interface %s%s",ifindex2ifname(vsrv->iftrack[i]), VTY_NEWLINE);
+        else
+        	vty_out (vty, " track interface %s decrement %d %s",ifindex2ifname(vsrv->iftrack[i]), vsrv->pritrack[i], VTY_NEWLINE);
+    }
     return OK;                                           
 }
 /************************************************************************************/
@@ -871,9 +864,8 @@ static int zvrrp_vtycmd_init(void)
 	install_element (VRRP_NODE, &vrrp_preempt_delay_cmd);
 	install_element (VRRP_NODE, &vrrp_no_preempt_delay_cmd);  
 	install_element (VRRP_NODE, &vrrp_track_interface_cmd);
+	install_element (VRRP_NODE, &vrrp_track_interface_decrement_cmd);
 	install_element (VRRP_NODE, &vrrp_no_track_interface_cmd);
-	install_element (VRRP_NODE, &vrrp_track_decrement_cmd);
-	install_element (VRRP_NODE, &vrrp_no_track_decrement_cmd);	
 	install_element (ENABLE_NODE, &vrrp_show_cmd);
 	install_element (ENABLE_NODE, &vrrp_show_val_cmd);	
 	return OK;

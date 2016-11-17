@@ -1,11 +1,8 @@
 #ifndef __ZEBRA_VRRPD_H__
 #define __ZEBRA_VRRPD_H__
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
 
 #define ZVRRPD_ON_LINUX		1
 #define ZVRRPD_ON_VXWORKS	2
@@ -22,6 +19,7 @@ extern "C" {
 
 
 #ifdef ZVRRPD_ON_ROUTTING
+#if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_LINUX)
 #include <zebra.h>
 #include <lib/version.h>
 #include "command.h"
@@ -37,8 +35,22 @@ extern "C" {
 #include "vty.h"
 #include "privs.h"
 #include "sigevent.h"
-
+#endif
 #if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_VXWORKS)
+#include <zebra.h>
+#include <versionq.h>
+#include "command.h"
+#include "prefix.h"
+#include "table.h"
+#include "streamq.h"
+#include "memoryq.h"
+#include "routemap.h"
+#include "zclient.h"
+#include "log.h"
+#include "threadq.h"
+#include "vty.h"
+#include "sigevent.h"
+
 #include "net/if_ll.h"
 #endif
 #else// ZVRRPD_ON_ROUTTING
@@ -121,6 +133,9 @@ extern "C" {
 #ifndef ERROR
 #define ERROR (-1)
 #endif
+#ifndef ETH_ALEN
+#define ETH_ALEN (6)
+#endif
 
 #if (ZVRRPD_OS_TYPE	== ZVRRPD_ON_LINUX)
 typedef unsigned long ulong_t;
@@ -146,12 +161,9 @@ typedef unsigned long ulong_t;
 #define VRRP_ADVER_DFL   1       /* advert. interval (in sec) -- rfc2338.5.3.7 */
 #define VRRP_PREEMPT_DFL 1       /* rfc2338.6.1.2.Preempt_Mode */
 
-/* ÿ���������������õļ��ӽӿڵ������� */
+
 #define VRRP_IF_TRACK_MAX     8
-
-/* ���ӽӿ�downʱȱʡ���͵����ȼ�ֵ */
 #define VRRP_PRI_TRACK        10
-
 
 #define VRRP_AUTH_LEN      8
 
@@ -175,19 +187,10 @@ typedef unsigned long ulong_t;
 #define VRRP_MIN( a , b )    ( (a) < (b) ? (a) : (b) )
 #define VRRP_MAX( a , b )    ( (a) > (b) ? (a) : (b) )
 
-/* �������õı������������ */
-#define VRRP_VSRV_SIZE_MAX    255
 
-/* ÿ���������������õ�����IP�������� */
+#define VRRP_VSRV_SIZE_MAX    255
 #define VRRP_VIP_NUMS_MAX     8
 
-
-/* ����VRRP�Ĳ����� */
-/*
-#define VRRP_OPCODE_ADDIP          1
-#define VRRP_OPCODE_DELIP          2
-#define VRRP_OPCODE_DELVR          3
-*/
 enum {
     zvrrp_opcode_add_vrs = 1,
     zvrrp_opcode_del_vrs,
@@ -229,8 +232,6 @@ typedef struct {
     int respone;
 } zvrrp_opcode;
 
-
-/* ����VRRP�������صĴ����� */
 #define VRRP_CFGERR_IFWRONG        1
 #define VRRP_CFGERR_SUBNETDIFF     2
 #define VRRP_CFGERR_MAXVSRV        3
@@ -248,14 +249,14 @@ typedef struct {
 struct zvrrp_master;
 
 typedef struct {    /* parameters per virtual router -- rfc2338.6.1.2 */    
-    int    no;         /* number �ڱ����������е��±� */
-    int    used;       /* 0: δ�ã�1: ��ʹ�� */
+    int    no;         /* number ????????????е??±? */
+    int    used;       /* 0: δ???1: ????? */
     int    enable;
 	int    vrid;         /* virtual id. from 1(!) to 255 */
     int    priority;     /* priority value */
     int    oldpriority;  /* old priority value */    
     int    runpriority;  /* run priority value */
-    int    nowner;       /* �ͽӿ�IP��ͬ������IP��ַ���� */
+    int    nowner;       /* ????IP?????????IP??????? */
     int    naddr;        /* number of virtual ip addresses */
     //每个VRRP组最多有8个虚拟IP地址
     vip_addr 	vaddr[VRRP_VIP_NUMS_MAX];     /* point on the ip address array */
@@ -266,32 +267,32 @@ typedef struct {    /* parameters per virtual router -- rfc2338.6.1.2 */
     uint32_t    adver_timer;
     //每个VRRP组拥有的物理接口（目前只有一个接口在一个VRRP组上）
     vrrp_if		vif;
-    char        vhwaddr[6]; /* ����MAC��ַ */
-    int         adminState; /* ����״̬ 1: up��2: down */
+    char        vhwaddr[6]; /* ????MAC??? */
+    int         adminState; /* ?????? 1: up??2: down */
     
-    int			ms_learn;/* ѧϰ master ����Ϣ */
-    ulong_t		ms_router_id;/* master �� router id */
-    int    		ms_priority;/* master �� priority  */
-    uint32_t    ms_advt_timer;/* master �� advertisements time */
-    uint32_t    ms_down_timer;/* master �� down time */
+    int			ms_learn;/* ?? master ????? */
+    ulong_t		ms_router_id;/* master ?? router id */
+    int    		ms_priority;/* master ?? priority  */
+    uint32_t    ms_advt_timer;/* master ?? advertisements time */
+    uint32_t    ms_down_timer;/* master ?? down time */
     
-    ulong_t     upTime;     /* �뿪INIT״̬ʱ��rfc1907:sysUpTime����ֵ */
-    int         niftrack;   /* ���ӽӿڵ���Ŀ */
-    int         iftrack[VRRP_IF_TRACK_MAX]; /* ���ӽӿ��������� */
-    int         pritrack[VRRP_IF_TRACK_MAX]; /* ���ӽӿ�downʱ���͵����ȼ�ֵ */
+    ulong_t     upTime;     /* ??INIT?????rfc1907:sysUpTime????? */
+    int         niftrack;   /* ?????????? */
+    int         iftrack[VRRP_IF_TRACK_MAX]; /* ?????????????? */
+    int         pritrack[VRRP_IF_TRACK_MAX]; /* ??????down???????????? */
 
-    ulong_t     staBecomeMaster;     /* ״̬ת��ΪMaster�Ĵ��� */
-    ulong_t     staAdverRcvd;        /* �յ���VRRPͨ���� */
-    ulong_t     staAdverIntErrors;   /* ͨ������ͬ�ڱ������õı����� */
-    ulong_t     staAuthFailures;     /* ��֤ʧ�ܵı����� */
-    ulong_t     staIpTtlErrors;      /* IP TTL������255�ı����� */
-    ulong_t     staPriZeroPktsRcvd;  /* �յ������ȼ�Ϊ0�ı����� */
-    ulong_t     staPriZeroPktsSent;  /* ���͵����ȼ�Ϊ0�ı����� */
-    ulong_t     staInvTypePktsRcvd;  /* �յ��ķǷ����͵ı����� */
-    ulong_t     staAddrListErrors;   /* �յ��ĵ�ַ�б�ͬ�ڱ��صı����� */
-    ulong_t     staInvAuthType;      /* �յ���δ֪��֤���͵ı����� */
-    ulong_t     staAuthTypeMismatch; /* �յ�����֤���Ͳ�ͬ�ڱ��صı����� */
-    ulong_t     staPktsLenErrors;    /* �յ��ĳ��ȷǷ��ı����� */
+    ulong_t     staBecomeMaster;     /* ??????Master????? */
+    ulong_t     staAdverRcvd;        /* ?????VRRP????? */
+    ulong_t     staAdverIntErrors;   /* ??????????????????????? */
+    ulong_t     staAuthFailures;     /* ???????????? */
+    ulong_t     staIpTtlErrors;      /* IP TTL??????255??????? */
+    ulong_t     staPriZeroPktsRcvd;  /* ???????????0??????? */
+    ulong_t     staPriZeroPktsSent;  /* ???????????0??????? */
+    ulong_t     staInvTypePktsRcvd;  /* ????????????????? */
+    ulong_t     staAddrListErrors;   /* ????????б????????????? */
+    ulong_t     staInvAuthType;      /* ?????δ?????????????? */
+    ulong_t     staAuthTypeMismatch; /* ????????????????????????? */
+    ulong_t     staPktsLenErrors;    /* ????????????????? */
 
     struct zvrrp_master *zvrrp_master;
 } vrrp_rt;
@@ -302,7 +303,7 @@ struct zvrrp_master
 	int init;
 	int task;
 	void *SemMutexId;    
-	int	ping_enable;/* ʹ��ping 1: enable��0: disable */
+	int	ping_enable;/* ???ping 1: enable??0: disable */
 	void *master;
 #ifdef ZVRRPD_ON_ROUTTING	
 	struct zclient *zclient;
@@ -327,9 +328,6 @@ extern int zvrrp_master_uninit(void);
 extern int zvrrp_vsrv_show(int vrid);
 
 
-
-
-/*���������ʽ�ĺϷ���,������Ϸ��ͷ��ظ���ֵ*/
 #define CHECK_VALID(p, retVal)\
 		if(!(p))\
 		{\
@@ -376,10 +374,7 @@ enum {
 		}
 #endif
 
-
 #ifdef __cplusplus
 }
-#endif 
-
-#endif    /* __ZEBRA_VRRPD_H__ */
-
+#endif
+#endif /*__ZEBRA_VRRPD_H__*/

@@ -48,7 +48,8 @@
 #define IMISH_LDPD    0x10000
 #define IMISH_RSVPD   0x20000
 #define IMISH_MPLSD   0x40000
-//#define IMISH_NSMD  IMISH_ZEBRA
+#define IMISH_UTILSD  0x80000
+
 #define IMISH_EXPAND  |IMISH_HSLSD|IMISH_OLSRD|IMISH_ICRPD|IMISH_FRPD|IMISH_VRRPD| \
 					  IMISH_LLDPD|IMISH_VPND||IMISH_LDPD|IMISH_RSVPD|IMISH_MPLSD
 #else/*HAVE_EXPAND_ROUTE_PLATFORM*/
@@ -62,7 +63,10 @@
 #define IMISH_INTERFACE	IMISH_ZEBRA|IMISH_RIPD|IMISH_RIPNGD|IMISH_OSPFD| \
 		IMISH_OSPF6D|IMISH_ISISD|IMISH_BABELD|IMISH_PIMD IMISH_EXPAND
 
-#define IMISH_RMAP	  IMISH_ZEBRA|IMISH_RIPD|IMISH_RIPNGD|IMISH_OSPFD|IMISH_OSPF6D|IMISH_BGPD|IMISH_BABELD
+#define IMISH_RMAP	  IMISH_ZEBRA|IMISH_RIPD|IMISH_RIPNGD|IMISH_OSPFD|IMISH_OSPF6D|IMISH_BGPD
+
+#define IMISH_FILTER	  IMISH_ZEBRA|IMISH_RIPD|IMISH_RIPNGD|IMISH_OSPFD| \
+		IMISH_OSPF6D|IMISH_ISISD|IMISH_BABELD|IMISH_PIMD
 
 
 /* imish local configuration file. */
@@ -77,6 +81,11 @@ extern void imish_module_init (void);
 extern void imish_module_exit (void);
 extern int imish_module_connect_all (const char *optional_daemon_name);
 extern int imish_module_client_put (struct vty *vty, const char *buf, int out);
+extern int imish_end (struct vty *vty);
+extern int imish_exit (struct vty *vty);
+
+
+
 //ִ��ĳ���ͻ���·�ɵ�����
 extern int imish_module_execute (struct vty *vty, const char *line, int out);
 extern int imish_module_client_execute(int client, const char *cmd, struct vty *vty, int out);
@@ -90,6 +99,8 @@ extern int imish_read_config (char *config_default);//��ȡ�����ļ�
 //imi-sh_cmd.c
 extern void imish_module_init_cmd (void);
 
+//imi-sh_client.c
+extern void imish_module_client_cmd_init (void);
 
 extern struct thread_master *master;
 
