@@ -61,6 +61,7 @@ int lldp_interface_enable(struct interface *ifp)
 
 	return CMD_SUCCESS;
 }
+
 int lldp_interface_disable(struct interface *ifp)
 {
 	struct lldp_interface *lifp;
@@ -86,6 +87,7 @@ int lldp_interface_disable(struct interface *ifp)
 	}
 	return CMD_SUCCESS;
 }
+
 int lldp_interface_transmit_enable(struct interface *ifp)
 {
 	struct lldp_interface *lifp;
@@ -118,6 +120,7 @@ int lldp_interface_transmit_enable(struct interface *ifp)
 	}
 	return CMD_SUCCESS;
 }
+
 int lldp_interface_receive_enable(struct interface *ifp)
 {
 	struct lldp_interface *lifp;

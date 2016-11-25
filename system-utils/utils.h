@@ -15,6 +15,8 @@
 //#define HAVE_UTILS_FIREWALL 1
 //#define HAVE_UTILS_IPTABLES 1
 #define HAVE_UTILS_VLAN 1
+#define HAVE_UTILS_SNTP 1
+
 
 
 #ifdef HAVE_UTILS_TUNNEL
@@ -42,7 +44,7 @@ extern struct zebra_privs_t utils_privs;
 extern int super_system(const char *cmd);
 
 extern void utils_zclient_init (void);
-
+extern void utils_debug_init (void);
 
 
 

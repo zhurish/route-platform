@@ -835,11 +835,16 @@ static struct cmd_node vrrp_node =
 };
 static int zvrrp_vtycmd_init(void)
 {
+#if (ZVRRPD_OS_TYPE == ZVRRPD_ON_VXWORKS)
 	//��quaggaע����ʾ�ӿ���Ϣ�ĺ�����show run�����ʱ����ʾ�ӿ���Ϣ��
 	//zebra_node_func_install(0, INTERFACE_NODE, eigrp_config_interface_breif);
 	//��quaggaע����ʾdebug��Ϣ�ĺ�����show run�����ʱ����ʾdebug��Ϣ��
 	//zebra_node_func_install(0, DEBUG_NODE, eigrp_config_debug_breif); 
+#endif
+#if (ZVRRPD_OS_TYPE == ZVRRPD_ON_LINUX)
 	install_node (&vrrp_node, zvrrp_config_write);
+	//install_node (&debug_node, eigrp_config_debug_breif);
+#endif
 	/* "router vrrp" commands. */
 	install_element (CONFIG_NODE, &vrrp_router_cmd);
 	install_element (CONFIG_NODE, &vrrp_no_router_cmd);

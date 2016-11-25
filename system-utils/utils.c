@@ -40,3 +40,26 @@ int super_system(const char *cmd)
 	return ret;
 }
 
+
+
+/* Debug node. */
+struct cmd_node debug_node =
+{
+  DEBUG_NODE,
+  "",				/* Debug node has no interface. */
+  1
+};
+static int config_write_debug (struct vty *vty)
+{
+  int write = 0;
+#ifdef HAVE_UTILS_SNTP
+  extern int sntpc_debug_config(struct vty *vty);
+  sntpc_debug_config(vty);
+#endif /*HAVE_UTILS_SNTP*/
+  return write;
+}
+
+void utils_debug_init (void)
+{
+  install_node (&debug_node, config_write_debug);
+}

@@ -89,6 +89,7 @@ struct stream *lldp_recv_packet (int fd, struct interface **ifp, struct stream *
   *ifp = if_lookup_by_index (ifindex);
   return ibuf;
 }
+
 int lldp_write_packet (int fd, struct interface *ifp, struct stream *obuf)
 {
 	int ret = 0;

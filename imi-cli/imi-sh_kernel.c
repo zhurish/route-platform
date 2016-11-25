@@ -19,11 +19,11 @@
 /******************************************************************/
 struct imish_kernel
 {
-  pid_t pid;//×Ó½ø³ÌID
+  pid_t pid;//ï¿½Ó½ï¿½ï¿½ï¿½ID
   int status;//×´Ì¬
-  int pfd[2];//¹ÜµÀ
-  int ptid;//¶ÁÈ¡×Ó½ø³Ì·µ»ØÐÅÏ¢Ïß³Ìpid
-  pthread_t pthid;//¶ÁÈ¡×Ó½ø³Ì·µ»ØÐÅÏ¢Ïß³Ìtid  
+  int pfd[2];//ï¿½Üµï¿½
+  int ptid;//ï¿½ï¿½È¡ï¿½Ó½ï¿½ï¿½Ì·ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ß³ï¿½pid
+  pthread_t pthid;//ï¿½ï¿½È¡ï¿½Ó½ï¿½ï¿½Ì·ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ß³ï¿½tid  
   struct vty *vty;
 };
 /******************************************************************/
@@ -32,7 +32,7 @@ static struct imish_kernel imish_kernel;
 /******************************************************************/
 /******************************************************************/
 /******************************************************************/
-//Ö´ÐÐÏµÍ³½Å±¾£¬²¢»ñÈ¡½Å±¾Êä³ö
+//Ö´ï¿½ï¿½ÏµÍ³ï¿½Å±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½Å±ï¿½ï¿½ï¿½ï¿½
 int imish_kernel_system(int dir, const char *cmd, char *buf, int size)
 {
   FILE *fd = NULL;
@@ -110,9 +110,10 @@ static void * imish_kernel_pthread(void *arg)
       ret = imish_kernel_response_string(vty, buf, buf, ret);
       if(ret > 0)
       {
-        buffer_put (vty->obuf, VTY_NEWLINE, strlen(VTY_NEWLINE));
+        //buffer_put (vty->obuf, VTY_NEWLINE, strlen(VTY_NEWLINE));
       	buffer_put (vty->obuf, buf, ret);
-        buffer_put (vty->obuf, VTY_NEWLINE, strlen(VTY_NEWLINE));
+        //buffer_put (vty->obuf, VTY_NEWLINE, strlen(VTY_NEWLINE));
+        buffer_flush_available(vty->obuf, vty->fd);
       }
     }
   }
@@ -185,8 +186,8 @@ static int imish_kernel_execute_command (struct vty *vty, const char *command, i
   else
     {
       /* This is parent. */
-      ret = wait4 (imish_kernel.pid, &status, 0, NULL);
-      imish_kernel.pid = -1;
+      //ret = wait4 (imish_kernel.pid, &status, 0, NULL);
+      //imish_kernel.pid = -1;
     }
   return 0;
 }
@@ -549,7 +550,7 @@ static struct cmd_node linux_shell_node =
   1
 };
 
-//ÓÃÓÚÖ´ÐÐlinuxµÄÏµÍ³·þÎñÀý³Ì£ºNAT,NSTP,DHCP,FTP,QOS,DNS,IPTABLE, 
+//ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½linuxï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì£ï¿½NAT,NSTP,DHCP,FTP,QOS,DNS,IPTABLE, 
 static int imish_kernel_service_cmd_init(void)
 {
 	return 0;	
@@ -559,7 +560,7 @@ static int imish_kernel_service_cmd_init(void)
 int imish_kernel_shell_cmd_init(void)
 {
   memset(&imish_kernel, 0, sizeof(imish_kernel));
-  install_node (&linux_shell_node, NULL);
+  //install_node (&linux_shell_node, NULL);
   
   install_element (CONFIG_NODE, &start_shell_cmd);
   //install_element (CONFIG_NODE, &no_start_shell_cmd); 

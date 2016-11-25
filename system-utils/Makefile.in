@@ -110,14 +110,14 @@ libutils_a_LIBADD =
 am_libutils_a_OBJECTS = utils.$(OBJEXT) utils_interface.$(OBJEXT) \
 	utils_zebra.$(OBJEXT) ip_tunnel.$(OBJEXT) ip_brctl.$(OBJEXT) \
 	ip_vlan.$(OBJEXT) ip_dhcp.$(OBJEXT) ip_firewall.$(OBJEXT) \
-	ip_iptables.$(OBJEXT)
+	ip_iptables.$(OBJEXT) sntpcLib.$(OBJEXT)
 libutils_a_OBJECTS = $(am_libutils_a_OBJECTS)
 am__installdirs = "$(DESTDIR)$(sbindir)"
 PROGRAMS = $(sbin_PROGRAMS)
 am__objects_1 = utils.$(OBJEXT) utils_interface.$(OBJEXT) \
 	utils_zebra.$(OBJEXT) ip_tunnel.$(OBJEXT) ip_brctl.$(OBJEXT) \
 	ip_vlan.$(OBJEXT) ip_dhcp.$(OBJEXT) ip_firewall.$(OBJEXT) \
-	ip_iptables.$(OBJEXT)
+	ip_iptables.$(OBJEXT) sntpcLib.$(OBJEXT)
 am_utilsd_OBJECTS = main.$(OBJEXT) $(am__objects_1)
 utilsd_OBJECTS = $(am_utilsd_OBJECTS)
 utilsd_DEPENDENCIES = ../lib/libzebra.la
@@ -379,10 +379,10 @@ AM_LDFLAGS = $(PILDFLAGS)
 noinst_LIBRARIES = libutils.a
 libutils_a_SOURCES = utils.c utils_interface.c utils_zebra.c \
 	ip_tunnel.c ip_brctl.c ip_vlan.c ip_dhcp.c ip_firewall.c \
-	ip_iptables.c
+	ip_iptables.c sntpcLib.c
 
 noinst_HEADERS = \
-	utils.h utils_interface.h ip_tunnel.h ip_vlan.h
+	utils.h utils_interface.h ip_tunnel.h ip_vlan.h sntpcLib.h
 
 utilsd_SOURCES = main.c $(libutils_a_SOURCES)
 utilsd_LDADD = ../lib/libzebra.la @LIBCAP@
@@ -495,6 +495,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_tunnel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ip_vlan.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sntpcLib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils_interface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils_zebra.Po@am__quote@

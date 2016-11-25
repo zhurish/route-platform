@@ -67,7 +67,7 @@ LR_LIB_CONFIG="LIBS=-lpthread "
 LR_CONFIG_1="--disable-babeld --disable-ripd  --disable-pimd --disable-ospf6d --disable-ripngd "
 LR_CONFIG_2="--enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn ${OSPF_DEP_VER} "
 LR_CONFIG_3="--disable-bgpd --disable-isisd --disable-isis-topology --enable-fpm --disable-rtadv --disable-irdp "
-LR_CONFIG_4="--enable-olsrd --enable-lldpd --enable-vrrpd "
+LR_CONFIG_4="--enable-olsrd --enable-lldpd --enable-vrrpd --enable-frpd "
 LR_CONFIG_5="--enable-utils --enable-vpnd --disable-ldpd --disable-rsvpd --enable-imi=65530 "
 LR_CONFIG_6="--enable-configfile-mask=0664 --enable-logfile-mask=0664 "
 

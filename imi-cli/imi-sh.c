@@ -1891,16 +1891,24 @@ DEFUN (no_banner_motd,
 }
 */
 
-
-
 static struct cmd_node cmd_node_list[] =
 {
-  //{ SERVICE_NODE, "%s(config)# " },
 #ifdef IMISH_IMI_MODULE
-  //{ LINUX_SHELL_NODE, "%s(config)# " },
+  { USER_NODE, "Username: " },
 #endif//IMISH_IMI_MODULE
-  //{ DEBUG_NODE, "%s(config)# " },
-  //{ AAA_NODE, "%s(config-aaa)# " },
+  { AUTH_NODE, "Password: " },
+  { RESTRICTED_NODE, "%s$ " },
+  { VIEW_NODE, "%s> " },
+  { AUTH_ENABLE_NODE, "Password: " },
+  { ENABLE_NODE, "%s# " },
+  { CONFIG_NODE, "%s(config)# " },
+
+  { SERVICE_NODE, "%s(config)# " },
+#ifdef IMISH_IMI_MODULE
+  { LINUX_SHELL_NODE, "%s:linux-sh> " },
+#endif//IMISH_IMI_MODULE
+  { DEBUG_NODE, "%s(config)# " },
+  { AAA_NODE, "%s(config-aaa)# " },
   { KEYCHAIN_NODE, "%s(config-keychain)# " },
   { KEYCHAIN_KEY_NODE, "%s(config-keychain-key)# " },
   { INTERFACE_NODE, "%s(config-if)# " },
@@ -1941,7 +1949,7 @@ static struct cmd_node cmd_node_list[] =
   { RSVP_NODE, "%s(config-router)# " },
   { MPLS_NODE, "%s(config-router)# " },
 #endif//#ifdef HAVE_EXPAND_ROUTE_PLATFORM
-  /*
+
   { MASC_NODE, "%s(config)# " },
   { IRDP_NODE, "%s(config)# " },
   { IP_NODE, "%s(config)# " },
@@ -1953,44 +1961,221 @@ static struct cmd_node cmd_node_list[] =
   { AS_LIST_NODE, "%s(config)# " },
 
   { COMMUNITY_LIST_NODE, "%s(config)# " },
-  */
+
   { RMAP_NODE, "%s(route-map)# " },
-  /*
+
   { SMUX_NODE, "%s(config)# " },
   { DUMP_NODE, "%s(config)# " },
 
   { FORWARDING_NODE, "%s(config)# " },
   { PROTOCOL_NODE, "%s(config)# " },
-  */
+
   { VTY_NODE, "%s(config-line)# " },
 };
 
-
 static void imish_module_node_init (void)
 {
-  unsigned int i = 0;
-  //extern struct cmd_node vty_node;
-  for(i = 0; i < array_size(cmd_node_list); i++)
-  {
-	  install_node (&cmd_node_list[i], NULL);
-  }
+/*
+#ifdef IMISH_IMI_MODULE
+	install_node (&cmd_node_list[USER_NODE], NULL);
+#endif//IMISH_IMI_MODULE
+	install_node (&cmd_node_list[AUTH_NODE], NULL);
+	install_node (&cmd_node_list[RESTRICTED_NODE], NULL);
+	install_node (&cmd_node_list[VIEW_NODE], NULL);
+	install_node (&cmd_node_list[AUTH_ENABLE_NODE], NULL);
+	install_node (&cmd_node_list[ENABLE_NODE], NULL);
+	install_node (&cmd_node_list[CONFIG_NODE], NULL);
+*/
+	install_node (&cmd_node_list[SERVICE_NODE], NULL);
+#ifdef IMISH_IMI_MODULE
+	install_node (&cmd_node_list[LINUX_SHELL_NODE], NULL);
+#endif//IMISH_IMI_MODULE
+	install_node (&cmd_node_list[DEBUG_NODE], NULL);
+	install_node (&cmd_node_list[AAA_NODE], NULL);
+	install_node (&cmd_node_list[KEYCHAIN_NODE], NULL);
+	install_node (&cmd_node_list[KEYCHAIN_KEY_NODE], NULL);
+	install_node (&cmd_node_list[INTERFACE_NODE], NULL);
+	install_node (&cmd_node_list[ZEBRA_NODE], NULL);
+	install_node (&cmd_node_list[TABLE_NODE], NULL);
+	install_node (&cmd_node_list[RIP_NODE], NULL);
+	install_node (&cmd_node_list[RIPNG_NODE], NULL);
+	install_node (&cmd_node_list[BABEL_NODE], NULL);
+	install_node (&cmd_node_list[BGP_NODE], NULL);
+	install_node (&cmd_node_list[BGP_VPNV4_NODE], NULL);
+	install_node (&cmd_node_list[BGP_IPV4_NODE], NULL);
+	install_node (&cmd_node_list[BGP_IPV4M_NODE], NULL);
+	install_node (&cmd_node_list[BGP_IPV6_NODE], NULL);
+	install_node (&cmd_node_list[BGP_IPV6M_NODE], NULL);
+	install_node (&cmd_node_list[OSPF_NODE], NULL);
+	install_node (&cmd_node_list[OSPF6_NODE], NULL);
+	install_node (&cmd_node_list[ISIS_NODE], NULL);
+	install_node (&cmd_node_list[PIM_NODE], NULL);
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+	install_node (&cmd_node_list[HSLS_NODE], NULL);
+	install_node (&cmd_node_list[OLSR_NODE], NULL);
+	install_node (&cmd_node_list[ICRP_NODE], NULL);
+	install_node (&cmd_node_list[FRP_NODE], NULL);
+	install_node (&cmd_node_list[ADOV_NODE], NULL);
+	install_node (&cmd_node_list[VRRP_NODE], NULL);
+	install_node (&cmd_node_list[LLDP_NODE], NULL);
+	install_node (&cmd_node_list[VPN_NODE], NULL);
+	install_node (&cmd_node_list[BFD_NODE], NULL);
+	install_node (&cmd_node_list[LDP_NODE], NULL);
+	install_node (&cmd_node_list[RSVP_NODE], NULL);
+	install_node (&cmd_node_list[MPLS_NODE], NULL);
+#endif//#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+	install_node (&cmd_node_list[MASC_NODE], NULL);
+	install_node (&cmd_node_list[IRDP_NODE], NULL);
+	install_node (&cmd_node_list[IP_NODE], NULL);
+	install_node (&cmd_node_list[ACCESS_NODE], NULL);
+	install_node (&cmd_node_list[PREFIX_NODE], NULL);
+	install_node (&cmd_node_list[ACCESS_IPV6_NODE], NULL);
+	install_node (&cmd_node_list[PREFIX_IPV6_NODE], NULL);
+	install_node (&cmd_node_list[AS_LIST_NODE], NULL);
+	install_node (&cmd_node_list[COMMUNITY_LIST_NODE], NULL);
+	install_node (&cmd_node_list[RMAP_NODE], NULL);
+	install_node (&cmd_node_list[SMUX_NODE], NULL);
+	install_node (&cmd_node_list[DUMP_NODE], NULL);
+	install_node (&cmd_node_list[FORWARDING_NODE], NULL);
+	install_node (&cmd_node_list[PROTOCOL_NODE], NULL);
+	install_node (&cmd_node_list[VTY_NODE], NULL);
 }
 static void imish_module_list_cmd_init (void)
 {
-	unsigned int i = 0;
-	for(i = 0; i < array_size(cmd_node_list); i++)
-	{
-		install_element (i, &config_list_cmd);
-	}
+	/*
+#ifdef IMISH_IMI_MODULE
+	install_element (USER_NODE, &config_list_cmd);
+#endif//IMISH_IMI_MODULE
+	install_element (AUTH_NODE, &config_list_cmd);
+	install_element (RESTRICTED_NODE, &config_list_cmd);
+	install_element (VIEW_NODE, &config_list_cmd);
+	install_element (AUTH_ENABLE_NODE, &config_list_cmd);
+	install_element (ENABLE_NODE, &config_list_cmd);
+	install_element (CONFIG_NODE, &config_list_cmd);
+	*/
+	install_element (SERVICE_NODE, &config_list_cmd);
+#ifdef IMISH_IMI_MODULE
+	install_element (LINUX_SHELL_NODE, &config_list_cmd);
+#endif//IMISH_IMI_MODULE
+	install_element (DEBUG_NODE, &config_list_cmd);
+	install_element (AAA_NODE, &config_list_cmd);
+	install_element (KEYCHAIN_NODE, &config_list_cmd);
+	install_element (KEYCHAIN_KEY_NODE, &config_list_cmd);
+	install_element (INTERFACE_NODE, &config_list_cmd);
+	install_element (ZEBRA_NODE, &config_list_cmd);
+	install_element (TABLE_NODE, &config_list_cmd);
+	install_element (RIP_NODE, &config_list_cmd);
+	install_element (RIPNG_NODE, &config_list_cmd);
+	install_element (BABEL_NODE, &config_list_cmd);
+	install_element (BGP_NODE, &config_list_cmd);
+	install_element (BGP_VPNV4_NODE, &config_list_cmd);
+	install_element (BGP_IPV4_NODE, &config_list_cmd);
+	install_element (BGP_IPV4M_NODE, &config_list_cmd);
+	install_element (BGP_IPV6_NODE, &config_list_cmd);
+	install_element (BGP_IPV6M_NODE, &config_list_cmd);
+	install_element (OSPF_NODE, &config_list_cmd);
+	install_element (OSPF6_NODE, &config_list_cmd);
+	install_element (ISIS_NODE, &config_list_cmd);
+	install_element (PIM_NODE, &config_list_cmd);
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+	install_element (HSLS_NODE, &config_list_cmd);
+	install_element (OLSR_NODE, &config_list_cmd);
+	install_element (ICRP_NODE, &config_list_cmd);
+	install_element (FRP_NODE, &config_list_cmd);
+	install_element (ADOV_NODE, &config_list_cmd);
+	install_element (VRRP_NODE, &config_list_cmd);
+	install_element (LLDP_NODE, &config_list_cmd);
+	install_element (VPN_NODE, &config_list_cmd);
+	install_element (BFD_NODE, &config_list_cmd);
+	install_element (LDP_NODE, &config_list_cmd);
+	install_element (RSVP_NODE, &config_list_cmd);
+	install_element (MPLS_NODE, &config_list_cmd);
+#endif//#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+	install_element (MASC_NODE, &config_list_cmd);
+	install_element (IRDP_NODE, &config_list_cmd);
+	install_element (IP_NODE, &config_list_cmd);
+	install_element (ACCESS_NODE, &config_list_cmd);
+	install_element (PREFIX_NODE, &config_list_cmd);
+	install_element (ACCESS_IPV6_NODE, &config_list_cmd);
+	install_element (PREFIX_IPV6_NODE, &config_list_cmd);/*
+	install_element (AS_LIST_NODE, &config_list_cmd);
+	install_element (COMMUNITY_LIST_NODE, &config_list_cmd);
+	install_element (RMAP_NODE, &config_list_cmd);
+	install_element (SMUX_NODE, &config_list_cmd);
+	install_element (DUMP_NODE, &config_list_cmd);
+	install_element (FORWARDING_NODE, &config_list_cmd);
+	install_element (PROTOCOL_NODE, &config_list_cmd);*/
+	install_element (VTY_NODE, &config_list_cmd);
 }
 static void imish_module_end_cmd_init (void)
 {
-  unsigned int i = 0;
-  //for(i = 0; i < array_size(cmd_node_list); i++)
-  for(i = CONFIG_NODE; i < VTY_NODE; i++)
-  {
-	  install_element (i, &imish_end_all_cmd);
-  }
+	/*
+#ifdef IMISH_IMI_MODULE
+	install_element (USER_NODE, &imish_end_all_cmd);
+#endif//IMISH_IMI_MODULE
+	install_element (AUTH_NODE, &imish_end_all_cmd);
+	install_element (RESTRICTED_NODE, &imish_end_all_cmd);
+	install_element (VIEW_NODE, &imish_end_all_cmd);
+	install_element (AUTH_ENABLE_NODE, &imish_end_all_cmd);
+	install_element (ENABLE_NODE, &imish_end_all_cmd);
+	install_element (CONFIG_NODE, &imish_end_all_cmd);
+
+	install_element (SERVICE_NODE, &imish_end_all_cmd);
+#ifdef IMISH_IMI_MODULE
+	install_element (LINUX_SHELL_NODE, &imish_end_all_cmd);
+#endif//IMISH_IMI_MODULE
+	install_element (DEBUG_NODE, &imish_end_all_cmd);
+	*/
+	install_element (AAA_NODE, &imish_end_all_cmd);
+	install_element (KEYCHAIN_NODE, &imish_end_all_cmd);
+	install_element (KEYCHAIN_KEY_NODE, &imish_end_all_cmd);
+	install_element (INTERFACE_NODE, &imish_end_all_cmd);
+	install_element (ZEBRA_NODE, &imish_end_all_cmd);
+	//install_element (TABLE_NODE, &imish_end_all_cmd);
+	install_element (RIP_NODE, &imish_end_all_cmd);
+	install_element (RIPNG_NODE, &imish_end_all_cmd);
+	install_element (BABEL_NODE, &imish_end_all_cmd);
+	install_element (BGP_NODE, &imish_end_all_cmd);
+	install_element (BGP_VPNV4_NODE, &imish_end_all_cmd);
+	install_element (BGP_IPV4_NODE, &imish_end_all_cmd);
+	install_element (BGP_IPV4M_NODE, &imish_end_all_cmd);
+	install_element (BGP_IPV6_NODE, &imish_end_all_cmd);
+	install_element (BGP_IPV6M_NODE, &imish_end_all_cmd);
+	install_element (OSPF_NODE, &imish_end_all_cmd);
+	install_element (OSPF6_NODE, &imish_end_all_cmd);
+	install_element (ISIS_NODE, &imish_end_all_cmd);
+	install_element (PIM_NODE, &imish_end_all_cmd);
+#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+	install_element (HSLS_NODE, &imish_end_all_cmd);
+	install_element (OLSR_NODE, &imish_end_all_cmd);
+	install_element (ICRP_NODE, &imish_end_all_cmd);
+	install_element (FRP_NODE, &imish_end_all_cmd);
+	install_element (ADOV_NODE, &imish_end_all_cmd);
+	install_element (VRRP_NODE, &imish_end_all_cmd);
+	install_element (LLDP_NODE, &imish_end_all_cmd);
+	install_element (VPN_NODE, &imish_end_all_cmd);
+	install_element (BFD_NODE, &imish_end_all_cmd);
+	install_element (LDP_NODE, &imish_end_all_cmd);
+	install_element (RSVP_NODE, &imish_end_all_cmd);
+	install_element (MPLS_NODE, &imish_end_all_cmd);
+#endif//#ifdef HAVE_EXPAND_ROUTE_PLATFORM
+	//install_element (MASC_NODE, &imish_end_all_cmd);
+	//install_element (IRDP_NODE, &imish_end_all_cmd);
+	//install_element (IP_NODE, &imish_end_all_cmd);
+	install_element (ACCESS_NODE, &imish_end_all_cmd);
+	install_element (PREFIX_NODE, &imish_end_all_cmd);
+	install_element (ACCESS_IPV6_NODE, &imish_end_all_cmd);
+	install_element (PREFIX_IPV6_NODE, &imish_end_all_cmd);
+	install_element (AS_LIST_NODE, &imish_end_all_cmd);
+	/*
+	install_element (COMMUNITY_LIST_NODE, &imish_end_all_cmd);
+	install_element (RMAP_NODE, &imish_end_all_cmd);
+	install_element (SMUX_NODE, &imish_end_all_cmd);
+	install_element (DUMP_NODE, &imish_end_all_cmd);
+	install_element (FORWARDING_NODE, &imish_end_all_cmd);
+	install_element (PROTOCOL_NODE, &imish_end_all_cmd);
+	*/
+	install_element (VTY_NODE, &imish_end_all_cmd);
 }
 static void imish_module_exit_cmd_init (void)
 {
@@ -2117,6 +2302,7 @@ void imish_module_init (void)
 	cmd_init (0);
 	
 	imi_sh_execute = imish_sh_execute;
+
 	host.motd = NULL;
 	if (host.motdfile)
 		XFREE (MTYPE_HOST, host.motdfile);
@@ -2125,7 +2311,6 @@ void imish_module_init (void)
 	imish_connect = thread_add_timer (master, imish_module_connect_thread, NULL, 5);
   
 	/* Install nodes. */
-	//install_node (&bgp_node, NULL);
 	imish_module_node_init ();
   
 	imi_shell_init (master);

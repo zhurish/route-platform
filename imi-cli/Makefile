@@ -214,8 +214,8 @@ BGPD =
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -Os -fno-omit-frame-pointer -g -std=gnu99 -Wall -Wsign-compare -Wpointer-arith -Wbad-function-cast -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wchar-subscripts -Wcast-qual
-CONFDATE = 20161116
-CONFIG_ARGS = --prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --disable-bgpd --disable-isisd --disable-isis-topology --enable-fpm --disable-rtadv --disable-irdp --enable-olsrd --enable-lldpd --enable-vrrpd --enable-utils --enable-vpnd --disable-ldpd --disable-rsvpd --enable-imi=65530 --enable-configfile-mask=0664 --enable-logfile-mask=0664 LIBS=-lpthread
+CONFDATE = 20161125
+CONFIG_ARGS = --prefix=/home/zhurish/workspace/route-platform/app/rt --localstatedir=/home/zhurish/workspace/route-platform/app/rt/var --build=i686-pc-linux-gnu --host=i686-pc-linux-gnu CC=gcc --enable-user=zhurish --enable-group=zhurish --enable-tcp-zebra --enable-zebra --disable-vtysh --enable-watchquagga --disable-babeld --disable-ripd --disable-pimd --disable-ospf6d --disable-ripngd --enable-ospfd --enable-ospfapi --enable-ospfclient --enable-ospf-dcn --enable-opaque-lsa --enable-ospf-te --disable-bgpd --disable-isisd --disable-isis-topology --enable-fpm --disable-rtadv --disable-irdp --enable-olsrd --enable-lldpd --enable-vrrpd --enable-frpd --enable-utils --enable-vpnd --disable-ldpd --disable-rsvpd --enable-imi=65530 --enable-configfile-mask=0664 --enable-logfile-mask=0664 LIBS=-lpthread
 CPP = gcc -E
 CPPFLAGS = 
 CURSES = 
@@ -234,7 +234,7 @@ EGREP = /usr/bin/grep -E
 EXEEXT = 
 FGREP = /usr/bin/grep -F
 FPMD = fpm
-FRPD = 
+FRPD = frpd
 GAWK = gawk
 GREP = /usr/bin/grep
 HAVE_LIBPCREPOSIX = 
@@ -395,7 +395,7 @@ imish_LDADD = ../lib/libzebra.la -lcap
 examplesdir = $(exampledir)
 dist_examples_DATA = imi-sh.conf.sample
 EXT_OLSR = $(top_srcdir)/olsrd/*.c
-#EXT_FRP = $(top_srcdir)/frpd/*.c
+EXT_FRP = $(top_srcdir)/frpd/*.c
 EXT_VRRP = $(top_srcdir)/vrrpd/*.c
 EXT_LLDP = $(top_srcdir)/lldpd/*.c
 EXT_SRC = $(EXT_OLSR) $(EXT_FRP) $(EXT_VRRP) $(EXT_LLDP)

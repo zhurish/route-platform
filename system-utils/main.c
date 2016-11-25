@@ -25,6 +25,8 @@
 #include "system-utils/ip_tunnel.h"
 #include "system-utils/ip_brctl.h"
 
+#include "system-utils/sntpcLib.h"
+
 
 /* ripd options. */
 static struct option longopts[] =
@@ -262,6 +264,8 @@ main (int argc, char **argv)
   vty_init (master);
   memory_init ();
 
+  utils_debug_init ();
+
   utils_interface_init();
   utils_zclient_init ();
 
@@ -273,6 +277,9 @@ main (int argc, char **argv)
 #endif
 #ifdef HAVE_UTILS_VLAN
   utils_vlan_cmd_init ();
+#endif
+#ifdef HAVE_UTILS_SNTP
+  sntpcInit();
 #endif
   /* Get configuration file. */
   vty_read_config (config_file, config_default);
