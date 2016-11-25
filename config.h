@@ -35,7 +35,7 @@
 #define DISABLE_BGP_ANNOUNCE 0
 
 /* frpd vty socket */
-/* #undef FRP_VTYSH_PATH */
+#define FRP_VTYSH_PATH "/home/zhurish/workspace/route-platform/app/rt/var/frpd.vty"
 
 /* include git version info */
 /* #undef GIT_VERSION */
@@ -307,6 +307,9 @@
 
 /* Have RFC3678 protocol-independed API */
 #define HAVE_RFC3678 1
+
+/* Optimize routing protocol Platform */
+#define HAVE_ROUTE_OPTIMIZE 1
 
 /* Enable IPv6 Routing Advertisement support */
 /* #undef HAVE_RTADV */
@@ -693,7 +696,7 @@
 #define OEM_PACKAGE_BUGREPORT "zhurish@163.com"
 
 /* this copyright for OEM version */
-#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/11/16 zhurish(zhurish@163.com) et al."
+#define OEM_PACKAGE_COPYRIGHT "Copyright 2016/03/03 - 2016/11/25 zhurish(zhurish@163.com) et al."
 
 /* Name of OEM package */
 #define OEM_PACKAGE_NAME "routing-plaform"
@@ -753,7 +756,7 @@
 #define PATH_BGPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/bgpd.pid"
 
 /* frpd PID */
-/* #undef PATH_FRPD_PID */
+#define PATH_FRPD_PID "/home/zhurish/workspace/route-platform/app/rt/var/frpd.pid"
 
 /* icrpd PID */
 /* #undef PATH_ICRPD_PID */
@@ -1004,5 +1007,5 @@
 /* Define to empty if the keyword `volatile' does not work. Warning: valid
    code using `volatile' can become incorrect without. Disable with care. */
 /* #undef volatile */
-#define GIT_SUFFIX	"V0.0.0.13 (on master)"
-#define GIT_INFO	"commit:c40f6f9de2d9426f464ce445a8e463024d772421"
+#define GIT_SUFFIX	"V0.0.0.14 (on master)"
+#define GIT_INFO	"commit:efd6efd535eab81e19919077220135daaf95e8f5"

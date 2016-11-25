@@ -641,7 +641,7 @@ DEFUN (no_ip_route_mask_flags_distance2,
 
 char *proto_rm[AFI_MAX][ZEBRA_ROUTE_MAX+1];	/* "any" == ZEBRA_ROUTE_MAX */
 /* 2016年6月27日 21:29:20 zhurish: 使能IMI Module模块后优化ip protocol命令 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
 DEFUN (ip_protocol,
        ip_protocol_cmd,
        "ip protocol " QUAGGA_REDIST_STR_ZEBRA " route-map ROUTE-MAP",
@@ -650,7 +650,7 @@ DEFUN (ip_protocol,
        QUAGGA_REDIST_HELP_STR_ZEBRA
        "Route map\n"
        "Name of Route map\n")
-#else//IMISH_IMI_MODULE
+#else//HAVE_ROUTE_OPTIMIZE
 DEFUN (ip_protocol,
        ip_protocol_cmd,
        "ip protocol PROTO route-map ROUTE-MAP",
@@ -658,7 +658,7 @@ DEFUN (ip_protocol,
        "Apply route map to PROTO\n"
        "Protocol name\n"
        "Route map name\n")
-#endif//IMISH_IMI_MODULE
+#endif//HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:29:20  zhurish: 使能IMI Module模块后优化ip protocol命令 */
 {
   int i;
@@ -679,7 +679,7 @@ DEFUN (ip_protocol,
   return CMD_SUCCESS;
 }
 /* 2016年6月27日 21:29:28 zhurish: 使能IMI Module模块后优化ip protocol命令 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
 DEFUN (no_ip_protocol,
        no_ip_protocol_cmd,
        "no ip protocol " QUAGGA_REDIST_STR_ZEBRA,
@@ -688,14 +688,14 @@ DEFUN (no_ip_protocol,
        "ip protocol \n"
        QUAGGA_REDIST_HELP_STR_ZEBRA
        "Name of route map Remove from PROTO\n")
-#else// IMISH_IMI_MODULE
+#else// HAVE_ROUTE_OPTIMIZE
 DEFUN (no_ip_protocol,
        no_ip_protocol_cmd,
        "no ip protocol PROTO",
        NO_STR
        "Remove route map from PROTO\n"
        "Protocol name\n")
-#endif// IMISH_IMI_MODULE
+#endif// HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:29:28  zhurish: 使能IMI Module模块后优化ip protocol命令 */
 {
   int i;
@@ -1462,7 +1462,7 @@ static_config_ipv4 (struct vty *vty, safi_t safi, const char *cmd)
   return write;
 }
 /* 2016年6月27日 21:29:45 zhurish: 使能IMI Module模块后优化ip protocol命令 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
 DEFUN (show_ip_protocol,
        show_ip_protocol_cmd,
        "show ip protocol filtering",
@@ -1470,14 +1470,14 @@ DEFUN (show_ip_protocol,
         IP_STR
        "IP protocol\n"
        "IP protocol filtering status\n")
-#else//IMISH_IMI_MODULE
+#else//HAVE_ROUTE_OPTIMIZE
 DEFUN (show_ip_protocol,
        show_ip_protocol_cmd,
        "show ip protocol",
         SHOW_STR
         IP_STR
        "IP protocol filtering status\n")
-#endif//IMISH_IMI_MODULE
+#endif//HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:29:45  zhurish: 使能IMI Module模块后优化ip protocol命令 */
 {
     int i; 
@@ -2312,7 +2312,7 @@ DEFUN (show_ipv6_mroute,
 }
 
 /* 2016年6月27日 21:30:38 zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
 extern int zebra_route_update_default_distance(int type, int value);
 extern int zebra_route_default_distance_show(int type, struct vty *vty);
 DEFUN (ip_protocol_defaule_distance,
@@ -2389,7 +2389,7 @@ DEFUN (show_defaule_distance,
   zebra_route_default_distance_show(0,  vty);
   return CMD_SUCCESS;
 }
-#endif// IMISH_IMI_MODULE
+#endif// HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:30:38  zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
 /* Write IPv6 static route configuration. */
 static int
@@ -2457,9 +2457,9 @@ zebra_ip_config (struct vty *vty)
   write += static_config_ipv6 (vty);
 #endif /* HAVE_IPV6 */
 /* 2016年6月27日 21:30:50 zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
   write += zebra_route_default_distance_show(1, vty);
-#endif// IMISH_IMI_MODULE
+#endif// HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:30:50  zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
   return write;
 }
@@ -2504,11 +2504,11 @@ zebra_vty_init (void)
   install_node (&ip_node, zebra_ip_config);
   install_node (&protocol_node, config_write_vty);
 /* 2016年6月27日 21:30:58 zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
   install_element (CONFIG_NODE, &ip_protocol_defaule_distance_cmd);
   install_element (CONFIG_NODE, &no_ip_protocol_defaule_distance_cmd);
   install_element (ENABLE_NODE, &show_defaule_distance_cmd);  
-#endif//IMISH_IMI_MODULE
+#endif//HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:30:58  zhurish: 使能IMI Module模块增加路由默认管理距离的命令 */
   install_element (CONFIG_NODE, &ip_mroute_cmd);
   install_element (CONFIG_NODE, &ip_mroute_dist_cmd);

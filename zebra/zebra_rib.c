@@ -52,18 +52,18 @@ extern struct zebra_t zebrad;
 int rib_process_hold_time = 10;
 
 /* Each route type's string and default distance value. */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
 static  struct
-#else //IMISH_IMI_MODULE
+#else //HAVE_ROUTE_OPTIMIZE
 static const struct
-#endif// IMISH_IMI_MODULE
+#endif// HAVE_ROUTE_OPTIMIZE
 {  
   int key;
   int distance;
 } route_info[ZEBRA_ROUTE_MAX] =
 {
 /* 2016年6月27日 21:25:59 zhurish: 使能IMI Module模块后增加修改路由默认管理距离的操作 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
   [ZEBRA_ROUTE_SYSTEM]  = {ZEBRA_ROUTE_SYSTEM,    ZEBRA_SYSTEM_DISTANCE_DEFAULT},
   [ZEBRA_ROUTE_KERNEL]  = {ZEBRA_ROUTE_KERNEL,    ZEBRA_KERNEL_DISTANCE_DEFAULT},
   [ZEBRA_ROUTE_CONNECT] = {ZEBRA_ROUTE_CONNECT,   ZEBRA_CONNECT_DISTANCE_DEFAULT},
@@ -83,7 +83,7 @@ static const struct
   [ZEBRA_ROUTE_FRP]   = {ZEBRA_ROUTE_FRP,    ZEBRA_FRP_DISTANCE_DEFAULT},
 #endif  
 
-#else //IMISH_IMI_MODULE
+#else //HAVE_ROUTE_OPTIMIZE
   [ZEBRA_ROUTE_SYSTEM]  = {ZEBRA_ROUTE_SYSTEM,    0},
   [ZEBRA_ROUTE_KERNEL]  = {ZEBRA_ROUTE_KERNEL,    0},
   [ZEBRA_ROUTE_CONNECT] = {ZEBRA_ROUTE_CONNECT,   0},
@@ -95,7 +95,7 @@ static const struct
   [ZEBRA_ROUTE_ISIS]    = {ZEBRA_ROUTE_ISIS,    115},
   [ZEBRA_ROUTE_BGP]     = {ZEBRA_ROUTE_BGP,      20  /* IBGP is 200. */},
   [ZEBRA_ROUTE_BABEL]   = {ZEBRA_ROUTE_BABEL,    95},
-#endif// IMISH_IMI_MODULE
+#endif// HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:25:59  zhurish: 使能IMI Module模块后增加修改路由默认管理距离的操作 */
   /* no entry/default: 150 */
 };
@@ -1648,7 +1648,7 @@ meta_queue_process (struct work_queue *dummy, void *data)
  */
 static const u_char meta_queue_map[ZEBRA_ROUTE_MAX] = {
 /* 2016年6月27日 21:27:05 zhurish: 使能IMI Module模块后增加扩展路由协议数据队列映射 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
   [ZEBRA_ROUTE_SYSTEM]  = 4,
   [ZEBRA_ROUTE_KERNEL]  = 0,
   [ZEBRA_ROUTE_CONNECT] = 0,
@@ -1667,7 +1667,7 @@ static const u_char meta_queue_map[ZEBRA_ROUTE_MAX] = {
   [ZEBRA_ROUTE_ICRP]    = 2,
   [ZEBRA_ROUTE_FRP]   = 2,
 #endif
-#else// IMISH_IMI_MODULE
+#else// HAVE_ROUTE_OPTIMIZE
   [ZEBRA_ROUTE_SYSTEM]  = 4,
   [ZEBRA_ROUTE_KERNEL]  = 0,
   [ZEBRA_ROUTE_CONNECT] = 0,
@@ -1680,7 +1680,7 @@ static const u_char meta_queue_map[ZEBRA_ROUTE_MAX] = {
   [ZEBRA_ROUTE_BGP]     = 3,
   [ZEBRA_ROUTE_HSLS]    = 4,
   [ZEBRA_ROUTE_BABEL]   = 2,
-#endif// IMISH_IMI_MODULE
+#endif// HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:27:05  zhurish: 使能IMI Module模块后增加扩展路由协议数据队列映射 */
 };
 
@@ -3532,7 +3532,7 @@ rib_tables_iter_next (rib_tables_iter_t *iter)
   return table;
 }
 /* 2016年6月27日 21:28:27 zhurish: 使能IMI Module模块后增加用于设置显示路由默认管理距离的功能 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 #include "vty.h"
@@ -3681,5 +3681,5 @@ int zebra_route_default_distance_show(int type, struct vty *vty)
    return CMD_SUCCESS;
 }	
 
-#endif// IMISH_IMI_MODULE
+#endif// HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:28:27  zhurish: 使能IMI Module模块后增加用于设置显示路由默认管理距离的功能 */

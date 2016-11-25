@@ -94,6 +94,10 @@ static u_char restricted_mode = 0;
 /* Integrated configuration file path */
 char integrate_default[] = SYSCONFDIR INTEGRATE_DEFAULT_CONFIG;
 
+#ifdef HAVE_ROUTE_OPTIMIZE
+int (*vty_ctrl_cmd)(int ctrl, struct vty *vty);
+#endif
+
 /* 2016年6月21日 23:32:39 zhurish: log重定向到IMI module单元  */
 #ifdef IMISH_IMI_MODULE
 static int imi_sh_log_write (const char *format, int size);
@@ -337,7 +341,10 @@ vty_new ()
   new->obuf = buffer_new(0);	/* Use default buffer size. */
   new->buf = XCALLOC (MTYPE_VTY, VTY_BUFSIZ);
   new->max = VTY_BUFSIZ;
-
+#ifdef HAVE_ROUTE_OPTIMIZE
+  new->pid = 0;//当前正在运行的进程
+  new->pthd = 0;//当前正在运行的线程
+#endif
   return new;
 }
 
@@ -1409,7 +1416,81 @@ vty_buffer_reset (struct vty *vty)
   vty_prompt (vty);
   vty_redraw_line (vty);
 }
-
+#ifdef HAVE_ROUTE_OPTIMIZE
+static int vty_ctrl_default(int ctrl, struct vty *vty)
+{
+#ifndef CONTROL
+#define CONTROL(X)  ((X) - '@')
+#endif
+	//执行ctrl + c相关的命令
+	//pid_t pid;//当前正在运行的进程
+	//pthread_t pthd;//当前正在运行的线程
+	if( (vty->pid == 0)&&(vty->pthd == 0) )
+		return 0;
+	switch (ctrl)
+	{
+	case CONTROL('A'):
+	case CONTROL('B'):
+		break;
+	case CONTROL('C'):
+		if(vty->pthd)
+		{
+			if(pthread_cancel(vty->pthd) == 0)
+			{
+				if(pthread_join(vty->pthd, 0) == 0)
+					vty->pthd = 0;
+			}
+		}
+		if(vty->pid)
+		{
+			if(kill(vty->pid,SIGKILL) == 0)
+			{
+				int status = 0;
+				if(waitpid( vty->pid, &status, WNOHANG))
+					vty->pthd = 0;
+			}
+		}
+		//vty_out (vty, "ctrl + c%s", VTY_NEWLINE);
+		break;
+	case CONTROL('D'):
+		//vty_out (vty, "ctrl + d%s", VTY_NEWLINE);
+		break;
+	case CONTROL('Z'):
+		if(vty->pthd)
+		{
+			if(pthread_cancel(vty->pthd) == 0)
+			{
+				if(pthread_join(vty->pthd, 0) == 0)
+					vty->pthd = 0;
+			}
+		}
+		if(vty->pid)
+		{
+			if(kill(vty->pid,SIGKILL) == 0)
+			{
+				int status = 0;
+				if(waitpid( vty->pid, &status, WNOHANG))
+					vty->pthd = 0;
+			}
+		}
+		//vty_out (vty, "ctrl + z%s", VTY_NEWLINE);
+		break;
+	case CONTROL('E'):
+	case CONTROL('F'):
+	case CONTROL('H'):
+	case 0x7f:
+	case CONTROL('K'):
+	case CONTROL('N'):
+	case CONTROL('P'):
+	case CONTROL('T'):
+	case CONTROL('U'):
+	case CONTROL('W'):
+		break;
+	default:
+		break;
+	}
+}
+#endif
 /* Read data via vty socket. */
 static int
 vty_read (struct thread *thread)
@@ -1533,7 +1614,10 @@ vty_read (struct thread *thread)
 	    }
 	  continue;
 	}
-
+#ifdef HAVE_ROUTE_OPTIMIZE
+    if( vty_ctrl_cmd != NULL )
+    	(vty_ctrl_cmd)(buf[i], vty);
+#endif
       switch (buf[i])
 	{
 	case CONTROL('A'):
@@ -3206,7 +3290,9 @@ vty_init (struct thread_master *master_thread)
   vtyvec = vector_init (VECTOR_MIN_SIZE);
 
   master = master_thread;
-
+#ifdef HAVE_ROUTE_OPTIMIZE
+  vty_ctrl_cmd = vty_ctrl_default;
+#endif
   /* Initilize server thread vector. */
   Vvty_serv_thread = vector_init (VECTOR_MIN_SIZE);
 

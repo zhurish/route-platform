@@ -54,7 +54,7 @@ extern struct zebra_privs_t zserv_privs;
 
 static void zebra_client_close (struct zserv *client);
 /* 2016年6月27日 21:32:30 zhurish: 使能IMI Module模块增加查找客户端信息的函数 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
 struct zserv * zebra_client_lookup (int proto)
 {
   struct listnode *node, *nnode;
@@ -70,7 +70,7 @@ struct zserv * zebra_client_lookup (int proto)
   }
   return NULL;
 }
-#endif//CONFIG_ZEBRA_ELASTIC
+#endif//HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:32:30  zhurish: 使能IMI Module模块增加查找客户端信息的函数 */
 static int
 zserv_delayed_close(struct thread *thread)
@@ -1225,9 +1225,9 @@ zread_hello (struct zserv *client)
                     zebra_route_string(proto), route_type_oaths[proto],
                     client->sock);
 /* 2016年6月27日 21:33:02 zhurish: 使能IMI Module模块设置客户端标识 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
 	client->proto =  proto;
-#endif// IMISH_IMI_MODULE
+#endif// HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:33:02  zhurish: 使能IMI Module模块设置客户端标识 */
       route_type_oaths[proto] = client->sock;
     }
@@ -1742,15 +1742,15 @@ DEFUN (show_zebra_client,
   struct listnode *node;
   struct zserv *client;
 /* 2016年6月27日 21:34:26 zhurish: 使能IMI Module模块优化显示客户端的信息 */
-#ifdef IMISH_IMI_MODULE
+#ifdef HAVE_ROUTE_OPTIMIZE
   for (ALL_LIST_ELEMENTS_RO (zebrad.client_list, node, client))
   {
 	    vty_out (vty, "connect to zebra server of client : %s (fd %d)%s", zebra_route_string(client->proto),client->sock, VTY_NEWLINE);
   }
-#else//IMISH_IMI_MODULE
+#else//HAVE_ROUTE_OPTIMIZE
   for (ALL_LIST_ELEMENTS_RO (zebrad.client_list, node, client))
     vty_out (vty, "Client fd %d%s", client->sock, VTY_NEWLINE);
-#endif //IMISH_IMI_MODULE
+#endif //HAVE_ROUTE_OPTIMIZE
 /* 2016年6月27日 21:34:26  zhurish: 使能IMI Module模块优化显示客户端的信息 */
   return CMD_SUCCESS;
 }

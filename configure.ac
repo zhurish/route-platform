@@ -1773,7 +1773,7 @@ if test "${enable_imi}" != ""; then
 	dnl fi
 
 fi
-
+AC_DEFINE(HAVE_ROUTE_OPTIMIZE,1,Optimize routing protocol Platform)
 dnl --------------------------------zhurish
 
 dnl -------------------------------

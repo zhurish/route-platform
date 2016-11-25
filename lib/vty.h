@@ -119,7 +119,16 @@ struct vty
 
   /* What address is this vty comming from. */
   char address[SU_ADDRSTRLEN];
+#ifdef HAVE_ROUTE_OPTIMIZE
+  //执行ctrl + c相关的命令
+  pid_t pid;//当前正在运行的进程
+  pthread_t pthd;//当前正在运行的线程
+#endif
 };
+
+#ifdef HAVE_ROUTE_OPTIMIZE
+extern int (*vty_ctrl_cmd)(int ctrl, struct vty *vty);
+#endif
 
 /* Integrated configuration file. */
 #define INTEGRATE_DEFAULT_CONFIG "Quagga.conf"
